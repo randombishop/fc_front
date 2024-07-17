@@ -7,7 +7,7 @@ import Panel from '../common/Panel';
 import Loading from '../common/Loading';
 
 
-class Volume extends React.Component<{}, { data: any[] }> {
+class Quality extends React.Component<{}, { data: any[] }> {
 
   constructor(props: {}) {
     super(props);
@@ -15,7 +15,7 @@ class Volume extends React.Component<{}, { data: any[] }> {
   }
 
   componentDidMount() {
-    fetch(`${getBackendUrl()}/dashboard/volume`)
+    fetch(`${getBackendUrl()}/dashboard/quality`)
       .then(response => response.json())
       .then(data => this.setState({ data }))
       .catch(error => alert('Error:' + error));
@@ -25,26 +25,15 @@ class Volume extends React.Component<{}, { data: any[] }> {
     if (this.state.data.length === 0) throw new Error('No data');
     this.state.data.sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
     const labels = this.state.data.map(item => new Date(item.day).toLocaleDateString());
-    const numCastData = this.state.data.map(item => item.num_cast);
-    const numFidData = this.state.data.map(item => item.num_fid);
+    const values = this.state.data.map(item => item.predict_like);
     return {
       labels,
       datasets: [
         {
-          label: 'Num Cast',
-          data: numCastData,
+          label: 'Likemeter Score',
+          data: values,
           borderColor: colors.primary,
           backgroundColor: hexToRGBA(colors.primary, 0.5),
-          yAxisID: 'y1', 
-          tension: 0.3,
-          pointRadius: 0
-        },
-        {
-          label: 'Num Fid',
-          data: numFidData,
-          borderColor: colors.secondary,
-          backgroundColor: hexToRGBA(colors.secondary, 0.5),
-          yAxisID: 'y2', 
           tension: 0.3,
           pointRadius: 0
         }
@@ -58,29 +47,18 @@ class Volume extends React.Component<{}, { data: any[] }> {
       plugins: {
         title: {
           display: true,
-          text: 'Daily number of casts and unique casters',
+          text: 'Daily average outputs from like-prediction model applied to casts',
           font: {
             family: fontFamily
           }
         }
       },
       scales: {
-          y1: {
+          y: {
               title: {
                 display: true,
-                text: 'Number of casts'
+                text: 'Like-meter'
               },
-              position: 'left' as const,
-              grid: {
-                drawOnChartArea: false
-              }
-          },
-          y2: {
-              title: {
-                display: true,
-                text: 'Unique Users',
-              },
-              position: 'right' as const,
               grid: {
                 drawOnChartArea: false
               }
@@ -97,11 +75,12 @@ class Volume extends React.Component<{}, { data: any[] }> {
 
   render() {
     return (
-      <Panel title="Volume">
+      <Panel title="Quality">
         {this.state.data.length > 0 ? this.renderChart() : <Loading />}
       </Panel>
     );
   }
+
 }
 
-export default Volume;
+export default Quality;
