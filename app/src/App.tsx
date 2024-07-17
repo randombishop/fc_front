@@ -1,12 +1,12 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, Container } from '@mui/material';
-import Dashboard from './components/Dashboard';
-import Trends from './components/Trends';
-import DailyDigest from './components/DailyDigest';
-import LikeMeter from './components/LikeMeter';
-import Clusters from './components/Clusters';
-import Profile from './components/Profile';
+import Dashboard from './components/dashboard/Dashboard';
+import Trends from './components/trends/Trends';
+import DailyDigest from './components/digest/DailyDigest';
+import LikeMeter from './components/likemeter/LikeMeter';
+import Clusters from './components/clusters/Clusters';
+import Profile from './components/profile/Profile';
 import AppLogo from './assets/logo_white_nobg.png';
 
 
@@ -31,7 +31,7 @@ class App extends React.Component {
       <Router>
         <AppBar position="static">
           <Toolbar>
-            <img src={AppLogo} style={imgStyle} />
+            <img src={AppLogo} style={imgStyle} alt="Data Science Art"/>
             <Typography variant="h6" style={titleStyle}>
               Farcaster<br/>Data
             </Typography>
