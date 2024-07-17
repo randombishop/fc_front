@@ -7,7 +7,7 @@ import Panel from '../common/Panel';
 import Loading from '../common/Loading';
 
 
-class Activity extends React.Component<{}, { data: any[] }> {
+class Volume extends React.Component<{}, { data: any[] }> {
 
   constructor(props: {}) {
     super(props);
@@ -97,11 +97,11 @@ class Activity extends React.Component<{}, { data: any[] }> {
 
   render() {
     return (
-      <Panel title="Activity">
+      <Panel title="Volume">
         {this.state.data.length > 0 ? this.renderChart() : <Loading />}
       </Panel>
     );
   }
 }
 
-export default Activity;
+export default Volume;
