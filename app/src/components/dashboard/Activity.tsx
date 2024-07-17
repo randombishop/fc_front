@@ -3,7 +3,7 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
 import { getBackendUrl, fontFamily, colors, hexToRGBA } from '../../utils';
-import TerminalWindow from '../common/Panel'; 
+import Panel from '../common/Panel'; 
 import Loading from '../common/Loading';
 
 
@@ -97,9 +97,9 @@ class Activity extends React.Component<{}, { data: any[] }> {
 
   render() {
     return (
-      <TerminalWindow title="Activity">
+      <Panel title="Activity">
         {this.state.data.length > 0 ? this.renderChart() : <Loading />}
-      </TerminalWindow>
+      </Panel>
     );
   }
 }
