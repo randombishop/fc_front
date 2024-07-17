@@ -1,6 +1,6 @@
 import React from 'react';
 
-import TerminalWindow from '../common/TerminalWindow'; 
+import TerminalWindow from '../common/Panel'; 
 
 
 

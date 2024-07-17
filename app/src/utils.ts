@@ -6,7 +6,7 @@ const fontFamily = '"Courier New", Courier, monospace' ;
 
 const colors = {
   primary: '#27FFDF' ,
-  secondary: '#9A5FEB',
+  secondary: '#FD5FF1',
   third: '#ABE15B',
   warning: '#FFD242',
   error: '#FF2740',

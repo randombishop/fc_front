@@ -1,35 +1,28 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import { Typography } from '@mui/material';
 import 'chart.js/auto';
 
 import { getBackendUrl, fontFamily, colors, hexToRGBA } from '../../utils';
-import TerminalWindow from '../common/TerminalWindow'; 
+import TerminalWindow from '../common/Panel'; 
+import Loading from '../common/Loading';
 
-interface ActivityState {
-  data: {
-    day: string;
-    num_cast: number;
-    num_fid: number;
-  }[] | null;
-}
 
-class Activity extends React.Component<{}, ActivityState> {
+class Activity extends React.Component<{}, { data: any[] }> {
 
   constructor(props: {}) {
     super(props);
-    this.state = { data: null };
+    this.state = { data: [] };
   }
 
   componentDidMount() {
     fetch(`${getBackendUrl()}/dashboard/activity`)
       .then(response => response.json())
       .then(data => this.setState({ data }))
-      .catch(error => console.error('Error:', error));
+      .catch(error => alert('Error:' + error));
   }
 
   prepareChartData() {
-    if (!this.state.data) throw new Error('No data');
+    if (this.state.data.length === 0) throw new Error('No data');
     this.state.data.sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
     const labels = this.state.data.map(item => new Date(item.day).toLocaleDateString());
     const numCastData = this.state.data.map(item => item.num_cast);
@@ -105,7 +98,7 @@ class Activity extends React.Component<{}, ActivityState> {
   render() {
     return (
       <TerminalWindow title="Activity">
-        {this.state.data ? this.renderChart() : <Typography>Loading...</Typography>}
+        {this.state.data.length > 0 ? this.renderChart() : <Loading />}
       </TerminalWindow>
     );
   }

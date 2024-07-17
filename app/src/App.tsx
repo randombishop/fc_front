@@ -35,11 +35,11 @@ class App extends React.Component {
             <Typography variant="h6" style={titleStyle}>
               Farcaster<br/>Data
             </Typography>
-            <Button color="inherit" href="/">Dashboard</Button>
-            <Button color="inherit" href="/trends">Trends</Button>
-            <Button color="inherit" href="/daily-digest">Daily Digest</Button>
-            <Button color="inherit" href="/like-meter">Like-meter</Button>
-            <Button color="inherit" href="/clusters">Clusters</Button>
+            <Button color="secondary" href="/">Dashboard</Button>
+            <Button color="primary" href="/trends">Trends</Button>
+            <Button color="primary" href="/daily-digest">Daily Digest</Button>
+            <Button color="primary" href="/like-meter">Like-meter</Button>
+            <Button color="primary" href="/clusters">Clusters</Button>
             <div style={{ flexGrow: 1 }}></div>
             <Profile />
           </Toolbar>

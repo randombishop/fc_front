@@ -15,11 +15,7 @@ const theme = createTheme({
     background: {
       default: 'black',
       paper: colors.paper,
-    },
-    text: {
-      primary: colors.primary,
-      secondary: colors.secondary,
-    },
+    }
   },
   typography: {
     fontFamily: fontFamily,

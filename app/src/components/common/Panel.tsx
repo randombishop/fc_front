@@ -1,12 +1,12 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
 
-interface TerminalWindowProps {
+interface PanelProps {
   title: string;
   children: React.ReactNode;
 }
 
-class TerminalWindow extends React.Component<TerminalWindowProps> {
+class Panel extends React.Component<PanelProps> {
   render() {
     const { title, children } = this.props;
 
@@ -43,4 +43,4 @@ class TerminalWindow extends React.Component<TerminalWindowProps> {
   }
 }
 
-export default TerminalWindow;
+export default Panel;
