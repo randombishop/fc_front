@@ -1,25 +1,28 @@
 import { createTheme } from '@mui/material/styles';
+import { fontFamily, colors } from './utils';
+
+
 
 const theme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#0ff',
+      main: colors.primary,
     },
     secondary: {
-      main: '#f0f',
+      main: colors.secondary,
     },
     background: {
-      default: '#000',
-      paper: '#121212',
+      default: 'black',
+      paper: colors.paper,
     },
     text: {
-      primary: '#0ff',
-      secondary: '#f0f',
+      primary: colors.primary,
+      secondary: colors.secondary,
     },
   },
   typography: {
-    fontFamily: '"Courier New", Courier, monospace',
+    fontFamily: fontFamily,
   },
 });
 

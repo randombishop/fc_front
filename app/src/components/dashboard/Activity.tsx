@@ -1,10 +1,10 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
-import 'chart.js/auto';
-import { getBackendUrl } from '../../utils';
-import TerminalWindow from '../common/TerminalWindow'; 
 import { Typography } from '@mui/material';
+import 'chart.js/auto';
 
+import { getBackendUrl, fontFamily, colors, hexToRGBA } from '../../utils';
+import TerminalWindow from '../common/TerminalWindow'; 
 
 interface ActivityState {
   data: {
@@ -39,11 +39,21 @@ class Activity extends React.Component<{}, ActivityState> {
       datasets: [
         {
           label: 'Num Cast',
-          data: numCastData
+          data: numCastData,
+          borderColor: colors.primary,
+          backgroundColor: hexToRGBA(colors.primary, 0.5),
+          yAxisID: 'y1', 
+          tension: 0.3,
+          pointRadius: 0
         },
         {
           label: 'Num Fid',
           data: numFidData,
+          borderColor: colors.secondary,
+          backgroundColor: hexToRGBA(colors.secondary, 0.5),
+          yAxisID: 'y2', 
+          tension: 0.3,
+          pointRadius: 0
         }
       ],
     };
@@ -51,8 +61,44 @@ class Activity extends React.Component<{}, ActivityState> {
 
   renderChart() {
     const chartData = this.prepareChartData();
+    const options = {
+      plugins: {
+        title: {
+          display: true,
+          text: 'Daily number of casts and unique casters',
+          font: {
+            family: fontFamily
+          }
+        }
+      },
+      scales: {
+          y1: {
+              title: {
+                display: true,
+                text: 'Number of casts'
+              },
+              position: 'left' as const,
+              grid: {
+                drawOnChartArea: false
+              }
+          },
+          y2: {
+              title: {
+                display: true,
+                text: 'Unique Users',
+              },
+              position: 'right' as const,
+              grid: {
+                drawOnChartArea: false
+              }
+          }
+      }
+    };
     return (
-      <Line data={chartData}  height={200} />
+      <Line data={chartData} 
+            options={options} 
+            height='200px'      
+      />
     ) ;
   }
 

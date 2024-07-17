@@ -13,10 +13,9 @@ class TerminalWindow extends React.Component<TerminalWindowProps> {
     return (
       <Box
         sx={{
-          backgroundColor: 'aliceblue', // Dark gray background
-          border: '2px solid #808080', // Gray border
-          fontFamily: '"Courier New", Courier, monospace', // Use monospace font
-          color: '#ffffff', // White text color
+          backgroundColor: 'aliceblue', 
+          border: '2px solid #808080', 
+          fontFamily: '"Courier New", Courier, monospace',
           maxWidth: '100%',
           maxHeight: '100%',
           overflow: 'hidden',
@@ -36,7 +35,7 @@ class TerminalWindow extends React.Component<TerminalWindowProps> {
             {title}
           </Typography>
         </Box>
-        <Box sx={{ padding: 2 }}>
+        <Box sx={{ padding: 4 }}>
             {children}
         </Box>
       </Box>
