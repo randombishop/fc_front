@@ -25,8 +25,7 @@ const colors = {
   warning: '#FFD242',
   error: '#FF2740',
   dark: '#576176',
-  light: '#CACCD3',
-  paper: '#121212'
+  light: '#FAEBD7'
 }
 
 function hexToRGBA(hex: string, alpha: number) {

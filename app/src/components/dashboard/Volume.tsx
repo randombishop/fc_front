@@ -31,7 +31,7 @@ class Volume extends React.Component<{}, { data: any[] }> {
       labels,
       datasets: [
         {
-          label: 'Num Cast',
+          label: 'Num Casts',
           data: numCastData,
           borderColor: colors.primary,
           backgroundColor: hexToRGBA(colors.primary, 0.5),
@@ -40,7 +40,7 @@ class Volume extends React.Component<{}, { data: any[] }> {
           pointRadius: 0
         },
         {
-          label: 'Num Fid',
+          label: 'Num Users',
           data: numFidData,
           borderColor: colors.secondary,
           backgroundColor: hexToRGBA(colors.secondary, 0.5),
@@ -73,7 +73,8 @@ class Volume extends React.Component<{}, { data: any[] }> {
               position: 'left' as const,
               grid: {
                 drawOnChartArea: false
-              }
+              },
+              min: 0
           },
           y2: {
               title: {
@@ -83,7 +84,8 @@ class Volume extends React.Component<{}, { data: any[] }> {
               position: 'right' as const,
               grid: {
                 drawOnChartArea: false
-              }
+              },
+              min: 0
           }
       }
     };
