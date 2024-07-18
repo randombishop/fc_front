@@ -16,6 +16,87 @@ const castCategories:any = {
   'c_tech_science': 'Tech & Science'
 }
 
+const castTopics:any = {
+  'c_arts': {
+    't_music': 'Music',
+    't_movies': 'Movies',
+    't_books': 'Books',
+    't_photography': 'Photography'
+  },
+  'c_culture': {
+    't_travel': 'Travel',
+    't_food': 'Food',
+    't_history': 'History',
+    't_gaming': 'Gaming',
+    't_comedy': 'Comedy',
+    't_fashion': 'Fashion',
+    't_lifestyle': 'Lifestyle'
+  },
+  'c_tech_science': {
+      't_technology': 'Technology',
+      't_science': 'Science',
+      't_maths': 'Maths',
+      't_physics': 'Physics',
+      't_security': 'Security',
+      't_coding': 'Coding',
+      't_artificial_intelligence': 'Artificial Intelligence',
+      't_data': 'Data'
+   },
+  'c_sports': {
+      't_football': 'Football', 
+      't_basketball': 'Basketball', 
+      't_tennis': 'Tennis',
+      't_chess': 'Chess'
+  },
+  'c_business': {
+      't_jobs': 'Jobs',
+      't_growth': 'Growth',
+      't_founders': 'Founders',
+      't_advertising': 'Advertising',
+      't_marketing': 'Marketing',
+      't_real_estate': 'Real Estate'
+  },
+  'c_crypto': {
+      't_ethereum': 'Ethereum',
+      't_bitcoin': 'Bitcoin',
+      't_solana': 'Solana',
+      't_nft': 'NFT',
+      't_defi': 'DeFi',
+      't_farcaster': 'Farcaster',
+      't_degen': 'Degen',
+      't_blockchain': 'Blockchain',
+      't_prices': 'Prices'
+  },
+  'c_money': {
+      't_economy': 'Economy',
+      't_markets': 'Markets',
+      't_finance': 'Finance',
+      't_trading': 'Trading'
+  },
+  'c_politics': {
+      't_news': 'News',
+      't_analysis': 'Analysis',
+      't_people': 'People',
+      't_elections': 'Elections'
+  },
+  'c_nature': {
+      't_outdoors': 'Outdoors', 
+      't_animals': 'Animals', 
+      't_dogs': 'Dogs', 
+      't_cats': 'Cats'
+  },
+  'c_misc': {
+      't_health': 'Health',
+      't_greetings': 'Greetings',
+      't_weather': 'Weather',
+      't_holidays': 'Holidays',
+      't_fitness': 'Fitness',
+      't_shopping': 'Shopping',
+      't_family': 'Family',
+      't_roasting': 'Roasting'
+  }
+} ;
+
 const fontFamily = '"Courier New", Courier, monospace' ;
 
 const colors = {
@@ -57,12 +138,32 @@ const pieChartPalette = [
   '#FFF9D5'
 ] ;
 
+function today(): string {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function nDaysAgo(n: number): string {
+  const date = new Date();
+  date.setDate(date.getDate() - n);
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 
 export { 
   castCategories,
+  castTopics,
   getBackendUrl, 
   fontFamily, 
   colors, 
   hexToRGBA,
-  pieChartPalette 
+  pieChartPalette,
+  today,
+  nDaysAgo 
 } ;

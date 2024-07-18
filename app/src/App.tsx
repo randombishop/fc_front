@@ -19,7 +19,7 @@ class App extends React.Component {
           <Routes>
             <Route path="/" Component={Dashboard} />
             <Route path="/dashboard" Component={Dashboard} />
-            <Route path="/trends/:term1/:term2" Component={Trends} />
+            <Route path="/trends/:dateFrom/:dateTo/:terms" Component={Trends} />
             <Route path="/daily-digest/:day" Component={DailyDigest} />
             <Route path="/like-meter/:token" Component={LikeMeter} />
             <Route path="/clusters" Component={Clusters} />

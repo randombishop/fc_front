@@ -29,7 +29,6 @@ class Content extends React.Component<{}, { data: any[] }> {
     const values = array.map(([key, value]) => value) ;
     const colors = pieChartPalette.slice(0, values.length) ;
     const colors2 = colors.map(c => hexToRGBA(c, 0.5)) ;
-    console.log(array);
     return {
       labels: labels,
       datasets: [
