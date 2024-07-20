@@ -12,10 +12,12 @@ class TrendVolume extends React.Component<{ items: string[], data: any }> {
     return (
       <Panel title="Volume">
         <Grid container spacing={1}>
-          <Grid item md={6} >
+          <Grid item md={4} >
             <TrendVolumeBars items={this.props.items} data={this.props.data} />
           </Grid>
-          
+          <Grid item md={8} >
+
+          </Grid>          
         </Grid>
       </Panel>
     );

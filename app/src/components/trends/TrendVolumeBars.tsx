@@ -57,6 +57,7 @@ class TrendVolumeBars extends React.Component<{ items: string[], data: any }> {
     return (
       <Bar data={chartData} 
            options={options} 
+           height={300}
       />
     ) ;
   }
