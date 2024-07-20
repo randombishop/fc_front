@@ -14,18 +14,36 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
     this.props.removeItem(item);
   }
   
-  getStatus = (item: string) => {
-    return this.props.itemData[item] ? this.props.itemData[item].status : 'undefined' ;
+  getChipLabel = (item: string) => {
+    if (!this.props.itemData[item]) {
+      return item + ': ?'  ;
+    }
+    try {
+      const num = Number(this.props.itemData[item].data.global.num_casts) ;
+      return item + ': ' + num ;
+    } catch (error) {
+      return item + ': ' + this.props.itemData[item].status ;
+    }
   }
 
   getChipColor = (item: string) => {
-    const status = this.getStatus(item) ;
-    switch (status) {
-      case 'undefined': return 'default' ;
-      case 'loading': return 'info' ;
-      case 'ok': return 'success' ;
-      case 'error': return 'error' ;
-      default: return 'default' ;
+    if (!this.props.itemData[item]) {
+      return 'default'  ;
+    } else {
+      try {
+        const num = Number(this.props.itemData[item].data.global.num_casts) ;
+        if (num > 0) {
+          return 'success' ;
+        } else {
+          return 'error' ;
+        }
+      } catch (error) {
+        if (this.props.itemData[item].status === 'error') {
+          return 'error' ;
+        } else {
+          return 'warning' ;
+        }
+      } 
     }
   }
 
@@ -40,7 +58,7 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
               <Chip style={{marginRight: '10px'}} 
                     variant="outlined"
                     key={item} 
-                    label={item} 
+                    label={this.getChipLabel(item)} 
                     color={this.getChipColor(item)}
                     onDelete={this.deleteChip(item)} />
             ))}
@@ -64,7 +82,6 @@ const Trends = (props : any) => {
   const navigate = useNavigate();
   
   const addItem = (item: string) => {
-    pullData(item);
     if (items.includes(item)) {
       console.log('Item already exists: '+item);
     } else {
