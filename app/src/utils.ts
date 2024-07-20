@@ -138,6 +138,19 @@ const pieChartPalette = [
   '#FFF9D5'
 ] ;
 
+function getPieChartPaletteForItem(i:number): string {
+  return pieChartPalette[i % pieChartPalette.length] ;
+}
+
+function getPieChartPaletteForArray(n:number): string[] {
+  const ans = [] ;
+  const colorsLength = pieChartPalette.length;
+  for (let i = 0; i < n; i++) {
+    ans.push(pieChartPalette[i % colorsLength]) ;
+  }
+  return ans ;
+}
+
 function today(): string {
   const date = new Date();
   const year = date.getFullYear();
@@ -164,6 +177,8 @@ export {
   colors, 
   hexToRGBA,
   pieChartPalette,
+  getPieChartPaletteForItem,
+  getPieChartPaletteForArray,
   today,
   nDaysAgo 
 } ;

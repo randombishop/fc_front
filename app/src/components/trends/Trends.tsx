@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Chip } from '@mui/material';
 import AddItem from './AddItem';
 import { useParams, useNavigate } from 'react-router-dom';
-import { today, nDaysAgo, getBackendUrl } from '../../utils';
+import { today, nDaysAgo, getBackendUrl, getPieChartPaletteForItem } from '../../utils';
+import TrendVolume from './TrendVolume';
 
 
 class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: string[],
@@ -26,25 +27,8 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
     }
   }
 
-  getChipColor = (item: string) => {
-    if (!this.props.itemData[item]) {
-      return 'default'  ;
-    } else {
-      try {
-        const num = Number(this.props.itemData[item].data.global.num_casts) ;
-        if (num > 0) {
-          return 'success' ;
-        } else {
-          return 'error' ;
-        }
-      } catch (error) {
-        if (this.props.itemData[item].status === 'error') {
-          return 'error' ;
-        } else {
-          return 'warning' ;
-        }
-      } 
-    }
+  getChipColor = (idx: number) => {
+    return getPieChartPaletteForItem(idx) ;
   }
 
   render() {
@@ -54,14 +38,18 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
             <AddItem add={this.props.addItem} />
           </Grid>
           <Grid item md={12} >
-            {this.props.items.map((item) => (
+            {this.props.items.map((item, idx) => (
               <Chip style={{marginRight: '10px', marginBottom: '10px'}} 
                     variant="outlined"
                     key={item} 
                     label={this.getChipLabel(item)} 
-                    color={this.getChipColor(item)}
-                    onDelete={this.deleteChip(item)} />
+                    onDelete={this.deleteChip(item)} 
+                    sx={{color: this.getChipColor(idx), borderColor: this.getChipColor(idx)}}
+                    />
             ))}
+          </Grid>
+          <Grid item md={12} >
+            <TrendVolume items={this.props.items} data={this.props.itemData} />
           </Grid>
       </Grid>
     );
