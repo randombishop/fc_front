@@ -55,7 +55,7 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
           </Grid>
           <Grid item md={12} >
             {this.props.items.map((item) => (
-              <Chip style={{marginRight: '10px'}} 
+              <Chip style={{marginRight: '10px', marginBottom: '10px'}} 
                     variant="outlined"
                     key={item} 
                     label={this.getChipLabel(item)} 
