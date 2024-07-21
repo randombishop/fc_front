@@ -65,6 +65,11 @@ class Volume extends React.Component<{}, { data: any[] }> {
         }
       },
       scales: {
+          x: {
+            grid: {
+              drawOnChartArea: false
+            }
+          },
           y1: {
               title: {
                 display: true,

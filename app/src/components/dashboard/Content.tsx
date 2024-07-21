@@ -2,7 +2,7 @@ import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-import { getBackendUrl, fontFamily, castCategories, pieChartPalette, hexToRGBA } from '../../utils';
+import { getBackendUrl, fontFamily, castCategories, getColorForArray, hexToRGBA } from '../../utils';
 import Panel from '../common/Panel'; 
 import Loading from '../common/Loading';
 
@@ -27,16 +27,14 @@ class Content extends React.Component<{}, { data: any[] }> {
     array.sort((a, b) => (Number(b[1]) - Number(a[1]))) ;
     const labels = array.map(([key, value]) => castCategories[key]) ;
     const values = array.map(([key, value]) => value) ;
-    const colors = pieChartPalette.slice(0, values.length) ;
-    const colors2 = colors.map(c => hexToRGBA(c, 0.5)) ;
     return {
       labels: labels,
       datasets: [
         {
           label: 'Cast Categories',
           data: values,
-          backgroundColor: colors,
-          borderColor: colors2,        
+          backgroundColor: getColorForArray('dark', values.length),
+          borderColor: getColorForArray('light', values.length).map(c=>hexToRGBA(c, 0.5)) ,        
         }
       ]
     };

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Chip } from '@mui/material';
 import AddItem from './AddItem';
 import { useParams, useNavigate } from 'react-router-dom';
-import { today, nDaysAgo, getBackendUrl, getPieChartPaletteForItem } from '../../utils';
+import { today, nDaysAgo, getBackendUrl, getColorForItem } from '../../utils';
 import TrendVolume from './TrendVolume';
 
 
@@ -28,7 +28,7 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
   }
 
   getChipColor = (idx: number) => {
-    return getPieChartPaletteForItem(idx) ;
+    return getColorForItem('light', idx) ;
   }
 
   render() {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-import { fontFamily, getPieChartPaletteForArray, hexToRGBA } from '../../utils';
+import { fontFamily, getColorForArray } from '../../utils';
 
 
 
@@ -20,16 +20,14 @@ class TrendVolumeBars extends React.Component<{ items: string[], data: any }> {
         }
       } catch (e) {}
     }
-    const colors = getPieChartPaletteForArray(values.length) ;
-    const colors2 = colors.map(c => hexToRGBA(c, 0.5)) ;
     return {
       labels: labels,
       datasets: [
         {
           label: 'Number of casts',
           data: values,
-          backgroundColor: colors,
-          borderColor: colors2,        
+          backgroundColor: getColorForArray('dark', values.length),
+          borderColor: getColorForArray('dark', values.length)        
         }
       ]
     };
@@ -51,6 +49,18 @@ class TrendVolumeBars extends React.Component<{ items: string[], data: any }> {
         },
         legend: {
           display: false,
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            drawOnChartArea: false
+          }
+        },
+        y: {
+            grid: {
+              drawOnChartArea: false
+            }
         }
       }
     };

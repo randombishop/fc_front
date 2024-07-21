@@ -72,15 +72,20 @@ class Sentiment extends React.Component<{}, { data: any[] }> {
         }
       },
       scales: {
-          y: {
-              title: {
-                display: true,
-                text: 'Model outputs'
-              },
-              grid: {
-                drawOnChartArea: false
-              }
+        x: {
+          grid: {
+            drawOnChartArea: false
           }
+        },
+        y: {
+            title: {
+              display: true,
+              text: 'Model outputs'
+            },
+            grid: {
+              drawOnChartArea: false
+            }
+        }
       }
     };
     return (

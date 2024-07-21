@@ -117,36 +117,43 @@ function hexToRGBA(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-const pieChartPalette = [
-  '#573D26',
-  '#BE2D26',
-  '#6BA18A',
-  '#E99D2A',
-  '#5A86AD',
-  '#AC80A6',
-  '#74A6AD',
-  '#E0DBB7',
-  '#576176',
-  '#CACCD3',
-  '#9B6C4A',
-  '#E84627',
-  '#95D8BA',
-  '#D0D150',
-  '#B8D3ED',
-  '#D19ECB',
-  '#93CFD7',
-  '#FFF9D5'
-] ;
+const darkColors: string[] = [
+  "#6929c4",
+  "#1192e8",
+  "#9f1853",
+  "#198038",
+  "#002d9c",
+  "#ee538b",
+  "#b28600",
+  "#009d9a",
+  "#8a3800",
+  "#a56eff"
+];
 
-function getPieChartPaletteForItem(i:number): string {
-  return pieChartPalette[i % pieChartPalette.length] ;
+
+const lightColors: string[] = [
+  "#8a3ffc",
+  "#33b1ff",
+  "#ff7eb6",
+  "#6fdc8c",
+  "#4589ff",
+  "#d12771",
+  "#d2a106",
+  "#08bdba",
+  "#ba4e00",
+  "#d4bbff"
+];
+
+function getColorForItem(palette:string, i:number): string {
+  return palette==='dark'?darkColors[i % darkColors.length]:lightColors[i % lightColors.length] ;
 }
 
-function getPieChartPaletteForArray(n:number): string[] {
+function getColorForArray(palette:string, n:number): string[] {
+  const colors = palette==='dark'?darkColors:lightColors ;
   const ans = [] ;
-  const colorsLength = pieChartPalette.length;
+  const colorsLength = colors.length;
   for (let i = 0; i < n; i++) {
-    ans.push(pieChartPalette[i % colorsLength]) ;
+    ans.push(colors[i % colorsLength]) ;
   }
   return ans ;
 }
@@ -176,9 +183,10 @@ export {
   fontFamily, 
   colors, 
   hexToRGBA,
-  pieChartPalette,
-  getPieChartPaletteForItem,
-  getPieChartPaletteForArray,
+  darkColors,
+  lightColors,
+  getColorForItem,
+  getColorForArray,
   today,
   nDaysAgo 
 } ;

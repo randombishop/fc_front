@@ -54,15 +54,20 @@ class Quality extends React.Component<{}, { data: any[] }> {
         }
       },
       scales: {
-          y: {
-              title: {
-                display: true,
-                text: 'Like-meter'
-              },
-              grid: {
-                drawOnChartArea: false
-              }
+        x: {
+          grid: {
+            drawOnChartArea: false
           }
+        },
+        y: {
+            title: {
+              display: true,
+              text: 'Like-meter'
+            },
+            grid: {
+              drawOnChartArea: false
+            }
+        }
       }
     };
     return (
