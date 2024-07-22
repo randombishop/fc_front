@@ -1,33 +1,59 @@
 import React from 'react';
-import { Paper, Grid, Typography, Button } from '@mui/material';
+import { Grid, Accordion, AccordionSummary, AccordionDetails, AccordionActions, Button } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 class DailyDigest extends React.Component {
-  state = {
-    selectedDate: new Date(),
-  };
-
-  handleDateChange = (date: any) => {
-    this.setState({ selectedDate: date });
-  };
+  
 
   render() {
     return (
-      
-        <Grid container spacing={3}>
-          <Grid item xs={12}>   
-          </Grid>
-          {[1, 2, 3].map((topic) => (
-            <Grid item xs={12} key={topic}>
-              <Paper style={{ padding: '10px' }}>
-                <Typography variant="h6">Topic {topic}</Typography>
-                <Typography variant="body1">Summary of topic {topic}</Typography>
-                <Button href="#">Social Media Post 1</Button>
-                <Button href="#">Social Media Post 2</Button>
-              </Paper>
-            </Grid>
-          ))}
+      <Grid container spacing={3}>
+
+        <Grid item md={12}>
+
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+            >
+              Accordion 1
+            </AccordionSummary>
+            <AccordionDetails>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+              malesuada lacus ex, sit amet blandit leo lobortis eget.
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+            >
+              Accordion 2
+            </AccordionSummary>
+            <AccordionDetails>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+              malesuada lacus ex, sit amet blandit leo lobortis eget.
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+            >
+              Accordion Actions
+            </AccordionSummary>
+            <AccordionDetails>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+              malesuada lacus ex, sit amet blandit leo lobortis eget.
+            </AccordionDetails>
+            <AccordionActions>
+              <Button>Cancel</Button>
+              <Button>Agree</Button>
+            </AccordionActions>
+          </Accordion>
+
         </Grid>
+
+      </Grid>
+      
     );
   }
 }
