@@ -32,7 +32,7 @@ class Header1 extends React.Component<{ location: any }> {
       };
       const dashboardUrl = '#/dashboard';
       const trendsUrl = '#/trends/'+nDaysAgo(15)+'/'+today()+'/-';
-      const digestUrl = '#/daily-digest/'+today();
+      const digestUrl = '#/daily-digest/latest';
       const likeMeterUrl = '#/like-meter/new';
       const clustersUrl = '#/clusters' ;
       return (
