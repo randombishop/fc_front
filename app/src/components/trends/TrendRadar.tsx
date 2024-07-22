@@ -32,10 +32,7 @@ class TrendRadar extends React.Component<{ items: string[], data: any }> {
     }
     const lightColorsArray = getColorForArray('light', this.props.items.length) ;
     const darkColorsArray = getColorForArray('dark', this.props.items.length) ;
-    const validItems = [] ;
-    const itemValues = [] ;
-    const borderColors = [] ;
-    const backgroundColors = [] ;
+    const datasets = [] ;
     for (let i=0; i<this.props.items.length; i++) {
       try {
         const item = this.props.items[i] ;
@@ -53,29 +50,22 @@ class TrendRadar extends React.Component<{ items: string[], data: any }> {
               values.push(Number(value)) ;
             }
           }
-          validItems.push(item) ;
-          itemValues.push(values) ;
-          borderColors.push(lightColorsArray[i]) ;
-          backgroundColors.push(hexToRGBA(darkColorsArray[i], 0.2)) ;
+          datasets.push({
+            label: item,
+            data: values,
+            rawData: values.slice(),
+            borderColor: lightColorsArray[i],
+            backgroundColor: hexToRGBA(darkColorsArray[i], 0.25)
+          })
         }
       } catch (e) {}
     }
     for (let i=0; i<labels.length; i++) {
-      const labelValues = itemValues.map((v) => v[i]) ;
+      const labelValues = datasets.map((d) => d.data[i]) ;
       const maxValue = Math.max(...labelValues) ;
-      //console.log('radar data normalization', labels[i], maxValue) ;
-      for (let j=0; j<itemValues.length; j++) {
-        itemValues[j][i] = itemValues[j][i] / maxValue ;
+      for (const d of datasets) {
+        d.data[i] = d.data[i] / maxValue ;
       }
-    }
-    const datasets = [] ;
-    for (let i=0; i<validItems.length; i++) {
-      datasets.push({
-        label: validItems[i],
-        data: itemValues[i],
-        borderColor: borderColors[i],
-        backgroundColor: backgroundColors[i]
-      })
     }
     const data = {
       labels,
@@ -84,6 +74,13 @@ class TrendRadar extends React.Component<{ items: string[], data: any }> {
     return data;
   }
   
+  tooltip(tooltipItem: any) {
+    const datasetIndex = tooltipItem.datasetIndex;
+    const dataIndex = tooltipItem.dataIndex;
+    const value = tooltipItem.chart.data.datasets[datasetIndex].rawData[dataIndex] ;
+    return value.toFixed(2) ;
+  }
+
   render() {
     const chartData = this.prepareChartData();
     if (chartData.labels.length === 0) {
@@ -97,6 +94,11 @@ class TrendRadar extends React.Component<{ items: string[], data: any }> {
           font: {
             family: fontFamily
           }
+        },
+        tooltip: {
+          callbacks: {
+            label: this.tooltip
+          },
         }
       },
       elements: {
