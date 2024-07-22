@@ -18,7 +18,7 @@ class TrendVolumeLines extends React.Component<{ items: string[], data: any }> {
       try {
         const item = this.props.items[i] ;
         colorsMap[item] = colorsArray[i] ;
-        const num_casts = this.props.data[item].data.global.num_casts ;
+        const num_casts = Number(this.props.data[item].data.global.num_casts) ;
         const num_records = this.props.data[item].data.daily.length ;
         if (num_casts > 0 && num_records > 0) {
           validItems.push(item) ;

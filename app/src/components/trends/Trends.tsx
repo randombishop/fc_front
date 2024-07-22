@@ -4,6 +4,7 @@ import AddItem from './AddItem';
 import { useParams, useNavigate } from 'react-router-dom';
 import { today, nDaysAgo, getBackendUrl, getColorForItem } from '../../utils';
 import TrendVolume from './TrendVolume';
+import TrendFeatures from './TrendFeatures';
 
 
 class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: string[],
@@ -50,6 +51,9 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
           </Grid>
           <Grid item md={12} >
             <TrendVolume items={this.props.items} data={this.props.itemData} />
+          </Grid>
+          <Grid item md={12} >
+            <TrendFeatures items={this.props.items} data={this.props.itemData} />
           </Grid>
       </Grid>
     );

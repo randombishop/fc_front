@@ -13,7 +13,7 @@ class TrendVolumeBars extends React.Component<{ items: string[], data: any }> {
     const values = [] ;
     for (const item of this.props.items) {
       try {
-        const num = this.props.data[item].data.global.num_casts ;
+        const num = Number(this.props.data[item].data.global.num_casts) ;
         if (num > 0) {
           labels.push(item) ;
           values.push(num) ;

@@ -118,30 +118,30 @@ function hexToRGBA(hex: string, alpha: number) {
 }
 
 const darkColors: string[] = [
-  "#6929c4",
   "#1192e8",
   "#9f1853",
   "#198038",
+  "#b28600",
+  "#a56eff",
   "#002d9c",
   "#ee538b",
-  "#b28600",
   "#009d9a",
   "#8a3800",
-  "#a56eff"
+  "#6929c4",
 ];
 
 
 const lightColors: string[] = [
-  "#8a3ffc",
   "#33b1ff",
   "#ff7eb6",
   "#6fdc8c",
+  "#d2a106",
+  "#d4bbff",
   "#4589ff",
   "#d12771",
-  "#d2a106",
   "#08bdba",
   "#ba4e00",
-  "#d4bbff"
+  "#8a3ffc",
 ];
 
 function getColorForItem(palette:string, i:number): string {
