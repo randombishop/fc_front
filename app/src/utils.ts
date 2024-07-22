@@ -175,6 +175,9 @@ function nDaysAgo(n: number): string {
   return `${year}-${month}-${day}`;
 }
 
+function deepCopy(obj: any): any {
+  return JSON.parse(JSON.stringify(obj));
+}
 
 export { 
   castCategories,
@@ -188,5 +191,6 @@ export {
   getColorForItem,
   getColorForArray,
   today,
-  nDaysAgo 
+  nDaysAgo,
+  deepCopy 
 } ;

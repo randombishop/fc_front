@@ -4,7 +4,7 @@ import { Radar } from 'react-chartjs-2';
 import { fontFamily, getColorForArray, hexToRGBA } from '../../utils';
 
 
-class TrendRadar extends React.Component<{ items: string[], data: any }> {
+class TrendFeaturesRadar extends React.Component<{ items: string[], data: any }> {
 
   prepareChartData() {
     const labels = [
@@ -126,4 +126,4 @@ class TrendRadar extends React.Component<{ items: string[], data: any }> {
 
 }
 
-export default TrendRadar;
+export default TrendFeaturesRadar;
