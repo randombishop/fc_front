@@ -12,12 +12,57 @@ class DailyDigest extends React.Component {
   }
   
   componentDidMount() {
+    let self = this ;
     fetch(`${getBackendUrl()}/digests/latest`)
       .then(response => response.json())
-      .then(data => this.setState({ data }))
+      .then(data => self.handleDigests(data))
       .catch(error => alert('Error:' + error));
   }
   
+  handleDigests(data: any) {
+    let self = this ;
+    let fids:any = {} ;
+    for (const digest of data) {
+      const links = digest.links ;
+      for (const link of links) {
+        const fid = link.fid ;
+        fids[fid] = true ;
+      }
+    }
+    fids = Object.keys(fids).join(',') ;
+    console.log('Unique fids:', fids) ;
+    fetch(`${getBackendUrl()}/usernames/${fids}`)
+      .then(response => response.json())
+      .then(usernames => self.handleUsernames(data, usernames))
+      .catch(error => alert('Error:' + error));
+  }
+
+  handleUsernames(data: any, usernames: any) {
+    const userMap:any = {} ;
+    for (const row of usernames) {
+      userMap[row.fid] = row.user_name ;
+    }
+    console.log('userMap:', userMap) ;
+    for (const digest of data) {
+      const links = digest.links ;
+      const newLinks = [] ;
+      for (const link of links) {
+        const fid = link.fid ;
+        const user = userMap[fid] ;
+        if (user) {
+          newLinks.push({
+            user: user,
+            hash: '0x'+link.hash
+          }) ;
+        } else {
+          console.warn('Could not find user for fid:', fid) ;
+        }
+      }
+      digest.links = newLinks ;
+    }
+    this.setState({ data }) ;
+  }
+
   render() {
     const num = this.state.data.length ;
     const half = Math.ceil(num / 2) ;
@@ -36,7 +81,6 @@ class DailyDigest extends React.Component {
           ))}
         </Grid>
       </Grid>
-      
     );
   }
 }

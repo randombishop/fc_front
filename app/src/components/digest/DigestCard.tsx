@@ -1,17 +1,32 @@
 import React from 'react';
-import { Card, CardMedia, CardContent, CardActions, Button, Typography, MobileStepper } from '@mui/material';
-import { KeyboardArrowLeft, KeyboardArrowRight } from '@mui/icons-material';
+import { Card, CardMedia, CardContent, Typography, CardActions, Collapse, IconButton } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { banners } from '../../utils';
+import DigestCardLinks from './DigestCardLinks';
 
 
-class DigestCard extends React.Component<{data: any}> {
+class DigestCard extends React.Component<{data: any}, {expanded: boolean}> {
   
+  state = {
+    expanded: false
+  }
+
+  renderExpandButton() {
+    return (
+      <IconButton onClick={() => this.setState({expanded: !this.state.expanded})}>
+        {this.state.expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+      </IconButton>
+    )
+  }
+
   render() {
     const data = this.props.data ;
     const key: string = data.key ;
     const banner = banners[key] ;
     const title: string = data.title ;
     const summary: string[] = data.summary.split('. ') ;
+    const links = data.links ;
     return (
       <Card style={{marginBottom: '30px'}}>
           <CardMedia
@@ -33,26 +48,11 @@ class DigestCard extends React.Component<{data: any}> {
             </Typography>
           </CardContent>
           <CardActions>
-            <MobileStepper
-              variant="dots"
-              style={{ width: '100%' }}
-              steps={6}
-              position="static"
-              activeStep={3}
-              nextButton={
-                <Button size="small"  disabled={true}>
-                  Next
-                  <KeyboardArrowRight />
-                </Button>
-              }
-              backButton={
-                <Button size="small"  disabled={false}>
-                  <KeyboardArrowLeft />
-                  Back
-                </Button>
-              }
-            />
+            {this.renderExpandButton()}
           </CardActions>
+          <Collapse in={this.state.expanded} timeout="auto" unmountOnExit>
+            <DigestCardLinks links={links} />
+          </Collapse>
         </Card>
       
     );
