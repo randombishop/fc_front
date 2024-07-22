@@ -2,6 +2,7 @@ import BannerArt from './assets/banners/art.png';
 import BannerBusiness from './assets/banners/business.png';
 import BannerCrypto from './assets/banners/crypto.png';
 import BannerCulture from './assets/banners/culture.png';
+import BannerGM from './assets/banners/gm.png';
 import BannerMoney from './assets/banners/money.png';
 import BannerNature from './assets/banners/nature.png';
 import BannerPolitics from './assets/banners/politics.png';
@@ -195,6 +196,7 @@ const banners:any = {
   'c_business': BannerBusiness,
   'c_crypto': BannerCrypto,
   'c_culture': BannerCulture,
+  'c_misc': BannerGM,
   'c_money': BannerMoney,
   'c_nature': BannerNature,
   'c_politics': BannerPolitics,
