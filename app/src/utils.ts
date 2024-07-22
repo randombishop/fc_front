@@ -1,3 +1,14 @@
+import BannerArt from './assets/banners/art.png';
+import BannerBusiness from './assets/banners/business.png';
+import BannerCrypto from './assets/banners/crypto.png';
+import BannerCulture from './assets/banners/culture.png';
+import BannerMoney from './assets/banners/money.png';
+import BannerNature from './assets/banners/nature.png';
+import BannerPolitics from './assets/banners/politics.png';
+import BannerSports from './assets/banners/sports.png';
+import BannerTechScience from './assets/banners/tech_science.png';
+
+
 function getBackendUrl() {
   return 'http://localhost:8080' ;
 }
@@ -179,6 +190,18 @@ function deepCopy(obj: any): any {
   return JSON.parse(JSON.stringify(obj));
 }
 
+const banners:any = {
+  'c_arts': BannerArt,
+  'c_business': BannerBusiness,
+  'c_crypto': BannerCrypto,
+  'c_culture': BannerCulture,
+  'c_money': BannerMoney,
+  'c_nature': BannerNature,
+  'c_politics': BannerPolitics,
+  'c_sports': BannerSports,
+  'c_tech_science': BannerTechScience
+}
+
 export { 
   castCategories,
   castTopics,
@@ -192,5 +215,6 @@ export {
   getColorForArray,
   today,
   nDaysAgo,
-  deepCopy 
+  deepCopy,
+  banners 
 } ;

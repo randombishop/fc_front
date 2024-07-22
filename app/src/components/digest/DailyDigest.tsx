@@ -1,57 +1,40 @@
 import React from 'react';
-import { Grid, Accordion, AccordionSummary, AccordionDetails, AccordionActions, Button } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Grid } from '@mui/material';
+import {getBackendUrl} from '../../utils' ;
+import DigestCard from './DigestCard' ;
+
 
 
 class DailyDigest extends React.Component {
   
-
+  state = {
+    data: []
+  }
+  
+  componentDidMount() {
+    fetch(`${getBackendUrl()}/digests/latest`)
+      .then(response => response.json())
+      .then(data => this.setState({ data }))
+      .catch(error => alert('Error:' + error));
+  }
+  
   render() {
+    const num = this.state.data.length ;
+    const half = Math.ceil(num / 2) ;
+    const col1 = this.state.data.slice(0, half) ;
+    const col2 = this.state.data.slice(half, num) ;
     return (
-      <Grid container spacing={3}>
-
-        <Grid item md={12}>
-
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-            >
-              Accordion 1
-            </AccordionSummary>
-            <AccordionDetails>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-              malesuada lacus ex, sit amet blandit leo lobortis eget.
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-            >
-              Accordion 2
-            </AccordionSummary>
-            <AccordionDetails>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-              malesuada lacus ex, sit amet blandit leo lobortis eget.
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary
-              expandIcon={<ExpandMoreIcon />}
-            >
-              Accordion Actions
-            </AccordionSummary>
-            <AccordionDetails>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-              malesuada lacus ex, sit amet blandit leo lobortis eget.
-            </AccordionDetails>
-            <AccordionActions>
-              <Button>Cancel</Button>
-              <Button>Agree</Button>
-            </AccordionActions>
-          </Accordion>
-
+      <Grid container spacing={5}>
+        <Grid item md={6}>
+          {col1.map((item, index) => (
+              <DigestCard key={index} data={item} />
+          ))}
         </Grid>
-
+        <Grid item md={6}>
+          {col2.map((item, index) => (
+              <DigestCard key={index} data={item} />
+          ))}
+        </Grid>
       </Grid>
       
     );
