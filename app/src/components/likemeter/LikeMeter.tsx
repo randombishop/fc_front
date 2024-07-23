@@ -1,52 +1,41 @@
 import React from 'react';
-import { Grid, TextField, Button } from '@mui/material';
-import { getBackendUrl } from '../../utils';
+import { useParams, useNavigate } from 'react-router-dom';
+import LikeMeterInput from './LikeMeterInput';
+import LikeMeterTask from './LikeMeterTask';
 
 
-class LikeMeter extends React.Component {
-  
-  state = {
-    text: ''
-  };
 
-  handleTextChange = (event: any) => {
-    this.setState({ text: event.target.value });
-  };
-
-  score = () => {
-    const text = this.state.text;
-    const post = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({text}),
-    }
-    fetch(`${getBackendUrl()}/predict_like/score`, post)
-      .then(response => response.json())
-      .then(data => this.waitForResult(data))
-      .catch(error => alert('Error:' + error));
-  };
-
-  waitForResult = (data: any) => {
-    console.log(data) ;
-  }
+class LikeMeter1 extends React.Component<{ token: string, 
+                                           newToken: (token: string) => void }> {
 
   render() {
-    return (
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <TextField
-            label="Enter text"
-            value={this.state.text}
-            onChange={this.handleTextChange}
-            fullWidth
-          />
-          <Button onClick={this.score} fullWidth style={{ marginTop: '10px' }}>
-            Score
-          </Button>
-        </Grid>
-      </Grid>
-    );
+    if (this.props.token==='-') {
+      return (
+        <LikeMeterInput newToken={this.props.newToken} />
+      ) ;
+    } else {
+      return (
+        <LikeMeterTask token={this.props.token} />
+      ) ;
+    }
   }
+
 }
 
-export default LikeMeter;
+const LikeMeter = () => {
+  
+  let { token } = useParams();
+  if (!token) token = '-';
+  
+  const navigate = useNavigate();
+  
+  const newToken = (token: string) => {
+    const url = '/like-meter/'+token;
+    navigate(url);
+  }
+   
+  return <LikeMeter1 token={token} newToken={newToken} />;
+
+};
+
+export default LikeMeter ;
