@@ -9,11 +9,17 @@ import { featureTranslation, fontFamily, lightColors, darkColors, hexToRGBA } fr
 class ChartExplain extends React.Component<{ data: any }> {
 
   prepareChartData() {
-    let data = this.props.data ;
-    data.sort((a: any, b: any) => Math.abs(b.effect) - Math.abs(a.effect)) ;
-    data = data.slice(0, 7) ;
-    const labels = data.map((d: any) => featureTranslation[d.feature]) ;
-    const values = data.map((d: any) => d.effect) ;
+    const data = this.props.data ;
+    const features = data.features ;
+    let explain = data.explain ;
+    explain.sort((a: any, b: any) => Math.abs(b.effect) - Math.abs(a.effect)) ;
+    explain = explain.slice(0, 7) ;
+    const labels = explain.map((d: any) => {
+      const f = featureTranslation[d.feature] ;
+      const v = features[d.feature] ;
+      return `${f}: ${v.toFixed(2)}` ;
+    }) ;
+    const values = explain.map((d: any) => d.effect) ;
     const backgroundColors = values.map((v: number) => {
       const c =  v>0 ? darkColors[0] : darkColors[1] ;
       return hexToRGBA(c, 0.5) ;
@@ -52,6 +58,16 @@ class ChartExplain extends React.Component<{ data: any }> {
           text: 'Effects of model features on the prediction',
           font: {
             family: fontFamily
+          }
+        },
+        subtitle: {
+          display: true,
+          text: '(The label shows the value of the feature. The bar shows the effect on the score.)',
+          font: {
+            family: fontFamily
+          },
+          padding: {
+            bottom: 25
           }
         }
       },

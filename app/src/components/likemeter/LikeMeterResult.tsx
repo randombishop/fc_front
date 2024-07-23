@@ -53,7 +53,7 @@ class LikeMeterResult extends React.Component<{ task: any }> {
         </Grid>
         <Grid item xs={12} md={6}>
           <Panel title="Explain">
-            <ChartExplain data={task.result.explain} />
+            <ChartExplain data={task.result} />
           </Panel>
         </Grid>
         <Grid item xs={12} md={6}>

@@ -28,7 +28,9 @@ class LikeMeterTask extends React.Component<{ token: string }> {
 
   continue = (data: any) => {
     this.setState({ task: data });
-    if (!data.result) {
+    if (data.error) {
+      this.setState({ error: data.error }) ;
+    } else if (!data.result) {
       setTimeout(this.fetchData, POLLING_INTERVAL_SECONDS * 1000); 
     }
   }
