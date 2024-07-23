@@ -24,6 +24,7 @@ class LikeMeterCandidateList extends React.Component<{ data: any }> {
       <React.Fragment>
         {candidates.map((candidate: any, index: number) => (
           <TextField 
+            key={index}
             label="Variation"
             value={candidate.text}
             InputProps={{
