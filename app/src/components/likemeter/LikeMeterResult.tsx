@@ -1,13 +1,11 @@
 import React from 'react';
 import { Grid, TextField } from '@mui/material';
 import ScoreGauge from '../common/ScoreGauge';
-
+import Panel from '../common/Panel'; 
+import ChartExplain from './ChartExplain';
 
 const scoreLow = 15 ;
 const scoreMedium = 25 ;
-
-
-
 
 class LikeMeterResult extends React.Component<{ task: any }> {
   
@@ -23,7 +21,7 @@ class LikeMeterResult extends React.Component<{ task: any }> {
     }
     return (
       <Grid container spacing={3}>
-        <Grid item xs={8}>
+        <Grid item xs={12} md={8}>
           <TextField 
             label="Analyzed Cast Text"
             value={task.result.text}
@@ -35,12 +33,12 @@ class LikeMeterResult extends React.Component<{ task: any }> {
             fullWidth
           />
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={12} md={4}>
           <TextField
             label="Score"
             value={"  "+scoreLabel}
             InputProps={{
-              style: {height: 125, fontSize: '32'},
+              style: {height: 125, fontSize: '32px', fontWeight: 'bold'},
               startAdornment: (
                 <ScoreGauge value={score} 
                       text={''+score}
@@ -53,8 +51,15 @@ class LikeMeterResult extends React.Component<{ task: any }> {
             fullWidth
           />
         </Grid>
-        <Grid item xs={12}>
-          {JSON.stringify(task)}
+        <Grid item xs={12} md={6}>
+          <Panel title="Explain">
+            <ChartExplain data={task.result.explain} />
+          </Panel>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Panel title="Improve">
+            {JSON.stringify(task)}
+          </Panel>
         </Grid>
       </Grid>
     );

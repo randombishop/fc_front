@@ -204,6 +204,24 @@ const banners:any = {
   'c_tech_science': BannerTechScience
 }
 
+const featureTranslation:any = {
+  "q_clear": "Clear",
+  "q_audience": "Targeted Audience",
+  "q_info": "Informative",
+  "q_easy": "Easy to understand",
+  "q_verifiable": "Verifiable",
+  "q_personal": "Personal Touch",
+  "q_funny": "Funny",
+  "q_meme_ref": "Known meme reference",
+  "q_emo_res": "Emotional response",
+  "q_happiness": "Happy",
+  "q_curiosity": "Triggers curiosity",
+  "q_aggressivity": "Aggressive",
+  "q_surprise": "Element of surprise",
+  "q_interesting_ask": "Interesting question",
+  "q_call_action": "Calls to action"
+} ;
+
 export { 
   castCategories,
   castTopics,
@@ -218,5 +236,6 @@ export {
   today,
   nDaysAgo,
   deepCopy,
-  banners 
+  banners,
+  featureTranslation 
 } ;
