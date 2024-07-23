@@ -3,9 +3,11 @@ import { Grid, TextField } from '@mui/material';
 import ScoreGauge from '../common/ScoreGauge';
 import Panel from '../common/Panel'; 
 import ChartExplain from './ChartExplain';
+import LikeMeterCandidateList from './LikeMeterCandidateList';
+import { birdScoreThresholds } from '../../utils';
 
-const scoreLow = 15 ;
-const scoreMedium = 25 ;
+
+
 
 class LikeMeterResult extends React.Component<{ task: any }> {
   
@@ -14,9 +16,9 @@ class LikeMeterResult extends React.Component<{ task: any }> {
     const task = this.props.task ;
     const score = task.result.score ;
     let scoreLabel = 'Good! 😍'
-    if (score < scoreLow) {
+    if (score < birdScoreThresholds.scoreLow) {
       scoreLabel = 'Low 😔'
-    } else if (score < scoreMedium) {
+    } else if (score < birdScoreThresholds.scoreMedium) {
       scoreLabel = 'Medium 😐'
     }
     return (
@@ -36,17 +38,17 @@ class LikeMeterResult extends React.Component<{ task: any }> {
         <Grid item xs={12} md={4}>
           <TextField
             label="Score"
-            value={"  "+scoreLabel}
+            value={scoreLabel}
             InputProps={{
               style: {height: 125, fontSize: '32px', fontWeight: 'bold'},
               startAdornment: (
                 <ScoreGauge value={score} 
                       text={''+score}
-                      valueRed={15}
-                      valueOrange={25}
-                      valueMax={50}
+                      valueRed={birdScoreThresholds.scoreLow}
+                      valueOrange={birdScoreThresholds.scoreMedium}
+                      valueMax={birdScoreThresholds.scoreMax}
                       size={100} />
-              ),
+              )
             }}
             fullWidth
           />
@@ -58,7 +60,7 @@ class LikeMeterResult extends React.Component<{ task: any }> {
         </Grid>
         <Grid item xs={12} md={6}>
           <Panel title="Improve">
-            {JSON.stringify(task)}
+            <LikeMeterCandidateList data={task.result} />
           </Panel>
         </Grid>
       </Grid>

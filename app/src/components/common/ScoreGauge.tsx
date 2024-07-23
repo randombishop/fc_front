@@ -33,12 +33,13 @@ class ScoreGauge extends React.Component<{ value: number,
         alignItems="center"
         width={size}
         height={size}
+        marginRight={2}
       >
 
         <CircularProgress
           variant="determinate"
           value={valueNormalized}
-          size={size-20}
+          size={size-10}
           thickness={5}
           sx={{
             color: color,

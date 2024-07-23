@@ -222,6 +222,13 @@ const featureTranslation:any = {
   "q_call_action": "Calls to action"
 } ;
 
+const birdScoreThresholds = {
+  scoreLow: 15,
+  scoreMedium: 25,
+  scoreMax: 50
+} ;
+
+
 export { 
   castCategories,
   castTopics,
@@ -237,5 +244,6 @@ export {
   nDaysAgo,
   deepCopy,
   banners,
-  featureTranslation 
+  featureTranslation,
+  birdScoreThresholds 
 } ;
