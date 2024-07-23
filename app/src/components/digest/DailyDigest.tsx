@@ -30,7 +30,6 @@ class DailyDigest extends React.Component {
       }
     }
     fids = Object.keys(fids).join(',') ;
-    console.log('Unique fids:', fids) ;
     fetch(`${getBackendUrl()}/usernames/${fids}`)
       .then(response => response.json())
       .then(usernames => self.handleUsernames(data, usernames))
@@ -42,7 +41,6 @@ class DailyDigest extends React.Component {
     for (const row of usernames) {
       userMap[row.fid] = row.user_name ;
     }
-    console.log('userMap:', userMap) ;
     for (const digest of data) {
       const links = digest.links ;
       const newLinks = [] ;
