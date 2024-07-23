@@ -30,8 +30,12 @@ class LikeMeterTask extends React.Component<{ token: string }> {
     this.setState({ task: data });
     if (data.error) {
       this.setState({ error: data.error }) ;
-    } else if (!data.result) {
-      setTimeout(this.fetchData, POLLING_INTERVAL_SECONDS * 1000); 
+    } else if (data) {
+      const createdAt = new Date(data.created_at) ;
+      const time = ((new Date()).getTime() - createdAt.getTime()) / 1000 ;
+      if (!data.result && time < TIMEOUT_SECONDS) {
+        setTimeout(this.fetchData, POLLING_INTERVAL_SECONDS * 1000); 
+      }
     }
   }
 
@@ -51,7 +55,7 @@ class LikeMeterTask extends React.Component<{ token: string }> {
         const createdAt = new Date(task.created_at) ;
         const time = ((new Date()).getTime() - createdAt.getTime()) / 1000 ;
         if (time > TIMEOUT_SECONDS) {
-          return <div>Time out</div>;
+          return <div>Sorry, this request timed out. Please try again.</div>;
         } else {
           return <Loading />;
         }

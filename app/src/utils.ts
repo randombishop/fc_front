@@ -11,7 +11,7 @@ import BannerTechScience from './assets/banners/tech_science.png';
 
 
 function getBackendUrl() {
-  return 'http://localhost:8080' ;
+  return 'https://fc.datascience.art' ;
 }
 
 
