@@ -1,5 +1,6 @@
 import React from 'react';
 import { Grid, TextField, Button } from '@mui/material';
+import { getBackendUrl } from '../../utils';
 
 
 class LikeMeter extends React.Component {
@@ -13,8 +14,21 @@ class LikeMeter extends React.Component {
   };
 
   score = () => {
-    
+    const text = this.state.text;
+    const post = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({text}),
+    }
+    fetch(`${getBackendUrl()}/predict_like/score`, post)
+      .then(response => response.json())
+      .then(data => this.waitForResult(data))
+      .catch(error => alert('Error:' + error));
   };
+
+  waitForResult = (data: any) => {
+    console.log(data) ;
+  }
 
   render() {
     return (
