@@ -46,7 +46,7 @@ class Content extends React.Component<{}, { data: any[] }> {
       plugins: {
         title: {
           display: true,
-          text: "Yesterday's Cast categories",
+          text: "Yesterday's Casts Categories",
           font: {
             family: fontFamily
           }
