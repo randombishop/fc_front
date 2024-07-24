@@ -32,13 +32,41 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
     return getColorForItem('light', idx) ;
   }
 
+  resultsReady() {
+    for (const item of this.props.items) {
+      try {
+        const num = Number(this.props.itemData[item].data.global.num_casts) ;
+        if (num > 0) {
+          return true ;
+        }
+      } catch (e) {}
+    }
+    return false ;
+  }
+
+  renderResults() {
+    if (!this.resultsReady()) {
+      return null ;
+    }
+    return (
+      <React.Fragment>
+        <Grid item md={12} >
+          <TrendVolume items={this.props.items} data={this.props.itemData} />
+        </Grid>
+        <Grid item md={12} >
+          <TrendFeatures items={this.props.items} data={this.props.itemData} />
+        </Grid>
+      </React.Fragment>
+    ) ;
+  }
+
   render() {
     return (
       <Grid container spacing={3}>
-          <Grid item md={12} >
+          <Grid item xs={12} >
             <AddItem add={this.props.addItem} />
           </Grid>
-          <Grid item md={12} >
+          <Grid item xs={12} >
             {this.props.items.map((item, idx) => (
               <Chip style={{marginRight: '10px', marginBottom: '10px'}} 
                     variant="outlined"
@@ -49,12 +77,7 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
                     />
             ))}
           </Grid>
-          <Grid item md={12} >
-            <TrendVolume items={this.props.items} data={this.props.itemData} />
-          </Grid>
-          <Grid item md={12} >
-            <TrendFeatures items={this.props.items} data={this.props.itemData} />
-          </Grid>
+          {this.renderResults()}
       </Grid>
     );
   }

@@ -72,28 +72,28 @@ class TrendFeaturesTable extends React.Component<{ items: string[], data: any }>
     const {keys, headers, rows} = this.prepareData() ;
     return (
       <TableContainer>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell style={tableHeaderStyle}>Item</TableCell>
-              {keys.map((k) => (
-                <TableCell key={k} style={tableHeaderStyle}>
-                  {headers[k]}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map((row: any, index: number) => (
-              <TableRow key={index}>
-                <TableCell style={{color: row.color, fontWeight: 'bold'}}>{row.item}</TableCell>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell style={tableHeaderStyle}>Item</TableCell>
                 {keys.map((k) => (
-                  <TableCell key={k} align="right">{this.formatNumber(row[k])}</TableCell>
+                  <TableCell key={k} style={tableHeaderStyle}>
+                    {headers[k]}
+                  </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHead>
+            <TableBody>
+              {rows.map((row: any, index: number) => (
+                <TableRow key={index}>
+                  <TableCell style={{color: row.color, fontWeight: 'bold'}}>{row.item}</TableCell>
+                  {keys.map((k) => (
+                    <TableCell key={k} align="right">{this.formatNumber(row[k])}</TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
       </TableContainer>
     );
   }
