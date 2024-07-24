@@ -170,21 +170,22 @@ function getColorForArray(palette:string, n:number): string[] {
   return ans ;
 }
 
-function today(): string {
-  const date = new Date();
+function dateYYYY_MM_DD(date: Date): string {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
+function today(): string {
+  const date = new Date();
+  return dateYYYY_MM_DD(date);
+}
+
 function nDaysAgo(n: number): string {
   const date = new Date();
   date.setDate(date.getDate() - n);
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return dateYYYY_MM_DD(date);
 }
 
 function deepCopy(obj: any): any {
@@ -245,5 +246,6 @@ export {
   deepCopy,
   banners,
   featureTranslation,
-  birdScoreThresholds 
+  birdScoreThresholds,
+  dateYYYY_MM_DD 
 } ;
