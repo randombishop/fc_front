@@ -90,7 +90,7 @@ class TrendFeaturesRadar extends React.Component<{ items: string[], data: any }>
       plugins: {
         title: {
           display: true,
-          text: 'Radar Title',
+          text: 'Casts Features Radar',
           font: {
             family: fontFamily
           }
