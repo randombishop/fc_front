@@ -1,25 +1,50 @@
 import React from 'react';
-import { Grid } from '@mui/material';
-import {getBackendUrl} from '../../utils' ;
+import { useParams, useNavigate } from 'react-router-dom';
+import { Grid, Typography } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import {getBackendUrl, dateYYYY_MM_DD} from '../../utils' ;
 import DigestCard from './DigestCard' ;
+import Loading from '../common/Loading' ;
+import dayjs from 'dayjs';
 
 
 
-class DailyDigest extends React.Component {
+class DailyDigest1 extends React.Component<{day: string, 
+                                            setDay: (day: string) => void}> {
   
   state = {
     data: []
   }
   
   componentDidMount() {
-    let self = this ;
-    fetch(`${getBackendUrl()}/digests/latest`)
-      .then(response => response.json())
-      .then(data => self.handleDigests(data))
-      .catch(error => alert('Error:' + error));
+    this.loadData1() ;
   }
   
-  handleDigests(data: any) {
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.day !== this.props.day) {
+      this.loadData1();
+    }
+  }
+
+  loadData1() {
+    this.setState({data: []}) ;
+    let self = this ;
+    const day = this.props.day ;
+    let url = getBackendUrl()+'/digests/' ;
+    if (day === 'latest') {
+      url += 'latest' ;
+    } else {
+      url += 'day/'+day ;
+    }
+    fetch(url)
+      .then(response => response.json())
+      .then(data => self.loadData2(data))
+      .catch(error => alert('Error:' + error));
+  }
+
+  loadData2(data: any) {
     let self = this ;
     let fids:any = {} ;
     for (const digest of data) {
@@ -32,11 +57,11 @@ class DailyDigest extends React.Component {
     fids = Object.keys(fids).join(',') ;
     fetch(`${getBackendUrl()}/usernames/${fids}`)
       .then(response => response.json())
-      .then(usernames => self.handleUsernames(data, usernames))
+      .then(usernames => self.loadData3(data, usernames))
       .catch(error => alert('Error:' + error));
   }
 
-  handleUsernames(data: any, usernames: any) {
+  loadData3(data: any, usernames: any) {
     const userMap:any = {} ;
     for (const row of usernames) {
       userMap[row.fid] = row.user_name ;
@@ -61,19 +86,67 @@ class DailyDigest extends React.Component {
     this.setState({ data }) ;
   }
 
-  render() {
+
+
+  handleDateChange = (date: dayjs.Dayjs | null) => {
+    if (date) {
+      const day = date.format('YYYY-MM-DD') ;
+      this.props.setDay(day) ;
+    }
+  };
+
+  renderHeader() {
+    const day = this.props.day ;
+    let digestDate = null ;
+    if (this.state.data.length > 0) {
+      const digest0:any = this.state.data[0] ;
+      digestDate = dateYYYY_MM_DD(new Date(digest0.day))
+    }
+    let selectedDate = null ;
+    if (day !== 'latest') {
+      selectedDate = dayjs(day) ;
+    }
+    return (
+      <Grid container spacing={1}>
+        <Grid item xs={12} md={8}>
+          {digestDate ? (
+            <Typography variant="h4">
+              Daily Digest {digestDate}
+            </Typography>
+          ) : (
+            <Loading />
+          )}
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker label="Date" 
+                        value={selectedDate} 
+                        minDate={dayjs('2024-07-15')}
+                        maxDate={dayjs()}
+                        onChange={this.handleDateChange}
+            />
+          </LocalizationProvider>
+        </Grid>
+      </Grid>
+    );
+  }
+
+  renderDigest() {
     const num = this.state.data.length ;
+    if (num === 0) {
+      return null ;
+    }
     const half = Math.ceil(num / 2) ;
     const col1 = this.state.data.slice(0, half) ;
     const col2 = this.state.data.slice(half, num) ;
     return (
       <Grid container spacing={5}>
-        <Grid item md={6}>
+        <Grid item xs={12} md={6}>
           {col1.map((item, index) => (
               <DigestCard key={index} data={item} />
           ))}
         </Grid>
-        <Grid item md={6}>
+        <Grid item xs={12}md={6}>
           {col2.map((item, index) => (
               <DigestCard key={index} data={item} />
           ))}
@@ -81,6 +154,33 @@ class DailyDigest extends React.Component {
       </Grid>
     );
   }
+  
+  render() {
+    return (
+      <React.Fragment>
+        {this.renderHeader()}
+        <hr/> 
+        {this.renderDigest()}
+      </React.Fragment>
+    );
+  }
+
 }
+
+const DailyDigest = () => {
+  
+  let { day } = useParams();
+  if (!day) day = 'latest';
+  
+  const navigate = useNavigate();
+  
+  const setDay = (day: string) => {
+    const url = '/digest/'+day;
+    navigate(url);
+  }
+   
+  return <DailyDigest1 day={day} setDay={setDay} />;
+
+};
 
 export default DailyDigest;
