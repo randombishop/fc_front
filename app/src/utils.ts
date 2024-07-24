@@ -12,6 +12,7 @@ import BannerTechScience from './assets/banners/tech_science.png';
 
 function getBackendUrl() {
   return 'https://fc.datascience.art' ;
+  //return 'http://localhost:8080' ;
 }
 
 
@@ -188,6 +189,14 @@ function nDaysAgo(n: number): string {
   return dateYYYY_MM_DD(date);
 }
 
+function numDaysBetween(startDate: string, endDate: string): number {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const timeDifference = end.getTime() - start.getTime();
+  const dayDifference = Math.floor(timeDifference / (1000 * 3600 * 24)) + 1;
+  return dayDifference;
+}
+
 function deepCopy(obj: any): any {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -219,7 +228,7 @@ const featureTranslation:any = {
   "q_curiosity": "Triggers curiosity",
   "q_aggressivity": "Aggressive",
   "q_surprise": "Element of surprise",
-  "q_interesting_ask": "Interesting question",
+  "q_interesting_ask": "Question",
   "q_call_action": "Calls to action"
 } ;
 
@@ -243,6 +252,7 @@ export {
   getColorForArray,
   today,
   nDaysAgo,
+  numDaysBetween,
   deepCopy,
   banners,
   featureTranslation,

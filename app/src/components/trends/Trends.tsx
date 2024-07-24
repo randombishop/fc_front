@@ -136,8 +136,16 @@ const Trends = (props : any) => {
         url += ('topic/'+item) ;
       } else if (item.startsWith('k_')) {
         url += ('keyword/'+item.substring(2)) ;
+      } else if (item.startsWith('q_')) {
+        const underscoreIndex = item.lastIndexOf('_');
+        const f = item.substring(0, underscoreIndex);
+        const v = item.substring(underscoreIndex + 1);
+        url += ('feature/'+f+'/'+v) ;
       } else {
-        console.log('Unknown item type: '+item);
+        setItemData((prevData) => ({
+          ...prevData,
+          [item]: {status: 'error'}
+        }));
         return;
       }
       const response = await fetch(url);

@@ -73,6 +73,10 @@ class TrendVolumeLines extends React.Component<{ items: string[], data: any }> {
           }
         },
         y: {
+            title: {
+              display: true,
+              text: 'Number of observations / 100k casts'
+            },
             grid: {
               drawOnChartArea: false
             }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, FormControl, TextField, Select, MenuItem, Button } from '@mui/material';
-import { castCategories, castTopics } from '../../utils';
+import { castCategories, castTopics, featureTranslation } from '../../utils';
 
 
 class AddItem extends React.Component<{add: (item: string) => void}> {
@@ -9,7 +9,9 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     type: 'c',
     category: 'c_arts',
     topic: 't_music',
-    keyword: ''
+    keyword: '',
+    feature: 'q_clear',
+    feature_value: '1'
   };
 
   handleTypeChange = (event: any) => {
@@ -26,6 +28,14 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     this.setState({ topic: event.target.value });
   };
 
+  handleFeatureChange = (event: any) => {
+    this.setState({ feature: event.target.value });
+  };
+
+  handleFeatureValueChange = (event: any) => {
+    this.setState({ feature_value: event.target.value });
+  };
+
   handleKeywordChange = (event: any) => {
     this.setState({ keyword: event.target.value });
   };
@@ -35,6 +45,8 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
       this.props.add(this.state.category)
     } else if (this.state.type === 't') {
       this.props.add(this.state.topic)
+    } else if (this.state.type === 'q') {
+      this.props.add(this.state.feature+'_'+this.state.feature_value)
     } else if (this.state.type === 'k') {
       let item = this.state.keyword ;
       if (item.length<3) {
@@ -54,6 +66,7 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
           <Select value={this.state.type} onChange={this.handleTypeChange}>
             <MenuItem value="c">Category</MenuItem>
             <MenuItem value="t">Topic</MenuItem>
+            <MenuItem value="q">Feature</MenuItem>
             <MenuItem value="k">Keyword</MenuItem>
           </Select>
         </FormControl>
@@ -98,6 +111,40 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     );
   }
 
+  renderStepFeature() {
+    if (this.state.type !== 'q') {
+      return null;
+    }
+    const features = Object.entries(featureTranslation) ;
+    return (
+      <Grid item>
+        <FormControl>
+          <Select value={this.state.feature} onChange={this.handleFeatureChange} >
+            {features.map(([key, value]) => (
+              <MenuItem key={key} value={key}>{""+value}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Grid>
+    );
+  }
+
+  renderStepFeatureValue() {
+    if (this.state.type !== 'q') {
+      return null;
+    }
+    return (
+      <Grid item>
+        <FormControl>
+          <Select value={this.state.feature_value} onChange={this.handleFeatureValueChange}>
+            <MenuItem value="0">No</MenuItem>
+            <MenuItem value="1">Yes</MenuItem>
+          </Select>
+        </FormControl>
+      </Grid>
+    );
+  }
+
   renderStepKeyword() {
     if (this.state.type !== 'k') {
       return null;
@@ -126,6 +173,8 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
           {this.renderStepType()}
           {this.renderStepCategory()}
           {this.renderStepTopic()}
+          {this.renderStepFeature()}
+          {this.renderStepFeatureValue()}
           {this.renderStepKeyword()}
           {this.renderStepAdd()}
         </Grid>
