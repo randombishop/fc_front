@@ -31,7 +31,7 @@ class Content extends React.Component<{}, { data: any[] }> {
       labels: labels,
       datasets: [
         {
-          label: 'Cast Categories',
+          label: "Cast Categories",
           data: values,
           backgroundColor: getColorForArray('dark', values.length),
           borderColor: getColorForArray('light', values.length).map(c=>hexToRGBA(c, 0.5)) ,        
@@ -46,7 +46,7 @@ class Content extends React.Component<{}, { data: any[] }> {
       plugins: {
         title: {
           display: true,
-          text: 'Cast categories observed on July 16 2024',
+          text: "Yesterday's Cast categories",
           font: {
             family: fontFamily
           }
