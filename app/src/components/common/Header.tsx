@@ -30,7 +30,7 @@ class Header1 extends React.Component<{ location: any }> {
         textAlign: 'center' as const
       };
       const dashboardUrl = '#/dashboard';
-      const trendsUrl = '#/trends/'+nDaysAgo(15)+'/'+today()+'/-';
+      const trendsUrl = '#/trends/2024-07-01/'+today()+'/-';
       const digestUrl = '#/digest/latest';
       const likeMeterUrl = '#/like-meter/-';
       const clustersUrl = '#/clusters' ;
