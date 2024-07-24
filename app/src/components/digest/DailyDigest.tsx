@@ -4,7 +4,7 @@ import { Grid, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import {getBackendUrl, dateYYYY_MM_DD} from '../../utils' ;
+import {getBackendUrl} from '../../utils' ;
 import DigestCard from './DigestCard' ;
 import Loading from '../common/Loading' ;
 import dayjs from 'dayjs';
@@ -100,7 +100,7 @@ class DailyDigest1 extends React.Component<{day: string,
     let digestDate = null ;
     if (this.state.data.length > 0) {
       const digest0:any = this.state.data[0] ;
-      digestDate = dateYYYY_MM_DD(new Date(digest0.day))
+      digestDate = digest0.day.slice(0, 10) ;
     }
     let selectedDate = null ;
     if (day !== 'latest') {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-import { dateYYYY_MM_DD, getBackendUrl, fontFamily, colors, hexToRGBA } from '../../utils';
+import { getBackendUrl, fontFamily, colors, hexToRGBA } from '../../utils';
 import Panel from '../common/Panel'; 
 import Loading from '../common/Loading';
 
@@ -24,7 +24,7 @@ class Volume extends React.Component<{}, { data: any[] }> {
   prepareChartData() {
     if (this.state.data.length === 0) throw new Error('No data');
     this.state.data.sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
-    const labels = this.state.data.map(item => dateYYYY_MM_DD(new Date(item.day)));
+    const labels = this.state.data.map(item => item.day.slice(0, 10));
     const numCastData = this.state.data.map(item => item.num_cast);
     const numFidData = this.state.data.map(item => item.num_fid);
     return {

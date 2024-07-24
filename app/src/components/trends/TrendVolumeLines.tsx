@@ -2,7 +2,7 @@ import React from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-import { dateYYYY_MM_DD, fontFamily, getColorForArray, hexToRGBA } from '../../utils';
+import { fontFamily, getColorForArray, hexToRGBA } from '../../utils';
 
 
 
@@ -24,7 +24,7 @@ class TrendVolumeLines extends React.Component<{ items: string[], data: any }> {
           validItems.push(item) ;
           values[item] = {} ;
           for (const record of this.props.data[item].data.daily) {
-            const day = dateYYYY_MM_DD(new Date(record.day))  ;
+            const day = record.day.slice(0, 10)  ;
             if (!days[day]) {
               days[day] = 0 ;
             }

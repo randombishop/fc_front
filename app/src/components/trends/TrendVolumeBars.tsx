@@ -2,7 +2,7 @@ import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-import { fontFamily, getColorForArray, dateYYYY_MM_DD, numDaysBetween } from '../../utils';
+import { fontFamily, getColorForArray, numDaysBetween } from '../../utils';
 
 
 
@@ -19,7 +19,7 @@ class TrendVolumeBars extends React.Component<{ items: string[], data: any }> {
           labels.push(item) ;
           values.push(num) ;
           for (const record of this.props.data[item].data.daily) {
-            const day = dateYYYY_MM_DD(new Date(record.day))  ;
+            const day = record.day.slice(0, 10)  ;
             if (!days[day]) {
               days[day] = 0 ;
             }
