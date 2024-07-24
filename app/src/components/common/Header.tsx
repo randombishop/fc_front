@@ -43,7 +43,8 @@ class Header1 extends React.Component<{ location: any }> {
                   <img src={AppLogo} style={imgStyle} alt="Data Science Art" />
                 </Box>
               </Grid>
-              <Grid item xs={6} md={2} >
+              <Grid item md={2} 
+                    sx={{display: {xs: 'none',sm: 'none', 'md': 'flex'}}}>
                 <Box display="inline-flex" justifyContent="center" alignItems="center" width="100%" height="100%" style={titleStyle}>
                   Farcaster<br />Data
                 </Box>
@@ -52,8 +53,8 @@ class Header1 extends React.Component<{ location: any }> {
                 <Box display="inline-flex" justifyContent="center" alignItems="center" width="100%" height="100%">
                   <Button color={this.getButtonColor('/dashboard', true)} href={dashboardUrl}>Dashboard</Button>
                   <Button color={this.getButtonColor('/trends')} href={trendsUrl}>Trends</Button>
-                  <Button color={this.getButtonColor('/daily-digest')} href={digestUrl}>Daily Digest</Button>
-                  <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Like-meter</Button>
+                  <Button color={this.getButtonColor('/daily-digest')} href={digestUrl}>Digest</Button>
+                  <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Likemeter</Button>
                   <Button color={this.getButtonColor('/clusters')} href={clustersUrl}>Clusters</Button>
                 </Box>
               </Grid>
