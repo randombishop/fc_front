@@ -228,7 +228,7 @@ const featureTranslation:any = {
   "q_curiosity": "Triggers curiosity",
   "q_aggressivity": "Aggressive",
   "q_surprise": "Element of surprise",
-  "q_interesting_ask": "Question",
+  "q_interesting_ask": "Interesting Question",
   "q_call_action": "Calls to action"
 } ;
 
