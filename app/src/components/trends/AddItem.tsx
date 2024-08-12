@@ -1,6 +1,7 @@
 import React from 'react';
 import { Grid, FormControl, TextField, Select, MenuItem, Button } from '@mui/material';
 import { castCategories, castTopics, featureTranslation } from '../../utils';
+import listChannels from '../data/channels.json';
 
 
 class AddItem extends React.Component<{add: (item: string) => void}> {
@@ -11,7 +12,8 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     topic: 't_music',
     keyword: '',
     feature: 'q_clear',
-    feature_value: '1'
+    feature_value: '1',
+    channel: 'null'
   };
 
   handleTypeChange = (event: any) => {
@@ -40,6 +42,10 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     this.setState({ keyword: event.target.value });
   };
 
+  handleChannelChange = (event: any) => {
+    this.setState({ channel: event.target.value });
+  };
+
   addItem = () => {
     if (this.state.type === 'c') {
       this.props.add(this.state.category)
@@ -54,6 +60,8 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
       } else {
         this.props.add('k_'+item) ;
       }
+    } else if (this.state.type === 'p') {
+      this.props.add('p_'+this.state.channel)
     } else {
       alert('Invalid type');
     }
@@ -68,16 +76,42 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
             <MenuItem value="t">Topic</MenuItem>
             <MenuItem value="q">Feature</MenuItem>
             <MenuItem value="k">Keyword</MenuItem>
+            <MenuItem value="p">Channel</MenuItem>
+            <MenuItem value="r">Replying to</MenuItem>
           </Select>
         </FormControl>
       </Grid>
     );
   }
 
-  renderStepCategory() {
-    if (this.state.type !== 'c' && this.state.type !== 't') {
-      return null;
+  renderSelection() {
+    const type = this.state.type ;
+    if (type === 'c') {
+      return this.renderStepCategory() ;
+    } else if (type === 't') {
+      return (<React.Fragment>
+        {this.renderStepCategory()}
+        {this.renderStepTopic()}
+      </React.Fragment>) ;
+    } else if (type === 'q') {
+      return (<React.Fragment>
+        {this.renderStepFeature()}
+        {this.renderStepFeatureValue()}
+      </React.Fragment>) ;
+    } else if (type === 'k') {
+      return this.renderStepKeyword() ;
+    } else if (type === 'p') {
+      return (<React.Fragment>
+        {this.renderStepChannel()}
+      </React.Fragment>) ;
+    } else if (type === 'r') {
+      return  (<React.Fragment>
+        {this.renderStepReplyingTo()}
+      </React.Fragment>) ;
     }
+  }
+
+  renderStepCategory() {
     const categories = Object.entries(castCategories) ;
     return (
       <Grid item>
@@ -93,9 +127,6 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
   }
 
   renderStepTopic() {
-    if (this.state.type !== 't') {
-      return null;
-    }
     const category = this.state.category;
     const topics = Object.entries(castTopics[category]);
     return (
@@ -112,9 +143,6 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
   }
 
   renderStepFeature() {
-    if (this.state.type !== 'q') {
-      return null;
-    }
     const features = Object.entries(featureTranslation) ;
     return (
       <Grid item>
@@ -130,9 +158,6 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
   }
 
   renderStepFeatureValue() {
-    if (this.state.type !== 'q') {
-      return null;
-    }
     return (
       <Grid item>
         <FormControl>
@@ -146,13 +171,32 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
   }
 
   renderStepKeyword() {
-    if (this.state.type !== 'k') {
-      return null;
-    }
     return (
       <Grid item>
         <TextField value={this.state.keyword} onChange={this.handleKeywordChange} />
       </Grid>
+    );
+  }
+
+  renderStepChannel() {
+    const rows = listChannels.sort((a:any, b:any) => a.name.localeCompare(b.name))
+    return (
+      <Grid item>
+        <FormControl>
+          <Select value={this.state.channel} onChange={this.handleChannelChange}>
+            <MenuItem value="null">None</MenuItem>
+            {rows.map((channel:any) => (
+              <MenuItem key={channel.channel_id} value={channel.channel_id}>{channel.name}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Grid>
+    );
+  }
+
+  renderStepReplyingTo() {
+    return (
+      "REPLYING TO"
     );
   }
 
@@ -171,11 +215,7 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
       <div>
         <Grid container spacing={3}>
           {this.renderStepType()}
-          {this.renderStepCategory()}
-          {this.renderStepTopic()}
-          {this.renderStepFeature()}
-          {this.renderStepFeatureValue()}
-          {this.renderStepKeyword()}
+          {this.renderSelection()}
           {this.renderStepAdd()}
         </Grid>
       </div>

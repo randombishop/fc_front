@@ -5,6 +5,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getBackendUrl, getColorForItem } from '../../utils';
 import TrendVolume from './TrendVolume';
 import TrendFeatures from './TrendFeatures';
+import listChannels from '../data/channels.json';
+const mapChannels = listChannels.reduce((acc, item) => {
+  acc[item.channel_id] = item.parent_url;
+  return acc;
+}, {} as Record<string, string>);
 
 
 class Trends1 extends React.Component<{items: string[],
@@ -176,6 +181,10 @@ const Trends = (props : any) => {
         const f = item.substring(0, underscoreIndex);
         const v = item.substring(underscoreIndex + 1);
         url += ('feature/'+f+'/'+v) ;
+      } else if (item.startsWith('p_')) {
+        const channelId = item.substring(2) ;
+        let parentUrl = channelId==='null'?'null':mapChannels[channelId] ;
+        url += ('channel/'+encodeURIComponent(parentUrl)) ;
       } else {
         setItemData((prevData) => ({
           ...prevData,
