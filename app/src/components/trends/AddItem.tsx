@@ -13,7 +13,8 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     keyword: '',
     feature: 'q_clear',
     feature_value: '1',
-    channel: 'null'
+    channel: 'null',
+    username: ''
   };
 
   handleTypeChange = (event: any) => {
@@ -46,6 +47,10 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     this.setState({ channel: event.target.value });
   };
 
+  handleUsernameChange = (event: any) => {
+    this.setState({ username: event.target.value });
+  };
+
   addItem = () => {
     if (this.state.type === 'c') {
       this.props.add(this.state.category)
@@ -62,6 +67,8 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
       }
     } else if (this.state.type === 'p') {
       this.props.add('p_'+this.state.channel)
+    } else if (this.state.type === 'u') {
+      this.props.add('u_'+this.state.username)
     } else {
       alert('Invalid type');
     }
@@ -77,7 +84,7 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
             <MenuItem value="q">Feature</MenuItem>
             <MenuItem value="k">Keyword</MenuItem>
             <MenuItem value="p">Channel</MenuItem>
-            <MenuItem value="r">Replying to</MenuItem>
+            <MenuItem value="u">From user</MenuItem>
           </Select>
         </FormControl>
       </Grid>
@@ -104,9 +111,9 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
       return (<React.Fragment>
         {this.renderStepChannel()}
       </React.Fragment>) ;
-    } else if (type === 'r') {
+    } else if (type === 'u') {
       return  (<React.Fragment>
-        {this.renderStepReplyingTo()}
+        {this.renderStepFromUser()}
       </React.Fragment>) ;
     }
   }
@@ -194,9 +201,11 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     );
   }
 
-  renderStepReplyingTo() {
+  renderStepFromUser() {
     return (
-      "REPLYING TO"
+      <Grid item>
+        <TextField value={this.state.username} onChange={this.handleUsernameChange} />
+      </Grid>
     );
   }
 

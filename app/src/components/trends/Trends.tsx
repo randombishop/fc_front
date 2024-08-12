@@ -185,6 +185,8 @@ const Trends = (props : any) => {
         const channelId = item.substring(2) ;
         let parentUrl = channelId==='null'?'null':mapChannels[channelId] ;
         url += ('channel/'+encodeURIComponent(parentUrl)) ;
+      } else if (item.startsWith('u_')) {
+        url += ('from_user/'+item.substring(2)) ;
       } else {
         setItemData((prevData) => ({
           ...prevData,
