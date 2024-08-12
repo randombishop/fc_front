@@ -17,9 +17,10 @@ class TrendFeaturesRadar extends React.Component<{ items: string[], data: any }>
       'Happy',
       'Funny',
       'Informative',
-      'Quality'
+      'Likemeter'
     ] ;
     const fields: { [key: string]: string } = {
+      'Casts/UniqueFID': 'casts_per_fid',
       'Followers': 'num_follower',
       'Following': 'num_following',
       'Likes': 'num_like',
@@ -28,7 +29,7 @@ class TrendFeaturesRadar extends React.Component<{ items: string[], data: any }>
       'Happy': 'q_happiness',
       'Funny': 'q_funny',
       'Informative': 'q_info',
-      'Quality': 'predict_like'
+      'Likemeter': 'predict_like'
     }
     const lightColorsArray = getColorForArray('light', this.props.items.length) ;
     const darkColorsArray = getColorForArray('dark', this.props.items.length) ;
@@ -36,19 +37,13 @@ class TrendFeaturesRadar extends React.Component<{ items: string[], data: any }>
     for (let i=0; i<this.props.items.length; i++) {
       try {
         const item = this.props.items[i] ;
-        const num = Number(this.props.data[item].data.global.num_casts) ;
-        const fids = Number(this.props.data[item].data.global.num_fids) ;
-        if ( num > 0 && fids > 0) {
+        const num = this.props.data[item].data.global.num_casts ;
+        if ( num > 0 ) {
           const values = [] ;
           for (const label of labels) {
-            if (label==='Casts/UniqueFID') {
-              const value = num/fids ;
-              values.push(value) ;
-            } else {
-              const field = fields[label] ;
-              const value = this.props.data[item].data.global[field] ;
-              values.push(Number(value)) ;
-            }
+            const field = fields[label] ;
+            const value = this.props.data[item].data.global[field] ;
+            values.push(Number(value)) ;
           }
           datasets.push({
             label: item,

@@ -3,7 +3,6 @@ import { AppBar, Toolbar, Button, Grid, Box } from '@mui/material';
 import AppLogo from '../../assets/logo_white_nobg.png';
 import Profile from '../profile/Profile';
 import { useLocation } from 'react-router-dom';
-import { today, nDaysAgo } from '../../utils';
 
 
 class Header1 extends React.Component<{ location: any }> {
@@ -30,7 +29,7 @@ class Header1 extends React.Component<{ location: any }> {
         textAlign: 'center' as const
       };
       const dashboardUrl = '#/dashboard';
-      const trendsUrl = '#/trends/2024-07-01/'+today()+'/-';
+      const trendsUrl = '#/trends/-';
       const digestUrl = '#/digest/latest';
       const likeMeterUrl = '#/like-meter/-';
       const clustersUrl = '#/clusters' ;

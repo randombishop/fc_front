@@ -18,7 +18,7 @@ class Content extends React.Component<{}, { data: any[] }> {
     fetch(`${getBackendUrl()}/dashboard/categories`)
       .then(response => response.json())
       .then(data => this.setState({ data }))
-      .catch(error => alert('Error:' + error));
+      .catch(error => console.error('Error:' + error));
   }
 
   prepareChartData() {

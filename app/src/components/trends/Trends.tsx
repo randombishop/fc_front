@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Chip } from '@mui/material';
 import AddItem from './AddItem';
 import { useParams, useNavigate } from 'react-router-dom';
-import { today, nDaysAgo, getBackendUrl, getColorForItem } from '../../utils';
+import { getBackendUrl, getColorForItem } from '../../utils';
 import TrendVolume from './TrendVolume';
 import TrendFeatures from './TrendFeatures';
 
 
-class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: string[],
+class Trends1 extends React.Component<{items: string[],
                                        addItem: (item: string) => void,
                                        removeItem: (item: string) => void,
                                        itemData: any }> {
@@ -21,7 +21,7 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
       return item + ': ?'  ;
     }
     try {
-      const num = Number(this.props.itemData[item].data.global.num_casts) ;
+      const num = this.props.itemData[item].data.global.num_casts ;
       return item + ': ' + num ;
     } catch (error) {
       return item + ': ' + this.props.itemData[item].status ;
@@ -35,7 +35,7 @@ class Trends1 extends React.Component<{dateFrom: string, dateTo: string, items: 
   resultsReady() {
     for (const item of this.props.items) {
       try {
-        const num = Number(this.props.itemData[item].data.global.num_casts) ;
+        const num = this.props.itemData[item].data.rows.length ;
         if (num > 0) {
           return true ;
         }
@@ -88,9 +88,7 @@ const Trends = (props : any) => {
   
   const [itemData, setItemData] = useState<{ [key: string]: any }>({});
 
-  let { dateFrom, dateTo, terms } = useParams();
-  if (!dateFrom) dateFrom = nDaysAgo(15);
-  if (!dateTo) dateTo = today();
+  let { terms } = useParams();
   if (!terms) terms = '-';
   const items = (terms==='-') ? [] : terms.split(',');
 
@@ -103,7 +101,7 @@ const Trends = (props : any) => {
       console.log('Adding item: ', item);
       let newItems = items.slice();
       newItems.push(item);
-      const url = '/trends/'+dateFrom+'/'+dateTo+'/'+newItems.join(',');
+      const url = '/trends/'+newItems.join(',');
       navigate(url);
     } 
   } 
@@ -115,9 +113,46 @@ const Trends = (props : any) => {
       let newItems = items.slice();
       newItems.splice(index, 1);
       const newItemsString = newItems.length>0?newItems.join(','):'-';
-      const url = '/trends/'+dateFrom+'/'+dateTo+'/'+newItemsString;
+      const url = '/trends/'+newItemsString;
       navigate(url);
     }
+  }
+
+  const aggregate = (data: any) => {
+    const keys = [
+      'casts_per_fid',
+      'num_follower',
+      'num_following',
+      'num_like',
+      'num_recast',
+      'num_reply',
+      'q_funny',
+      'q_happiness',
+      'q_info',
+      'predict_like'
+    ]
+    const rows = data.rows ;
+    for (const row of rows) {
+      try {
+        row.casts_per_fid = row.num_casts / row.num_fids ;
+      } catch (e) {
+        row.casts_per_fid = 0 ;
+      }
+    }
+    const totalCasts = rows.reduce((total: number, row: any) => total + row.num_casts, 0);
+    const global:any = {}
+    global.num_casts = totalCasts;
+    if (totalCasts>0) {
+      for (const key of keys) {
+        try {
+          const validRows = rows.filter((row:any) => (row[key] !== null));
+          global[key] = validRows.reduce((total: number, row: any) => total + (row[key] * row.num_casts / totalCasts), 0);
+        } catch (e) {
+          global[key] = 0 ;
+        }
+      }
+    }
+    data.global = global ;
   }
 
   const pullData = async (item: string) => {
@@ -150,6 +185,7 @@ const Trends = (props : any) => {
       }
       const response = await fetch(url);
       const data = await response.json();
+      aggregate(data) ;
       setItemData((prevData) => ({
         ...prevData,
         [item]: {status: 'ok', data: data}
@@ -169,8 +205,7 @@ const Trends = (props : any) => {
     // eslint-disable-next-line
   }, [items]);
   
-  return <Trends1 dateFrom={dateFrom} dateTo={dateTo} 
-                  items={items} 
+  return <Trends1 items={items} 
                   addItem={addItem} 
                   removeItem={removeItem} 
                   itemData={itemData} />;

@@ -15,24 +15,25 @@ class TrendVolumeLines extends React.Component<{ items: string[], data: any }> {
     const colorsArray = getColorForArray('light', this.props.items.length) ;
     const colorsMap:any = {} ;
     for (let i=0 ; i< this.props.items.length ; i++) {
+      const item = this.props.items[i] ;
       try {
-        const item = this.props.items[i] ;
         colorsMap[item] = colorsArray[i] ;
-        const num_casts = Number(this.props.data[item].data.global.num_casts) ;
-        const num_records = this.props.data[item].data.daily.length ;
+        const num_casts = this.props.data[item].data.global.num_casts ;
+        const num_records = this.props.data[item].data.rows.length ;
         if (num_casts > 0 && num_records > 0) {
           validItems.push(item) ;
           values[item] = {} ;
-          for (const record of this.props.data[item].data.daily) {
+          for (const record of this.props.data[item].data.rows) {
             const day = record.day.slice(0, 10)  ;
             if (!days[day]) {
               days[day] = 0 ;
             }
             days[day] += 1 ;
-            values[item][day] = Number(record.num) ;
+            values[item][day] = Number(record.num_casts) ;
           }
         }
-      } catch (e) {}
+      } catch (e) {
+      }
     }
     const labels = Object.keys(days).sort((a, b) => a.localeCompare(b)) ;
     const datasets = validItems.map(item => {
@@ -75,7 +76,7 @@ class TrendVolumeLines extends React.Component<{ items: string[], data: any }> {
         y: {
             title: {
               display: true,
-              text: 'Number of observations / 100k casts'
+              text: 'Number of casts'
             },
             grid: {
               drawOnChartArea: false
@@ -86,7 +87,7 @@ class TrendVolumeLines extends React.Component<{ items: string[], data: any }> {
     return (
       <Line data={chartData} 
             options={options} 
-            height='200px'      
+            height={200}      
       />
     ) ;
   }

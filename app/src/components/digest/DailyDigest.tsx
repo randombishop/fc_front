@@ -41,7 +41,7 @@ class DailyDigest1 extends React.Component<{day: string,
     fetch(url)
       .then(response => response.json())
       .then(data => self.loadData2(data))
-      .catch(error => alert('Error:' + error));
+      .catch(error => console.error('Error:' + error));
   }
 
   loadData2(data: any) {
@@ -58,7 +58,7 @@ class DailyDigest1 extends React.Component<{day: string,
     fetch(`${getBackendUrl()}/usernames/${fids}`)
       .then(response => response.json())
       .then(usernames => self.loadData3(data, usernames))
-      .catch(error => alert('Error:' + error));
+      .catch(error => console.error('Error:' + error));
   }
 
   loadData3(data: any, usernames: any) {

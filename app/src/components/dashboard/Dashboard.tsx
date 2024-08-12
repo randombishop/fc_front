@@ -2,7 +2,7 @@ import React from 'react';
 import { Grid } from '@mui/material';
 import Volume from './Volume';
 import Sentiment from './Sentiment';
-import Quality from './Quality';
+import Engagement from './Engagement';
 import Content from './Content';
 
 
@@ -18,7 +18,7 @@ class Dashboard extends React.Component {
             <Sentiment />
         </Grid>
         <Grid item xs={12} md={6} >
-            <Quality />
+            <Engagement />
         </Grid>
         <Grid item xs={12} md={6} >
             <Content />

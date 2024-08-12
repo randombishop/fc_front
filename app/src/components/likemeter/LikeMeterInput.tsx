@@ -25,7 +25,7 @@ class LikeMeterInput extends React.Component<{ newToken: (token: string) => void
     fetch(`${getBackendUrl()}/predict_like/score`, post)
       .then(response => response.json())
       .then(data => this.continue(data))
-      .catch(error => alert('Error:' + error));
+      .catch(error => console.error('Error:' + error));
   };
 
   continue = (data: any) => {
@@ -33,7 +33,7 @@ class LikeMeterInput extends React.Component<{ newToken: (token: string) => void
     if (data.insertOK && data.publishOK && token.length>16) {
       this.props.newToken(token) ;
     } else {
-      alert('Error') ;
+      console.error('Error') ;
       this.setState({enabled: true}) ;
     }
   }

@@ -18,7 +18,7 @@ class Sentiment extends React.Component<{}, { data: any[] }> {
     fetch(`${getBackendUrl()}/dashboard/sentiment`)
       .then(response => response.json())
       .then(data => this.setState({ data }))
-      .catch(error => alert('Error:' + error));
+      .catch(error => console.error('Error:' + error));
   }
 
   prepareChartData() {

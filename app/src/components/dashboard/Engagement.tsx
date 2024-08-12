@@ -7,7 +7,7 @@ import Panel from '../common/Panel';
 import Loading from '../common/Loading';
 
 
-class Quality extends React.Component<{}, { data: any[] }> {
+class Engagement extends React.Component<{}, { data: any[] }> {
 
   constructor(props: {}) {
     super(props);
@@ -15,25 +15,43 @@ class Quality extends React.Component<{}, { data: any[] }> {
   }
 
   componentDidMount() {
-    fetch(`${getBackendUrl()}/dashboard/quality`)
+    fetch(`${getBackendUrl()}/dashboard/engagement`)
       .then(response => response.json())
       .then(data => this.setState({ data }))
-      .catch(error => alert('Error:' + error));
+      .catch(error => console.error('Error:' + error));
   }
 
   prepareChartData() {
     if (this.state.data.length === 0) throw new Error('No data');
     this.state.data.sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
     const labels = this.state.data.map(item => item.day.slice(0, 10)) ;
-    const values = this.state.data.map(item => item.predict_like);
+    const num_likes = this.state.data.map(item => item.num_likes);
+    const num_recasts = this.state.data.map(item => item.num_recasts);
+    const num_replies = this.state.data.map(item => item.num_replies);
     return {
       labels,
       datasets: [
         {
-          label: 'Likemeter Score',
-          data: values,
+          label: 'Likes',
+          data: num_likes,
           borderColor: colors.primary,
           backgroundColor: hexToRGBA(colors.primary, 0.5),
+          tension: 0.3,
+          pointRadius: 0
+        },
+        {
+          label: 'Recasts',
+          data: num_recasts,
+          borderColor: colors.secondary,
+          backgroundColor: hexToRGBA(colors.secondary, 0.5),
+          tension: 0.3,
+          pointRadius: 0
+        },
+        {
+          label: 'Replies',
+          data: num_replies,
+          borderColor: colors.third,
+          backgroundColor: hexToRGBA(colors.third, 0.5),
           tension: 0.3,
           pointRadius: 0
         }
@@ -47,7 +65,7 @@ class Quality extends React.Component<{}, { data: any[] }> {
       plugins: {
         title: {
           display: true,
-          text: 'Daily average outputs from like-prediction model applied to casts',
+          text: 'Average 36-hours reaction count per cast',
           font: {
             family: fontFamily
           }
@@ -62,7 +80,7 @@ class Quality extends React.Component<{}, { data: any[] }> {
         y: {
             title: {
               display: true,
-              text: 'Like-meter'
+              text: 'Count per cast'
             },
             grid: {
               drawOnChartArea: false
@@ -80,7 +98,7 @@ class Quality extends React.Component<{}, { data: any[] }> {
 
   render() {
     return (
-      <Panel title="Quality">
+      <Panel title="Engagement">
         {this.state.data.length > 0 ? this.renderChart() : <Loading />}
       </Panel>
     );
@@ -88,4 +106,4 @@ class Quality extends React.Component<{}, { data: any[] }> {
 
 }
 
-export default Quality;
+export default Engagement;

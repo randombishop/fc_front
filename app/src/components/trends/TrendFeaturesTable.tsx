@@ -13,7 +13,7 @@ class TrendFeaturesTable extends React.Component<{ items: string[], data: any }>
   prepareData() {
     const keys= [
       'num_casts',
-      'num_fids',
+      'casts_per_fid',
       'num_follower',
       'num_following',
       'num_like',
@@ -27,13 +27,13 @@ class TrendFeaturesTable extends React.Component<{ items: string[], data: any }>
 
     const headers: any = {
       'num_casts': 'Casts',
-      'num_fids': 'U.FIDs',
+      'casts_per_fid': 'Casts/FID',
       'num_follower': 'Followers',
       'num_following': 'Following',
       'num_like': 'Likes',
       'num_recast': 'Recasts',
       'num_reply': 'Replies',
-      'predict_like': 'Quality',
+      'predict_like': 'Likemeter',
       'q_funny': 'Funny',
       'q_happiness': 'Happy',
       'q_info': 'Info'
@@ -43,9 +43,8 @@ class TrendFeaturesTable extends React.Component<{ items: string[], data: any }>
     for (let i=0; i<this.props.items.length; i++) {
       try {
         const item = this.props.items[i] ;
-        const num = Number(this.props.data[item].data.global.num_casts) ;
-        const fids = Number(this.props.data[item].data.global.num_fids) ;
-        if ( num > 0 && fids > 0) {
+        const num = this.props.data[item].data.global.num_casts ;
+        if ( num > 0 ) {
           const itemData = deepCopy(this.props.data[item].data.global) ;
           itemData.item = item ;
           itemData.color = lightColorsArray[i] ;

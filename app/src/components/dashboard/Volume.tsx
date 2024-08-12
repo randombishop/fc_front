@@ -18,15 +18,15 @@ class Volume extends React.Component<{}, { data: any[] }> {
     fetch(`${getBackendUrl()}/dashboard/volume`)
       .then(response => response.json())
       .then(data => this.setState({ data }))
-      .catch(error => alert('Error:' + error));
+      .catch(error => console.error('Error:' + error));
   }
 
   prepareChartData() {
     if (this.state.data.length === 0) throw new Error('No data');
     this.state.data.sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());
     const labels = this.state.data.map(item => item.day.slice(0, 10));
-    const numCastData = this.state.data.map(item => item.num_cast);
-    const numFidData = this.state.data.map(item => item.num_fid);
+    const numCastData = this.state.data.map(item => item.num_casts);
+    const numFidData = this.state.data.map(item => item.num_fids);
     return {
       labels,
       datasets: [
