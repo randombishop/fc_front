@@ -30,7 +30,7 @@ class Header1 extends React.Component<{ location: any }> {
       };
       const dashboardUrl = '#/dashboard';
       const trendsUrl = '#/trends/-';
-      const digestUrl = '#/digest/latest';
+      const botUrl = '#/bot/digest(channel=null,days=1)/';
       const likeMeterUrl = '#/like-meter/-';
       const clustersUrl = '#/clusters' ;
       return (
@@ -52,7 +52,7 @@ class Header1 extends React.Component<{ location: any }> {
                 <Box display="inline-flex" justifyContent="center" alignItems="center" width="100%" height="100%">
                   <Button color={this.getButtonColor('/dashboard', true)} href={dashboardUrl}>Dashboard</Button>
                   <Button color={this.getButtonColor('/trends')} href={trendsUrl}>Trends</Button>
-                  <Button color={this.getButtonColor('/digest')} href={digestUrl}>Digest</Button>
+                  <Button color={this.getButtonColor('/bot')} href={botUrl}>Bot</Button>
                   <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Likemeter</Button>
                   <Button color={this.getButtonColor('/clusters')} href={clustersUrl}>Clusters</Button>
                 </Box>

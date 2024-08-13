@@ -4,7 +4,7 @@ import { Container } from '@mui/material';
 import Header from './components/common/Header';
 import Dashboard from './components/dashboard/Dashboard';
 import Trends from './components/trends/Trends';
-import DailyDigest from './components/digest/DailyDigest';
+import Bot from './components/bot/Bot';
 import LikeMeter from './components/likemeter/LikeMeter';
 import Clusters from './components/clusters/Clusters';
 
@@ -20,7 +20,7 @@ class App extends React.Component {
             <Route path="/" Component={Dashboard} />
             <Route path="/dashboard" Component={Dashboard} />
             <Route path="/trends/:terms" Component={Trends} />
-            <Route path="/digest/:day" Component={DailyDigest} />
+            <Route path="/bot/:command" Component={Bot} />
             <Route path="/like-meter/:token" Component={LikeMeter} />
             <Route path="/clusters" Component={Clusters} />
           </Routes>
