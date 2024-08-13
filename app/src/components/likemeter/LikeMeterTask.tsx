@@ -20,7 +20,7 @@ class LikeMeterTask extends React.Component<{ token: string }> {
   }
 
   fetchData = () => {
-    fetch(`${getBackendUrl()}/predict_like/task/${this.props.token}`)
+    fetch(`${getBackendUrl()}/task/${this.props.token}`)
       .then(response => response.json())
       .then(data => this.continue(data))
       .catch(error => this.setState({ error: error }));

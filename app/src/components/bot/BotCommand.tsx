@@ -7,7 +7,7 @@ class BotCommand extends React.Component<{command: string, setCommand: (s: strin
   
   parseCommand() {
     let command = this.props.command ;
-    console.log('parsing command', command)
+    //console.log('parsing command', command)
     command = command.trimStart();
     // Must start with digest or best
     const functionMatch = command.match(/^(digest|best)\s*/);
@@ -35,7 +35,7 @@ class BotCommand extends React.Component<{command: string, setCommand: (s: strin
       func: func, 
       params: params 
     };
-    console.log('parsed command', parsed)
+    //console.log('parsed command', parsed)
     return parsed ;
   }
 
