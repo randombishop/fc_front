@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.95ae2541.css",
-    "main.js": "/static/js/main.d645dda8.js",
+    "main.js": "/static/js/main.a99d1719.js",
     "static/media/gm.png": "/static/media/gm.331b5752780c6e038284.png",
     "static/media/tech_science.png": "/static/media/tech_science.2d7d983387cf4b459449.png",
     "static/media/sports.png": "/static/media/sports.c10dd56002086326d7b7.png",
@@ -15,10 +15,10 @@
     "static/media/logo_white_nobg.png": "/static/media/logo_white_nobg.a8625eb837a3bf71646a.png",
     "index.html": "/index.html",
     "main.95ae2541.css.map": "/static/css/main.95ae2541.css.map",
-    "main.d645dda8.js.map": "/static/js/main.d645dda8.js.map"
+    "main.a99d1719.js.map": "/static/js/main.a99d1719.js.map"
   },
   "entrypoints": [
     "static/css/main.95ae2541.css",
-    "static/js/main.d645dda8.js"
+    "static/js/main.a99d1719.js"
   ]
 }
