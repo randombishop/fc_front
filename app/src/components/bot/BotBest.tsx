@@ -9,7 +9,7 @@ class BotDigest extends React.Component<{result:any}> {
   
   render() {
     const data = this.props.result ;
-    const reason: string = data.reason ;
+    const comment: string = data.comment ;
     return (
       <Grid container spacing={3}>
 
@@ -20,7 +20,7 @@ class BotDigest extends React.Component<{result:any}> {
                 Best Cast!
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                  {reason}
+                  {comment}
               </Typography>    
             </CardContent>
           </Card>
