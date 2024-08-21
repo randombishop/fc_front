@@ -5,6 +5,7 @@ import HelpIcon from '@mui/icons-material/Help';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import AsyncTaskHandler from '../common/TaskManager';
 import Loading from '../common/Loading';
+import BotCast from './BotCast';
 
 
 class Bot extends React.Component {
@@ -73,9 +74,17 @@ class Bot extends React.Component {
 
   renderResult = () => {
     if (this.state.result) {
-      return (
-        <pre>{JSON.stringify(this.state.result, null, 2)}</pre>
-      );
+      const result:any = this.state.result ;
+      if (result.casts && result.casts.length > 0) {
+        const casts = result.casts ;
+        return (
+          <React.Fragment>
+            {casts.map((cast: any, index: number) => (
+              <BotCast cast={cast} key={index} />
+            ))}
+          </React.Fragment>
+        );
+      }
     }
   };
 
@@ -120,10 +129,8 @@ class Bot extends React.Component {
           </Button>
         </Grid>
 
-        <Grid item xs={12}>
-          {this.renderResult()}
-        </Grid>
-
+        {this.renderResult()}
+        
       </Grid>
     );
   }

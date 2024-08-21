@@ -19,7 +19,7 @@ class App extends React.Component {
             <Route path="/" Component={Dashboard} />
             <Route path="/dashboard" Component={Dashboard} />
             <Route path="/trends/:terms" Component={Trends} />
-            <Route path="/bot/:command" Component={Bot} />
+            <Route path="/bot" Component={Bot} />
             <Route path="/like-meter/:token" Component={LikeMeter} />
           </Routes>
         </Container>

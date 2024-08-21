@@ -30,7 +30,7 @@ class Header1 extends React.Component<{ location: any }> {
       };
       const dashboardUrl = '#/dashboard';
       const trendsUrl = '#/trends/-';
-      const botUrl = '#/bot/digest(channel=null,days=1)/';
+      const botUrl = '#/bot';
       const likeMeterUrl = '#/like-meter/-';
       return (
         <AppBar position="static">
