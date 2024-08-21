@@ -6,7 +6,6 @@ import Dashboard from './components/dashboard/Dashboard';
 import Trends from './components/trends/Trends';
 import Bot from './components/bot/Bot';
 import LikeMeter from './components/likemeter/LikeMeter';
-import Clusters from './components/clusters/Clusters';
 
 
 class App extends React.Component {
@@ -22,7 +21,6 @@ class App extends React.Component {
             <Route path="/trends/:terms" Component={Trends} />
             <Route path="/bot/:command" Component={Bot} />
             <Route path="/like-meter/:token" Component={LikeMeter} />
-            <Route path="/clusters" Component={Clusters} />
           </Routes>
         </Container>
       </Router>

@@ -32,7 +32,6 @@ class Header1 extends React.Component<{ location: any }> {
       const trendsUrl = '#/trends/-';
       const botUrl = '#/bot/digest(channel=null,days=1)/';
       const likeMeterUrl = '#/like-meter/-';
-      const clustersUrl = '#/clusters' ;
       return (
         <AppBar position="static">
           <Toolbar>
@@ -54,7 +53,6 @@ class Header1 extends React.Component<{ location: any }> {
                   <Button color={this.getButtonColor('/trends')} href={trendsUrl}>Trends</Button>
                   <Button color={this.getButtonColor('/bot')} href={botUrl}>Bot</Button>
                   <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Likemeter</Button>
-                  <Button color={this.getButtonColor('/clusters')} href={clustersUrl}>Clusters</Button>
                 </Box>
               </Grid>
               <Grid item xs={12} md={2} >

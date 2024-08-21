@@ -11,10 +11,13 @@ import BannerTechScience from './assets/banners/tech_science.png';
 
 
 function getBackendUrl() {
-  return 'https://fc.datascience.art' ;
-  //return 'http://localhost:8080' ;
+  //return 'https://fc.datascience.art' ;
+  return 'http://localhost:8080' ;
 }
 
+function getTaskUrl(token: string) {
+  return getBackendUrl() + '/task/' + token ;
+}
 
 const castCategories:any = {
   'c_arts': 'Arts',
@@ -243,6 +246,7 @@ export {
   castCategories,
   castTopics,
   getBackendUrl, 
+  getTaskUrl,
   fontFamily, 
   colors, 
   hexToRGBA,

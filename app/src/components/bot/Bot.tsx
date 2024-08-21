@@ -1,140 +1,132 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Grid, Button, TextField } from '@mui/material';
-import BotCommand from './BotCommand';
-import { getBackendUrl } from '../../utils';
+import { Grid, TextField, Button, Alert } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
+import HelpIcon from '@mui/icons-material/Help';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import AsyncTaskHandler from '../common/TaskManager';
 import Loading from '../common/Loading';
-import BotDigest from './BotDigest';
-import BotBest from './BotBest';
 
 
-const POLLING_INTERVAL_SECONDS = 2 ;
-const TIMEOUT_SECONDS = 120 ;
+class Bot extends React.Component {
 
-
-class Bot1 extends React.Component<{command: string, setCommand: (s: string) => void}> {
-  
   state = {
+    query: '',
     enabled: true,
-    token: null,
-    task: null,
+    cost: null,
+    result: null,
     error: null
   };
 
-  sendCommand = () => {
-    this.setState({enabled: false, token: null, task: null, error: null}) ;
-    const post = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({command: this.props.command}),
-    }
-    fetch(`${getBackendUrl()}/bot/run`, post)
-      .then(response => response.json())
-      .then(data => this.commandResponse(data))
-      .catch(error => this.setState({enabled: true, error: error}));
-  }
+  begin = (doNext: () => void) => {
+    this.setState({enabled: false, cost: null, result: null, error: null}, doNext);
+  };
 
-  commandResponse = (data: any) => {
-    const token = data.uuid ;
-    if (data.insertOK && data.publishOK && token.length>16) {
-      this.setState({token: token}, this.fetchTask) ;
-    } else {
-      this.setState({enabled: true, error: 'Failed sending bot command to backend'}) ;
-    }
-  }
+  handleQueryChange = (event: any) => {
+    this.setState({ query: event.target.value });
+  };
 
-  fetchTask = () => {
-    fetch(`${getBackendUrl()}/task/${this.state.token}`)
-      .then(response => response.json())
-      .then(data => this.updateTask(data))
-      .catch(error => this.setState({ enabled: true, error: error }));
-  }
+  openBotInfo = () => {
+    
+  };
 
-  updateTask = (data: any) => {
-    console.log('updateTask', data) ;
-    this.setState({ task: data });
-    if (data == null) {
-      this.setState({ enabled: true, error: 'Received empty response' }) ;
-    } else if (data.error) {
-      this.setState({ enabled: true, error: data.error }) ;
-    } else if (!data.result) {
-      const createdAt = new Date(data.created_at) ;
-      const time = ((new Date()).getTime() - createdAt.getTime()) / 1000 ;
-      if (time < TIMEOUT_SECONDS) {
-        setTimeout(this.fetchTask, POLLING_INTERVAL_SECONDS * 1000); 
-      } else {
-        this.setState({ enabled: true, error: 'Timed out' }) ;
-      }
-    } else if (data.result) {
-      this.setState({ enabled: true, error: null }) ;
+  openDatasetInfo = () => {
+    
+  };
+
+  quoteQuery = async () => {
+    this.begin(async () => {
+      const taskHandler = new AsyncTaskHandler() ;
+      const payload = {query: this.state.query};
+      const task = await taskHandler.runTask('/bot/quote', payload);
+      const cost = task.result?task.result.cost : null ;
+      this.setState({enabled: true, cost: cost, error: task.error});
+    }) ;
+  };
+
+  startQuery = () => {
+    this.begin(async () => {
+      const taskHandler = new AsyncTaskHandler() ;
+      const payload = {query: this.state.query};
+      const task = await taskHandler.runTask('/bot/run', payload);
+      this.setState({enabled: true, result: task.result, error: task.error});
+    }) ;
+
+  };
+
+  renderLoading = () => {
+    if (!this.state.enabled) {
+      return <Loading />;
     }
-  }
-  
+  };
+
+  renderError = () => {
+    if (this.state.error) {
+      return <Alert severity="error">{this.state.error}</Alert>;
+    }
+  };
+
+  renderCost = () => {
+    if (this.state.cost) {
+      return <Alert severity="success">Your query will cost {this.state.cost} credits.</Alert>;
+    }
+  };
+
   renderResult = () => {
-    if (this.state.task) {
-      const task: any = this.state.task ;
-      if (task.result) {
-        const func = task.request.command.func ;
-        if (func==='digest') {
-          return <BotDigest result={task.result} /> ;
-        } else if (func==='best') {
-          return <BotBest result={task.result} /> ;
-        } else {
-          return <pre>{JSON.stringify(task.result, null, 2)}</pre> ;
-        }
-      } else {
-        return <Loading /> ;
-      }
+    if (this.state.result) {
+      return (
+        <pre>{JSON.stringify(this.state.result, null, 2)}</pre>
+      );
     }
-    return null ;
-  }
+  };
 
   render() {
     return (
       <Grid container spacing={3}>
-          <Grid item xs={12} >
-            <BotCommand command={this.props.command} 
-                        setCommand={this.props.setCommand}/>
-          </Grid>
-          <Grid item xs={8}>
-            <TextField
-              value={this.props.command} 
-              label="Bot Command" 
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={4} sx={{display: 'flex', alignItems: 'center'}}>
-            <Button variant="contained" 
-                    color="primary" 
-                    fullWidth
-                    disabled={!this.state.enabled}
-                    onClick={this.sendCommand}>
-              Send Bot Command
-            </Button>
-          </Grid>
-          <Grid item xs={12} >
-            {this.renderResult()}
-          </Grid>
+
+        <Grid item xs={8}>
+          <TextField
+            label="Enter your query"
+            value={this.state.query}
+            onChange={this.handleQueryChange}
+            multiline
+            minRows={8}
+            maxRows={8}
+            fullWidth
+          />
+        </Grid>
+
+        <Grid item xs={4}>
+          <Button onClick={this.openBotInfo} fullWidth startIcon={<HelpIcon />}>
+            Bot Commands 
+          </Button>
+          <Button onClick={this.openDatasetInfo} fullWidth startIcon={<InfoIcon />}>
+            Dataset Description
+          </Button>
+          <Button onClick={this.quoteQuery} fullWidth startIcon={<RequestQuoteIcon />}>
+            Quote
+          </Button>
+          <br/><br/>
+          {this.renderLoading()}
+          {this.renderError()}
+          {this.renderCost()}
+        </Grid>
+
+        <Grid item xs={12}>
+          <Button onClick={this.startQuery} fullWidth
+            variant="contained"
+            style={{ marginTop: '10px' }}
+            disabled={!this.state.enabled}>
+            Run Query
+          </Button>
+        </Grid>
+
+        <Grid item xs={12}>
+          {this.renderResult()}
+        </Grid>
+
       </Grid>
     );
   }
-
 }
-
-const Bot = () => {
-  
-  let { command } = useParams();
-  if (command==null) command='';
-  
-  const navigate = useNavigate();
-  
-  const setCommand = (newCommand: string) => {
-    const url = '/bot/'+newCommand+'/' ;
-    navigate(url);
-  }
-
-  return <Bot1 command={command} setCommand={setCommand}/>;
-
-};
 
 export default Bot;
