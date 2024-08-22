@@ -3,13 +3,19 @@ import {Box} from '@mui/material';
 import { FarcasterEmbed } from "react-farcaster-embed/dist/client";
 import ErrorBoundary from '../common/ErrorBoundary';
 import "react-farcaster-embed/dist/styles.css";
-
+import { insertMentions } from '../../utils' ;
 
 class BotCast extends React.Component<{cast:any}> {
+
+  
 
   renderText() {
     const cast = this.props.cast ;
     if (cast.text) {
+      let text = cast.text ;
+      if (cast.mentions && cast.mentions.length > 0) {
+        text = insertMentions(text, cast.mentions_pos, cast.mentions_ats) ;
+      }
       return (
         <Box sx={{backgroundColor: 'white',
                   color: 'black',
@@ -18,7 +24,7 @@ class BotCast extends React.Component<{cast:any}> {
                 margin: '20px',
                 padding: '20px' }}>
           <pre style={{whiteSpace: 'pre-wrap'}}>
-            {cast.text}
+            {text}
           </pre>
         </Box>
       );
@@ -59,7 +65,7 @@ class BotCast extends React.Component<{cast:any}> {
                   borderRadius: '20px',
                   margin: '20px',
                   padding: '20px' }}>
-          <img src={embed} />
+          <img src={embed} alt="embed"/>
         </Box>
       )
     } else {

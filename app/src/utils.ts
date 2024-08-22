@@ -242,6 +242,48 @@ const birdScoreThresholds = {
 } ;
 
 
+
+
+function insertMentions(
+    original: string,
+    mentionPositions: number[],
+    mentions: string[]
+): string {
+    
+    if (mentions.length !== mentionPositions.length) {
+        throw new Error("Mentions and positions arrays must have the same length");
+    }
+
+    console.log('insertMentions', original, mentions, mentionPositions) ;
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    // Step 1: Encode the original string to UTF-8 bytes
+    const utf8Bytes = encoder.encode(original);
+
+    // Step 2: Cut the byte array at specified positions
+    let parts: Uint8Array[] = [];
+    let start = 0;
+
+    for (const pos of mentionPositions) {
+        parts.push(utf8Bytes.slice(start, pos));
+        start = pos;
+    }
+    parts.push(utf8Bytes.slice(start)); // Add the last part
+
+    // Step 3: Reconvert the byte parts to strings
+    let resultParts: string[] = parts.map(part => decoder.decode(part));
+
+    // Step 4: Insert the mentions between the parts
+    let result = resultParts[0];
+    for (let i = 0; i < mentions.length; i++) {
+        result += mentions[i] + resultParts[i + 1];
+    }
+
+    return result;
+}
+
+
 export { 
   castCategories,
   castTopics,
@@ -261,5 +303,6 @@ export {
   banners,
   featureTranslation,
   birdScoreThresholds,
-  dateYYYY_MM_DD 
+  dateYYYY_MM_DD,
+  insertMentions 
 } ;
