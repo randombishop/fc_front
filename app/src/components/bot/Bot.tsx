@@ -18,6 +18,14 @@ class Bot extends React.Component {
     error: null
   };
 
+  placeholder = `Submit a command to the bot either in natural language or in SQL, for example:
+  * Who are @dwr.eth's favorite users?
+  * Who is most active in /data channel?
+  * Give me a bitcoin summary
+  * Show me the funniest cast in tabletop channel
+  * select text from cast_features where day='2024-08-23' and fid=3 limit 10;
+  `
+
   begin = (doNext: () => void) => {
     this.setState({enabled: false, cost: null, result: null, error: null}, doNext);
   };
@@ -27,11 +35,13 @@ class Bot extends React.Component {
   };
 
   openBotInfo = () => {
-    
+    const url = 'https://github.com/randombishop/fc_bots/blob/main/bots/functions.md'
+    window.open(url, '_blank');
   };
 
   openDatasetInfo = () => {
-    
+    const url = 'https://github.com/randombishop/fc_docs/blob/main/dataset.md'
+    window.open(url, '_blank');
   };
 
   quoteQuery = async () => {
@@ -95,6 +105,7 @@ class Bot extends React.Component {
         <Grid item xs={8}>
           <TextField
             label="Enter your query"
+            placeholder={this.placeholder}
             value={this.state.query}
             onChange={this.handleQueryChange}
             multiline
