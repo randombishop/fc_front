@@ -9,6 +9,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import Trends from './components/trends/Trends';
 import Bot from './components/bot/Bot';
 import LikeMeter from './components/likemeter/LikeMeter';
+import './index.css';
 
 
 const farcasterConfig = {

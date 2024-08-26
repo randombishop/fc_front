@@ -241,9 +241,6 @@ const birdScoreThresholds = {
   scoreMax: 50
 } ;
 
-
-
-
 function insertMentions(
     original: string,
     mentionPositions: number[],
@@ -283,6 +280,16 @@ function insertMentions(
     return result;
 }
 
+function randomString(length: number = 10): string {
+  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let nonce = '';
+  const charsetLength = charset.length;
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charsetLength);
+    nonce += charset[randomIndex];
+  }
+  return nonce;
+}
 
 export { 
   castCategories,
@@ -304,5 +311,6 @@ export {
   featureTranslation,
   birdScoreThresholds,
   dateYYYY_MM_DD,
-  insertMentions 
+  insertMentions,
+  randomString 
 } ;

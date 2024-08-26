@@ -1,28 +1,23 @@
-import React, { createContext, useContext } from 'react';
-import { getBackendUrl } from './utils';
+import React, { createContext, useContext, useState } from 'react';
+import { useSignIn } from '@farcaster/auth-kit' ;
 import AsyncTaskHandler from './AsyncTaskHandler';
+import { getBackendUrl } from './utils';
 
 
 const AppContext = createContext<any>({});
 
 const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
-   
-  let token:string|null = null;
-  let alerts = [] ;
+  
+  const [token, setToken] = useState<string | null>(null);
+  const [alerts, setAlerts] = useState<string[]>([]);
 
-  const login = (newToken: string) => {
-    token = newToken;
-    console.log('Context login: '+token);
-  };
+  const isSignedIn = () => {
+    return token !== null ;
+  }
 
-  const logout = () => {
-    token = null;
-    console.log('Context logout');
-  };
-
-  const addAlert = (s: string) => {
+  const newAlert = (s: string) => {
     alerts.push(s);
-    alert(s);
+    setAlerts([...alerts]);
   }
 
   const backendGET = (path: string, callback: (data: any) => void) => {
@@ -36,7 +31,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     fetch(getBackendUrl() + path, get)
       .then(response => response.json())
       .then(data => callback(data))
-      .catch(error => addAlert('Error:' + error));
+      .catch(error => newAlert('Error:' + error));
   }
 
   const backendPOST = (path: string, payload: any, callback: (data: any) => void) => {
@@ -51,19 +46,29 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     fetch(getBackendUrl()+path, post)
       .then(response => response.json())
       .then(data => callback(data))
-      .catch(error => addAlert('Error:' + error));
+      .catch(error => newAlert('Error:' + error));
   }
+
+  const farcasterAuth = useSignIn({}) ;
+
+  const signOut = () => {
+    setToken(null) ;
+    farcasterAuth.signOut() ;
+  }  
 
   const newTaskHandler = () => {
     return new AsyncTaskHandler(token) ;
   }
 
   const value:any = {
-    login: login,  
-    logout: logout,
+    newAlert: newAlert,
+    setToken: setToken,
+    isSignedIn: isSignedIn,
+    signOut: signOut,
     backendGET: backendGET,
     backendPOST: backendPOST,
-    newTaskHandler: newTaskHandler
+    newTaskHandler: newTaskHandler,
+    alerts: alerts
   }
 
   return (
