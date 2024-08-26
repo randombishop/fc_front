@@ -63,11 +63,11 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
   const value:any = {
     newAlert: newAlert,
     setToken: setToken,
-    isSignedIn: isSignedIn,
     signOut: signOut,
     backendGET: backendGET,
     backendPOST: backendPOST,
     newTaskHandler: newTaskHandler,
+isSignedIn: isSignedIn(),
     alerts: alerts
   }
 

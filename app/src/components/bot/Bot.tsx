@@ -6,15 +6,16 @@ import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import Loading from '../common/Loading';
 import BotCast from './BotCast';
 import { AppContext } from '../../AppContext';
+import SignInAware from '../common/SignInAware';
 
 
-class Bot extends React.Component {
+class Bot extends React.Component<{isSignedIn: boolean}> {
 
   static contextType = AppContext ;
 
   state = {
     query: '',
-    enabled: true,
+    loading: false,
     cost: null,
     result: null,
     error: null
@@ -29,7 +30,7 @@ class Bot extends React.Component {
   `
 
   begin = (doNext: () => void) => {
-    this.setState({enabled: false, cost: null, result: null, error: null}, doNext);
+    this.setState({loading: true, cost: null, result: null, error: null}, doNext);
   };
 
   handleQueryChange = (event: any) => {
@@ -53,7 +54,7 @@ class Bot extends React.Component {
       const payload = {query: this.state.query};
       const task = await taskHandler.runTask('/bot/quote', payload);
       const cost = task.result?task.result.cost : null ;
-      this.setState({enabled: true, cost: cost, error: task.error});
+      this.setState({loading: false, cost: cost, error: task.error});
     }) ;
   };
 
@@ -63,13 +64,13 @@ class Bot extends React.Component {
       const taskHandler = context.newTaskHandler() ;
       const payload = {query: this.state.query};
       const task = await taskHandler.runTask('/bot/run', payload);
-      this.setState({enabled: true, result: task.result, error: task.error});
+      this.setState({loading: false, result: task.result, error: task.error});
     }) ;
 
   };
 
   renderLoading = () => {
-    if (!this.state.enabled) {
+    if (this.state.loading) {
       return <Loading />;
     }
   };
@@ -102,10 +103,20 @@ class Bot extends React.Component {
     }
   };
 
+  renderLoginMessage = () => {
+    if (!this.props.isSignedIn) {
+      return (
+        <Grid item xs={12}>
+          <Alert severity="info">Please sign in to use this feature. You will get 100000 free credits to try it...</Alert>
+        </Grid>
+      ) ;
+    }
+  }
+
   render() {
     return (
       <Grid container spacing={3}>
-
+        {this.renderLoginMessage()}
         <Grid item xs={8}>
           <TextField
             label="Enter your query"
@@ -114,7 +125,7 @@ class Bot extends React.Component {
             onChange={this.handleQueryChange}
             multiline
             minRows={8}
-            maxRows={8}
+            maxRows={30}
             fullWidth
           />
         </Grid>
@@ -126,7 +137,8 @@ class Bot extends React.Component {
           <Button onClick={this.openDatasetInfo} fullWidth startIcon={<InfoIcon />}>
             Dataset Description
           </Button>
-          <Button onClick={this.quoteQuery} fullWidth startIcon={<RequestQuoteIcon />}>
+          <Button onClick={this.quoteQuery} fullWidth startIcon={<RequestQuoteIcon />}
+            disabled={this.state.loading || (!this.props.isSignedIn)}>
             Quote
           </Button>
           <br/><br/>
@@ -139,7 +151,7 @@ class Bot extends React.Component {
           <Button onClick={this.startQuery} fullWidth
             variant="contained"
             style={{ marginTop: '10px' }}
-            disabled={!this.state.enabled}>
+            disabled={this.state.loading || (!this.props.isSignedIn)}>
             Run Query
           </Button>
         </Grid>
@@ -151,4 +163,5 @@ class Bot extends React.Component {
   }
 }
 
-export default Bot;
+
+export default SignInAware(Bot) ;

@@ -41,7 +41,7 @@ class Profile extends React.Component {
 
   toggleDropDown = () => {
     const context:any = this.context ;
-    const signedIn = context.isSignedIn() ;
+    const signedIn = context.isSignedIn ;
     if (signedIn) {
       this.setState({dropDown: !this.state.dropDown})
     }
