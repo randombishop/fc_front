@@ -17,12 +17,16 @@ class LikeMeterInput extends React.Component<{ newToken: (token: string) => void
   };
 
   score = () => {
-    this.setState({enabled: false}) ;
     const text = this.state.text;
-    const context:any = this.context ;
-    context.backendPOST('/predict_like/score', {text: text}, (data: any) => {
-      this.continue(data) ;
-    });
+    if (text.length<25) {
+      alert('Text must be at least 25 characters long') ;
+    } else {
+      this.setState({enabled: false}) ;
+      const context:any = this.context ;
+      context.backendPOST('/predict_like/score', {text: text}, (data: any) => {
+        this.continue(data) ;
+      });
+    }
   };
 
   continue = (data: any) => {
