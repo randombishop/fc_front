@@ -1,10 +1,12 @@
 import React from 'react';
 import { Grid, TextField, Button } from '@mui/material';
-import { getBackendUrl } from '../../utils';
+import { AppContext } from '../../AppContext' ;
 
 
 class LikeMeterInput extends React.Component<{ newToken: (token: string) => void }> {
   
+  static contextType = AppContext ;
+
   state = {
     enabled: true,
     text: ''
@@ -17,15 +19,10 @@ class LikeMeterInput extends React.Component<{ newToken: (token: string) => void
   score = () => {
     this.setState({enabled: false}) ;
     const text = this.state.text;
-    const post = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({text}),
-    }
-    fetch(`${getBackendUrl()}/predict_like/score`, post)
-      .then(response => response.json())
-      .then(data => this.continue(data))
-      .catch(error => console.error('Error:' + error));
+    const context:any = this.context ;
+    context.backendPOST('/predict_like/score', {text: text}, (data: any) => {
+      this.continue(data) ;
+    });
   };
 
   continue = (data: any) => {

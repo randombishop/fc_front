@@ -2,12 +2,15 @@ import React from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-import { getBackendUrl, fontFamily, colors, hexToRGBA } from '../../utils';
+import { fontFamily, colors, hexToRGBA } from '../../utils';
 import Panel from '../common/Panel'; 
 import Loading from '../common/Loading';
+import { AppContext } from '../../AppContext';
 
 
 class Sentiment extends React.Component<{}, { data: any[] }> {
+
+  static contextType = AppContext ;
 
   constructor(props: {}) {
     super(props);
@@ -15,12 +18,12 @@ class Sentiment extends React.Component<{}, { data: any[] }> {
   }
 
   componentDidMount() {
-    fetch(`${getBackendUrl()}/dashboard/sentiment`)
-      .then(response => response.json())
-      .then(data => this.setState({ data }))
-      .catch(error => console.error('Error:' + error));
+    const context:any = this.context ;
+    context.backendGET('/dashboard/sentiment', (data: any) => {
+      this.setState({ data });
+    });
   }
-
+   
   prepareChartData() {
     if (this.state.data.length === 0) throw new Error('No data');
     this.state.data.sort((a, b) => new Date(a.day).getTime() - new Date(b.day).getTime());

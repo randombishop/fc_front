@@ -4,7 +4,7 @@ import { Grid, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import {getBackendUrl} from '../../utils' ;
+import { AppContext } from '../../AppContext';
 import DigestCard from './DigestCard' ;
 import Loading from '../common/Loading' ;
 import dayjs from 'dayjs';
@@ -14,6 +14,9 @@ import dayjs from 'dayjs';
 class DailyDigest1 extends React.Component<{day: string, 
                                             setDay: (day: string) => void}> {
   
+  
+  static contextType = AppContext ;
+
   state = {
     data: []
   }
@@ -32,16 +35,16 @@ class DailyDigest1 extends React.Component<{day: string,
     this.setState({data: []}) ;
     let self = this ;
     const day = this.props.day ;
-    let url = getBackendUrl()+'/digests/' ;
+    let path = '/digests/' ;
     if (day === 'latest') {
-      url += 'latest' ;
+      path += 'latest' ;
     } else {
-      url += 'day/'+day ;
+      path += 'day/'+day ;
     }
-    fetch(url)
-      .then(response => response.json())
-      .then(data => self.loadData2(data))
-      .catch(error => console.error('Error:' + error));
+    const context:any = this.context ;
+    context.backendGET(path, (data: any) => {
+      self.loadData2(data) ;
+    });
   }
 
   loadData2(data: any) {
@@ -55,10 +58,10 @@ class DailyDigest1 extends React.Component<{day: string,
       }
     }
     fids = Object.keys(fids).join(',') ;
-    fetch(`${getBackendUrl()}/usernames/${fids}`)
-      .then(response => response.json())
-      .then(usernames => self.loadData3(data, usernames))
-      .catch(error => console.error('Error:' + error));
+    const context:any = this.context ;
+    context.backendGET(`/usernames/${fids}`, (usernames: any) => {
+      self.loadData3(data, usernames) ;
+    });
   }
 
   loadData3(data: any, usernames: any) {

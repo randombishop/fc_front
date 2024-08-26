@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Grid, Chip } from '@mui/material';
 import AddItem from './AddItem';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getBackendUrl, getColorForItem } from '../../utils';
+import { getColorForItem } from '../../utils';
+import { useAppContext } from '../../AppContext';
 import TrendVolume from './TrendVolume';
 import TrendFeatures from './TrendFeatures';
 import listChannels from '../data/channels.json';
@@ -90,6 +91,8 @@ class Trends1 extends React.Component<{items: string[],
 }
 
 const Trends = (props : any) => {
+
+  const context:any = useAppContext() ;
   
   const [itemData, setItemData] = useState<{ [key: string]: any }>({});
 
@@ -160,7 +163,7 @@ const Trends = (props : any) => {
     data.global = global ;
   }
 
-  const pullData = async (item: string) => {
+  const pullData = (item: string) => {
     if (itemData[item]) {
       return;
     }
@@ -169,7 +172,7 @@ const Trends = (props : any) => {
         ...prevData,
         [item]: {status: 'loading'}
       }));
-      let url = getBackendUrl()+'/trends/'
+      let url = '/trends/'
       if (item.startsWith('c_')) {
         url += ('category/'+item) ;
       } else if (item.startsWith('t_')) {
@@ -194,13 +197,13 @@ const Trends = (props : any) => {
         }));
         return;
       }
-      const response = await fetch(url);
-      const data = await response.json();
-      aggregate(data) ;
-      setItemData((prevData) => ({
-        ...prevData,
-        [item]: {status: 'ok', data: data}
-      }));
+      context.backendGET(url, (data: any) => {
+        aggregate(data) ;
+        setItemData((prevData) => ({
+          ...prevData,
+          [item]: {status: 'ok', data: data}
+        }));
+      });
     } catch (error) {
       setItemData((prevData) => ({
         ...prevData,

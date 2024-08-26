@@ -1,7 +1,7 @@
 import React from 'react';
-import { getBackendUrl } from '../../utils';
 import Loading from '../common/Loading';
 import LikeMeterResult from './LikeMeterResult';
+import { AppContext } from '../../AppContext';
 
 
 const POLLING_INTERVAL_SECONDS = 2 ;
@@ -10,20 +10,22 @@ const TIMEOUT_SECONDS = 120 ;
 
 class LikeMeterTask extends React.Component<{ token: string }> {
   
+  static contextType = AppContext ;
+
   state = {
     task: null,
     error: null
   };
 
   componentDidMount() {
-    this.fetchData() ;
+    this.pullData() ;
   }
 
-  fetchData = () => {
-    fetch(`${getBackendUrl()}/task/${this.props.token}`)
-      .then(response => response.json())
-      .then(data => this.continue(data))
-      .catch(error => this.setState({ error: error }));
+  pullData = () => {
+    const context:any = this.context ;
+    context.backendGET(`/task/${this.props.token}`, (data: any) => {
+      this.continue(data) ;
+    });
   }
 
   continue = (data: any) => {
@@ -34,7 +36,7 @@ class LikeMeterTask extends React.Component<{ token: string }> {
       const createdAt = new Date(data.created_at) ;
       const time = ((new Date()).getTime() - createdAt.getTime()) / 1000 ;
       if (!data.result && time < TIMEOUT_SECONDS) {
-        setTimeout(this.fetchData, POLLING_INTERVAL_SECONDS * 1000); 
+        setTimeout(this.pullData, POLLING_INTERVAL_SECONDS * 1000); 
       }
     }
   }

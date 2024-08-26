@@ -2,12 +2,14 @@ import React from 'react';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-import { getBackendUrl, fontFamily, castCategories, getColorForArray, hexToRGBA } from '../../utils';
+import { fontFamily, castCategories, getColorForArray, hexToRGBA } from '../../utils';
 import Panel from '../common/Panel'; 
 import Loading from '../common/Loading';
-
+import { AppContext } from '../../AppContext';
 
 class Content extends React.Component<{}, { data: any[] }> {
+
+  static contextType = AppContext ;
 
   constructor(props: {}) {
     super(props);
@@ -15,10 +17,10 @@ class Content extends React.Component<{}, { data: any[] }> {
   }
 
   componentDidMount() {
-    fetch(`${getBackendUrl()}/dashboard/categories`)
-      .then(response => response.json())
-      .then(data => this.setState({ data }))
-      .catch(error => console.error('Error:' + error));
+    const context:any = this.context ;
+    context.backendGET('/dashboard/categories', (data: any) => {
+      this.setState({ data });
+    });
   }
 
   prepareChartData() {

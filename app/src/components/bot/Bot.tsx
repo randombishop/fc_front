@@ -3,12 +3,14 @@ import { Grid, TextField, Button, Alert } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import HelpIcon from '@mui/icons-material/Help';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
-import AsyncTaskHandler from '../common/TaskManager';
 import Loading from '../common/Loading';
 import BotCast from './BotCast';
+import { AppContext } from '../../AppContext';
 
 
 class Bot extends React.Component {
+
+  static contextType = AppContext ;
 
   state = {
     query: '',
@@ -46,7 +48,8 @@ class Bot extends React.Component {
 
   quoteQuery = async () => {
     this.begin(async () => {
-      const taskHandler = new AsyncTaskHandler() ;
+      const context:any = this.context ;
+      const taskHandler = context.newTaskHandler() ;
       const payload = {query: this.state.query};
       const task = await taskHandler.runTask('/bot/quote', payload);
       const cost = task.result?task.result.cost : null ;
@@ -56,7 +59,8 @@ class Bot extends React.Component {
 
   startQuery = () => {
     this.begin(async () => {
-      const taskHandler = new AsyncTaskHandler() ;
+      const context:any = this.context ;
+      const taskHandler = context.newTaskHandler() ;
       const payload = {query: this.state.query};
       const task = await taskHandler.runTask('/bot/run', payload);
       this.setState({enabled: true, result: task.result, error: task.error});

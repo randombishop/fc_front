@@ -47,7 +47,7 @@ class Header1 extends React.Component<{ location: any }> {
                   Farcaster<br />Data
                 </Box>
               </Grid>
-              <Grid item xs={12} md={6} >
+              <Grid item xs={12} md={5} >
                 <Box display="inline-flex" justifyContent="center" alignItems="center" width="100%" height="100%">
                   <Button color={this.getButtonColor('/dashboard', true)} href={dashboardUrl}>Dashboard</Button>
                   <Button color={this.getButtonColor('/trends')} href={trendsUrl}>Trends</Button>
@@ -55,7 +55,7 @@ class Header1 extends React.Component<{ location: any }> {
                   <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Likemeter</Button>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={2} >
+              <Grid item xs={12} md={3} sx={{position: 'relative', height: '100px'}}>
                 <Profile />
               </Grid>
             </Grid>

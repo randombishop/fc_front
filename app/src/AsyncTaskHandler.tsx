@@ -1,25 +1,32 @@
-import { getBackendUrl, getTaskUrl } from '../../utils';
+import { getBackendUrl, getTaskUrl } from './utils';
 
 
 class AsyncTaskHandler {
 
+  private token: string|null;
   private pollingInterval: number;
   private maxAttempts: number;
   
-
-  constructor(pollingInterval: number = 1000, maxAttempts: number = 100) { 
+  constructor(token: string|null, pollingInterval: number = 1000, maxAttempts: number = 100) { 
+    this.token = token ;
     this.pollingInterval = pollingInterval;
     this.maxAttempts = maxAttempts;
+
   }
 
   async triggerTask(endpoint: string, payload: object): Promise<string> {
-    const response = await fetch(getBackendUrl() + endpoint, {
+    const post:any = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload),
-    });
+    }
+    if (this.token) {
+      post.headers['Authorization'] = `Bearer ${this.token}` ;
+    }
+    console.log('triggerTask post', post);
+    const response = await fetch(getBackendUrl() + endpoint, post);
     if (!response.ok) {
       throw new Error('Failed to trigger task');
     }
@@ -33,12 +40,16 @@ class AsyncTaskHandler {
   }
 
   async checkTaskStatus(token: string): Promise<any> {
-    const response = await fetch(getTaskUrl(token), {
+    const payload:any = {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json'
       },
-    });
+    }
+    if (this.token) {
+      payload.headers['Authorization'] = `Bearer ${this.token}` ;
+    }
+    const response = await fetch(getTaskUrl(token), payload);
     if (!response.ok) {
       throw new Error('Failed to check task status');
     }
