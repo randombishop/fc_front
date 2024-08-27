@@ -1,6 +1,6 @@
 import React from 'react';
 import { HashRouter as Router, Route, Routes } from 'react-router-dom';
-import { Container } from '@mui/material';
+import { Container, Box } from '@mui/material';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import { AppContextProvider } from './AppContext';
 import Header from './components/common/Header';
@@ -8,7 +8,7 @@ import Dashboard from './components/dashboard/Dashboard';
 import Trends from './components/trends/Trends';
 import Bot from './components/bot/Bot';
 import LikeMeter from './components/likemeter/LikeMeter';
-
+import Footer from './components/common/Footer';
 
 const farcasterConfig = {
   rpcUrl: 'https://mainnet.optimism.io',
@@ -24,7 +24,10 @@ class App extends React.Component {
         <AppContextProvider>
           <Router>
             <Header />
-            <Container style={{ marginTop: '20px' }}>
+            <Container sx={{marginTop: '20px',
+                            display: 'flex', 
+                            flexDirection: 'column',
+                            height: '90vh'}}>
               <Routes>
                 <Route path="/" Component={Dashboard} />
                 <Route path="/dashboard" Component={Dashboard} />
@@ -32,8 +35,10 @@ class App extends React.Component {
                 <Route path="/bot" Component={Bot} />
                 <Route path="/like-meter/:token" Component={LikeMeter} />
               </Routes>
-              </Container>
-            </Router>
+              <Box sx={{ flexGrow: 1 }} />
+              <Footer />
+            </Container>
+          </Router>
         </AppContextProvider>
       </AuthKitProvider>
     );
