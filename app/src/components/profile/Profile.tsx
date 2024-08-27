@@ -48,11 +48,9 @@ class Profile extends React.Component {
   }
 
   renderSignIn = () => {
-    const context:any = this.context ;
     if (!this.state.loggingOut) {
       return (
         <SignInButton 
-            nonce={context.nonce}
           hideSignOut={true} 
           onSuccess={this.onFarcasterLoginSuccess}
           onError={this.onFarcasterLoginError} />
@@ -66,7 +64,7 @@ class Profile extends React.Component {
 
   renderMenu = () => {
     const context:any = this.context ;
-    if (this.state.dropDown && context.isSignedIn()) {
+    if (this.state.dropDown && context.isSignedIn) {
       return (
         <ClickAwayListener onClickAway={() => this.setState({dropDown: false})}>
           <Paper

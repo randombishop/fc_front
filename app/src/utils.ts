@@ -11,8 +11,11 @@ import BannerTechScience from './assets/banners/tech_science.png';
 
 
 function getBackendUrl() {
-  //return 'https://fc.datascience.art' ;
-  return 'http://localhost:8080' ;
+  if (process.env.NODE_ENV === 'development') {
+    return process.env.REACT_APP_BACKEND_URL || 'http://localhost:8080';
+  } else {
+    return 'https://fc.datascience.art';
+  }
 }
 
 function getTaskUrl(token: string) {

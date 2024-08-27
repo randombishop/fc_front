@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Grid, TextField, Button, Alert } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import HelpIcon from '@mui/icons-material/Help';
@@ -6,10 +6,9 @@ import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import Loading from '../common/Loading';
 import BotCast from './BotCast';
 import { AppContext } from '../../AppContext';
-import SignInAware from '../common/SignInAware';
 
 
-class Bot extends React.Component<{isSignedIn: boolean}> {
+class Bot1 extends React.Component<{isSignedIn: boolean}> {
 
   static contextType = AppContext ;
 
@@ -171,4 +170,9 @@ class Bot extends React.Component<{isSignedIn: boolean}> {
 }
 
 
-export default SignInAware(Bot) ;
+const Bot = () => {
+  const { isSignedIn } = useContext(AppContext);
+  return <Bot1 isSignedIn={isSignedIn} />
+};
+
+export default Bot ;
