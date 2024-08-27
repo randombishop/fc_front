@@ -3,6 +3,9 @@ import { Grid, TextField, Button } from '@mui/material';
 import { AppContext } from '../../AppContext' ;
 
 
+
+const MIN_TEXT_LENGTH = 20 ;
+
 class LikeMeterInput extends React.Component<{ newToken: (token: string) => void }> {
   
   static contextType = AppContext ;
@@ -18,8 +21,8 @@ class LikeMeterInput extends React.Component<{ newToken: (token: string) => void
 
   score = () => {
     const text = this.state.text;
-    if (text.length<25) {
-      alert('Text must be at least 25 characters long') ;
+    if (text.length<MIN_TEXT_LENGTH) {
+      alert(`Text must be at least ${MIN_TEXT_LENGTH} characters long`) ;
     } else {
       this.setState({enabled: false}) ;
       const context:any = this.context ;

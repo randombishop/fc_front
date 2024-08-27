@@ -1,7 +1,6 @@
 import React from 'react';
 import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 import { Container } from '@mui/material';
-import '@farcaster/auth-kit/styles.css';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import { AppContextProvider } from './AppContext';
 import Header from './components/common/Header';
@@ -9,7 +8,6 @@ import Dashboard from './components/dashboard/Dashboard';
 import Trends from './components/trends/Trends';
 import Bot from './components/bot/Bot';
 import LikeMeter from './components/likemeter/LikeMeter';
-import './index.css';
 
 
 const farcasterConfig = {

@@ -48,6 +48,10 @@ class Bot extends React.Component<{isSignedIn: boolean}> {
   };
 
   quoteQuery = async () => {
+    if (this.state.query.length < 10) {
+      alert('Please enter a query (min 10 characters)') ;
+      return ;
+    }
     this.begin(async () => {
       const context:any = this.context ;
       const taskHandler = context.newTaskHandler() ;
@@ -59,6 +63,10 @@ class Bot extends React.Component<{isSignedIn: boolean}> {
   };
 
   startQuery = () => {
+    if (this.state.query.length < 10) {
+      alert('Please enter a query (min 10 characters)') ;
+      return ;
+    }
     this.begin(async () => {
       const context:any = this.context ;
       const taskHandler = context.newTaskHandler() ;
@@ -66,7 +74,6 @@ class Bot extends React.Component<{isSignedIn: boolean}> {
       const task = await taskHandler.runTask('/bot/run', payload);
       this.setState({loading: false, result: task.result, error: task.error});
     }) ;
-
   };
 
   renderLoading = () => {

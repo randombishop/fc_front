@@ -1,0 +1,35 @@
+@font-face {
+  font-family: 'Reddit Mono';
+  src: url('./RedditMono-Light.ttf') format('truetype');
+  font-weight: 300; /* light weight */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Reddit Mono';
+  src: url('./RedditMono-Regular.ttf') format('truetype');
+  font-weight: 400; /* normal weight */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Reddit Mono';
+  src: url('./RedditMono-Medium.ttf') format('truetype');
+  font-weight: 500; /* medium weight */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Reddit Mono';
+  src: url('./RedditMono-Bold.ttf') format('truetype');
+  font-weight: 700; /* bold weight */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Reddit Mono';
+  src: url('./RedditMono-Black.ttf') format('truetype');
+  font-weight: 900; /* black weight */
+  font-style: normal;
+}
+

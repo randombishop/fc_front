@@ -113,7 +113,8 @@ const castTopics:any = {
   }
 } ;
 
-const fontFamily = '"Courier New", Courier, monospace' ;
+const fontFamily = 'Reddit Mono, monospace' ;
+//const fontFamily = '"Courier New", Courier, monospace' ;
 
 const colors = {
   primary: '#27FFDF' ,
