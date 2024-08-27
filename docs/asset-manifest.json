@@ -1,7 +1,8 @@
 {
   "files": {
-    "main.css": "/static/css/main.95ae2541.css",
-    "main.js": "/static/js/main.ebeef49e.js",
+    "main.css": "/static/css/main.99fc55db.css",
+    "main.js": "/static/js/main.1b13b5c1.js",
+    "static/js/55.d40f3c72.chunk.js": "/static/js/55.d40f3c72.chunk.js",
     "static/media/gm.png": "/static/media/gm.331b5752780c6e038284.png",
     "static/media/tech_science.png": "/static/media/tech_science.2d7d983387cf4b459449.png",
     "static/media/sports.png": "/static/media/sports.c10dd56002086326d7b7.png",
@@ -12,13 +13,20 @@
     "static/media/politics.png": "/static/media/politics.73d643d5320b0ad33b7a.png",
     "static/media/crypto.png": "/static/media/crypto.bbec95a37583558d70a3.png",
     "static/media/money.png": "/static/media/money.47c4dfca3e7b0bf77d29.png",
+    "static/media/RedditMono-Light.ttf": "/static/media/RedditMono-Light.95336731c43491aadf1a.ttf",
+    "static/media/RedditMono-Black.ttf": "/static/media/RedditMono-Black.72eadebb8ecae5d83b64.ttf",
+    "static/media/RedditMono-Bold.ttf": "/static/media/RedditMono-Bold.65848c971d8abb768b0e.ttf",
+    "static/media/RedditMono-Medium.ttf": "/static/media/RedditMono-Medium.c158072b593429785b4f.ttf",
+    "static/media/RedditMono-Regular.ttf": "/static/media/RedditMono-Regular.f7378154f69f98a02f8e.ttf",
+    "static/media/index.cjs": "/static/media/index.61e57bb6b4fd6fcd0938.cjs",
     "static/media/logo_white_nobg.png": "/static/media/logo_white_nobg.a8625eb837a3bf71646a.png",
     "index.html": "/index.html",
-    "main.95ae2541.css.map": "/static/css/main.95ae2541.css.map",
-    "main.ebeef49e.js.map": "/static/js/main.ebeef49e.js.map"
+    "main.99fc55db.css.map": "/static/css/main.99fc55db.css.map",
+    "main.1b13b5c1.js.map": "/static/js/main.1b13b5c1.js.map",
+    "55.d40f3c72.chunk.js.map": "/static/js/55.d40f3c72.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.95ae2541.css",
-    "static/js/main.ebeef49e.js"
+    "static/css/main.99fc55db.css",
+    "static/js/main.1b13b5c1.js"
   ]
 }
