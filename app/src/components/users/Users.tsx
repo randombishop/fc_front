@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AppContext } from '../../AppContext';
 import AddItem from './AddItem';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import UserTab from './UserTab';
 
 
 class Users1 extends React.Component<{isSignedIn: boolean,
@@ -48,9 +49,13 @@ class Users1 extends React.Component<{isSignedIn: boolean,
       return null ;
     }
     const selectedItem = this.props.items[this.state.selectedTab] ;
-    const data = this.props.itemData[selectedItem] ;
+    const itemData = this.props.itemData[selectedItem] ;
+    if (!itemData || !itemData.data) {
+      return null ;
+    }
+    const data = itemData.data ;
     return (
-      JSON.stringify(data)
+      <UserTab data={data} />
     ) ;
   }
 
@@ -64,7 +69,6 @@ class Users1 extends React.Component<{isSignedIn: boolean,
         <Tabs value={this.state.selectedTab} onChange={this.changeTab}>
           {items.map(this.renderTabTitle)}
         </Tabs>
-        {this.renderTabContent()}
       </Grid>
     ) ;
   }
@@ -75,7 +79,8 @@ class Users1 extends React.Component<{isSignedIn: boolean,
           <Grid item xs={12} >
             <AddItem isSignedIn={this.props.isSignedIn} add={this.props.addItem} />
           </Grid>
-          {this.renderTabs()}
+          {this.renderTabs()} 
+          {this.renderTabContent()}
       </Grid>
     );
   }
