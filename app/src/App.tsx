@@ -6,6 +6,7 @@ import { AppContextProvider } from './AppContext';
 import Header from './components/common/Header';
 import Dashboard from './components/dashboard/Dashboard';
 import Trends from './components/trends/Trends';
+import Users from './components/users/Users';
 import Bot from './components/bot/Bot';
 import LikeMeter from './components/likemeter/LikeMeter';
 import Footer from './components/common/Footer';
@@ -32,6 +33,7 @@ class App extends React.Component {
                 <Route path="/" Component={Dashboard} />
                 <Route path="/dashboard" Component={Dashboard} />
                 <Route path="/trends/:terms" Component={Trends} />
+                <Route path="/users/:terms" Component={Users} />
                 <Route path="/bot" Component={Bot} />
                 <Route path="/like-meter/:token" Component={LikeMeter} />
               </Routes>

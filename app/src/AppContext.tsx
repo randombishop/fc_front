@@ -20,7 +20,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     setAlerts([...alerts]);
   }
 
-  const backendGET = (path: string, callback: (data: any) => void) => {
+  const backendGET = (path: string, callback: (data: any) => void, onError: (error: any) => void) => {
     const get:any = {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
@@ -31,7 +31,12 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     fetch(getBackendUrl() + path, get)
       .then(response => response.json())
       .then(data => callback(data))
-      .catch(error => newAlert('Error:' + error));
+      .catch(error => {
+        newAlert('Error:' + error);
+        if (onError) {
+          onError(error);
+        }
+      });
   }
 
   const backendPOST = (path: string, payload: any, callback: (data: any) => void) => {
