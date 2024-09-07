@@ -100,7 +100,6 @@ class UserFollowers extends React.Component< {data: any}> {
         }
       }
     };
-    console.log(labels, followers_add, followers_del, followers, num_followers) ;
     return (
       <Panel title="Followers">
         <Line data={chartData} 

@@ -295,6 +295,26 @@ function randomString(length: number = 10): string {
   return nonce;
 }
 
+function parseWordDict(s:string, minFontSize:number, maxFontSize:number):any {
+  try {
+    const d = JSON.parse(s.replace('\\', '')) ;
+    const array = Object.entries(d).map(([key, value]) => ({
+      text: key,
+      frequency: value,
+      value: 0
+    }));
+    const minValue = Math.min(...array.map(item => Number(item.frequency)));
+    const maxValue = Math.max(...array.map(item => Number(item.frequency)));
+    for (const item of array) {
+      item.value = Math.round(minFontSize + (maxFontSize - minFontSize) * (Number(item.frequency) - minValue) / (maxValue - minValue)) ;
+    }
+    return array;
+  } catch (e) {
+    console.log('Error parsing word dict', e) ;
+    return null ;
+  }
+}
+
 export { 
   castCategories,
   castTopics,
@@ -316,5 +336,6 @@ export {
   birdScoreThresholds,
   dateYYYY_MM_DD,
   insertMentions,
-  randomString 
+  randomString,
+  parseWordDict 
 } ;
