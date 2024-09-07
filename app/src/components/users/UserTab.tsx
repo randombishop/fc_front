@@ -1,28 +1,15 @@
 import React from 'react';
 import { Grid } from '@mui/material';
 import UserProfile from './UserProfile';
-import Followers from './Followers';
+import UserFollowers from './UserFollowers';
+import UserCategories from './UserCategories';
+import UserWordCloud from './UserWordCloud';
+import UserEngagement from './UserEngagement';
+import UserFollowerAnalysis from './UserFollowerAnalysis';
 
 
 class UserTab extends React.Component< {data: any}> {
   
-
-  renderProfile() {
-    return (
-      <Grid item xs={6} >
-        <UserProfile data={this.props.data} />
-      </Grid>
-    );
-  }
-
-  renderFollowers() {
-    return (
-      <Grid item xs={6} >
-        <Followers data={this.props.data} />
-      </Grid>
-    );
-  }
-
   renderRaw() {
     return (
       <Grid item xs={6} >
@@ -38,8 +25,20 @@ class UserTab extends React.Component< {data: any}> {
     }
     return (
       <React.Fragment>
-        {this.renderProfile()}
-        {this.renderFollowers()}
+        <Grid item xs={5} >
+            <UserProfile data={this.props.data} />
+            <br/>
+            <UserWordCloud data={this.props.data} />
+            <br/>
+            <UserCategories data={this.props.data} />            
+        </Grid>
+        <Grid item xs={7} >
+          <UserFollowers data={this.props.data} />
+          <br/>
+          <UserEngagement data={this.props.data} />
+          <br/>
+          <UserFollowerAnalysis data={this.props.data} />
+        </Grid>
         {this.renderRaw()}
       </React.Fragment>
     );

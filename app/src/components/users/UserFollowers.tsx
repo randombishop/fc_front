@@ -4,7 +4,7 @@ import Panel from '../common/Panel';
 import { fontFamily, lightColors, darkColors, colors, hexToRGBA } from '../../utils';
 
 
-class Followers extends React.Component< {data: any}> {
+class UserFollowers extends React.Component< {data: any}> {
   
   render() {
     const data = this.props.data ;
@@ -105,7 +105,7 @@ class Followers extends React.Component< {data: any}> {
       <Panel title="Followers">
         <Line data={chartData} 
             options={options} 
-            height={300}      
+            height={200}      
         />
       </Panel>
     );
@@ -113,4 +113,4 @@ class Followers extends React.Component< {data: any}> {
 
 }
 
-export default Followers;
+export default UserFollowers;
