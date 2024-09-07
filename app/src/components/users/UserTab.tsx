@@ -1,20 +1,24 @@
 import React from 'react';
 import { Grid } from '@mui/material';
 import UserProfile from './UserProfile';
+import Followers from './Followers';
 
 
 class UserTab extends React.Component< {data: any}> {
   
 
   renderProfile() {
-    const data = this.props.data ;
-    if (!data || !data.info) {
-      return null ;
-    }
-    const info = data.info ;
     return (
       <Grid item xs={6} >
-        <UserProfile name={info.display_name} avatar={info.pfp.url} />
+        <UserProfile data={this.props.data} />
+      </Grid>
+    );
+  }
+
+  renderFollowers() {
+    return (
+      <Grid item xs={6} >
+        <Followers data={this.props.data} />
       </Grid>
     );
   }
@@ -28,9 +32,14 @@ class UserTab extends React.Component< {data: any}> {
   }
 
   render() {
+    const data = this.props.data ;
+    if (!data) {
+      return null ;
+    }
     return (
       <React.Fragment>
         {this.renderProfile()}
+        {this.renderFollowers()}
         {this.renderRaw()}
       </React.Fragment>
     );

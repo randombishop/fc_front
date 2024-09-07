@@ -52,7 +52,7 @@ class Header1 extends React.Component<{ location: any }> {
                 <Box display="inline-flex" justifyContent="center" alignItems="center" width="100%" height="100%">
                   <Button color={this.getButtonColor('/dashboard', true)} href={dashboardUrl}>Dashboard</Button>
                   <Button color={this.getButtonColor('/trends')} href={trendsUrl}>Trends</Button>
-                  <Button color={this.getButtonColor('/users', true)} href={usersUrl}>Users</Button>
+                  <Button color={this.getButtonColor('/users')} href={usersUrl}>Users</Button>
                   <Button color={this.getButtonColor('/bot')} href={botUrl}>Bot</Button>
                   <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Likemeter</Button>
                 </Box>
