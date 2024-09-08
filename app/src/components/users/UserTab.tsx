@@ -6,6 +6,8 @@ import UserCategories from './UserCategories';
 import UserWordCloud from './UserWordCloud';
 import UserEngagement from './UserEngagement';
 import UserFollowerAnalysis from './UserFollowerAnalysis';
+import UserTopFollowers from './UserTopFollowers';
+import UserFavorites from './UserFavorites';
 
 
 class UserTab extends React.Component< {data: any}> {
@@ -28,18 +30,21 @@ class UserTab extends React.Component< {data: any}> {
         <Grid item xs={5} >
             <UserProfile data={this.props.data} />
             <br/>
-            <UserWordCloud data={this.props.data} />
+            <UserWordCloud data={this.props.data} />  
             <br/>
-            <UserCategories data={this.props.data} />            
+            <UserTopFollowers data={this.props.data} />
+            <br/>
+            <UserFavorites data={this.props.data} />
         </Grid>
         <Grid item xs={7} >
           <UserFollowers data={this.props.data} />
           <br/>
           <UserEngagement data={this.props.data} />
           <br/>
+          <UserCategories data={this.props.data} />
+          <br/>
           <UserFollowerAnalysis data={this.props.data} />
         </Grid>
-        {this.renderRaw()}
       </React.Fragment>
     );
   }
