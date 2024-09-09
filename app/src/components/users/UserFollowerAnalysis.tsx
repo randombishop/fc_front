@@ -183,7 +183,6 @@ class UserFollowerAnalysis extends React.Component< {data: any}> {
     if (!data || !data.followerSample || !data.statsGlobal) {
       return null ;
     }
-    const followerSample = data.followerSample ;
     return (
       <Panel title="Followers Analysis">
         <FormControl fullWidth style={{ marginBottom: '20px' }}>
