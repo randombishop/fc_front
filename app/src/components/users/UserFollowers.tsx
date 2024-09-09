@@ -94,7 +94,7 @@ class UserFollowers extends React.Component< {data: any}> {
         y1: {
             position: 'left' as const,
             grid: {
-              drawOnChartArea: true,
+              drawOnChartArea: false,
               color: 'darkgray'
             }
         }
