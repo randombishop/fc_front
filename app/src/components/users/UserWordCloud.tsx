@@ -8,7 +8,7 @@ class UserWordCloud extends React.Component< {data: any}> {
   
   render() {
     const data = this.props.data ;
-    if (!data && !data.features) {
+    if (!data || !data.features || !data.features.words_dict) {
       return null ;
     }
     const words = parseWordDict(data.features.words_dict, 15, 150)  ;

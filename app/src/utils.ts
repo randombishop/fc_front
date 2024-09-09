@@ -315,6 +315,14 @@ function parseWordDict(s:string, minFontSize:number, maxFontSize:number):any {
   }
 }
 
+function getAverage(array:any[], field:string):number {
+  if (array.length === 0) return 0;
+  const validItems = array.filter(item => item[field] != null);
+  if (validItems.length === 0) return 0;
+  const sum = validItems.reduce((acc, item) => acc + item[field], 0);
+  return sum / validItems.length ;
+}
+
 export { 
   castCategories,
   castTopics,
@@ -337,5 +345,6 @@ export {
   dateYYYY_MM_DD,
   insertMentions,
   randomString,
-  parseWordDict 
+  parseWordDict,
+  getAverage 
 } ;
