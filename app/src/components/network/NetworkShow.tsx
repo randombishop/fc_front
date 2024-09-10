@@ -1,6 +1,6 @@
 import React from 'react';
+import { TextureLoader, SRGBColorSpace, SpriteMaterial, Sprite } from 'three';
 import { ForceGraph3D } from 'react-force-graph';
-import * as THREE from 'three';
 import Panel from '../common/Panel';
 import Loading from '../common/Loading';
 import { getBackendUrl } from '../../utils';
@@ -25,10 +25,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     const defaultAvatar = '/avatar_empty.png'
     const nodeObject = (node:any) => {
       const url = node.pfp ? getBackendUrl() + '/avatars/transform.png?url=' + node.pfp : defaultAvatar ;
-      const imgTexture = new THREE.TextureLoader().load(url);
-      imgTexture.colorSpace = THREE.SRGBColorSpace;
-      const material = new THREE.SpriteMaterial({ map: imgTexture });
-      const sprite = new THREE.Sprite(material);
+      const imgTexture = new TextureLoader().load(url);
+      imgTexture.colorSpace = SRGBColorSpace;
+      const material = new SpriteMaterial({ map: imgTexture });
+      const sprite = new Sprite(material);
       sprite.scale.set(12, 12, 12);
       return sprite;
     }
@@ -41,6 +41,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
             nodeLabel="name"
             nodeThreeObject={nodeObject}
             nodeRelSize={12}
+
             linkCurvature={0.25}
           />
       </Panel>
