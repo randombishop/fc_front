@@ -10,6 +10,8 @@ import Users from './components/users/Users';
 import Bot from './components/bot/Bot';
 import LikeMeter from './components/likemeter/LikeMeter';
 import Footer from './components/common/Footer';
+import Network from './components/network/Network';
+
 
 const farcasterConfig = {
   rpcUrl: 'https://mainnet.optimism.io',
@@ -36,6 +38,7 @@ class App extends React.Component {
                 <Route path="/users/:terms" Component={Users} />
                 <Route path="/bot" Component={Bot} />
                 <Route path="/like-meter/:token" Component={LikeMeter} />
+                <Route path="/network/:sample/:mode/:item?" Component={Network} />
               </Routes>
               <Box sx={{ flexGrow: 1 }} />
               <Footer />

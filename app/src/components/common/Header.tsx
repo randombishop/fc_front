@@ -33,6 +33,7 @@ class Header1 extends React.Component<{ location: any }> {
       const usersUrl = '#/users/-';
       const botUrl = '#/bot';
       const likeMeterUrl = '#/like-meter/-';
+      const networkUrl = '#/network/random/group/1';
       return (
         <AppBar position="static">
           <Toolbar>
@@ -55,6 +56,7 @@ class Header1 extends React.Component<{ location: any }> {
                   <Button color={this.getButtonColor('/users')} href={usersUrl}>Users</Button>
                   <Button color={this.getButtonColor('/bot')} href={botUrl}>Bot</Button>
                   <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Likemeter</Button>
+                  <Button color={this.getButtonColor('/network')} href={networkUrl}>Network</Button>
                 </Box>
               </Grid>
               <Grid item xs={12} md={3} sx={{position: 'relative', height: '100px'}}>
