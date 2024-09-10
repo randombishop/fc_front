@@ -41,6 +41,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
             nodeLabel="name"
             nodeThreeObject={nodeObject}
             nodeRelSize={12}
+            linkCurvature={0.25}
           />
       </Panel>
     );
