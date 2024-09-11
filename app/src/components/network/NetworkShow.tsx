@@ -38,6 +38,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
 
   state = {
     data: null,
+    nodeMap: {},
     ts: 0,
     minTS: 0,
     maxTS: 0,
@@ -79,53 +80,136 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       return ;
     }
     const nodes = data.nodes ;
+    const nodeMap:any = {} ;
+    nodes.forEach((node:any) => {
+      nodeMap[node.id] = node ;
+    }) ;
     const links = data.links ;
     links.sort((a:any, b:any) => a.ts - b.ts) ;
     const initialLinks = Math.floor(links.length/25) ;
     const minTS = links[initialLinks].ts ;
     const maxTS = links[links.length - 1].ts ;
-    const links2 = links.slice(0,initialLinks) ;
+    const links2:any = [] ;
+    for (let i = 0; i < initialLinks; i++) {
+      const l = {
+        source: links[i].source,
+        target: links[i].target
+      }
+      links2.push(l) ;
+    }
+    const nodes2:any = [] ;
+    const addedNodes:any = {} ;
+    for (const link of links2) {
+      if (!addedNodes[link.source] && nodeMap[link.source]) {
+        const n = {
+          id: nodeMap[link.source].id,
+          name: nodeMap[link.source].name,
+          pfp: nodeMap[link.source].pfp,
+          features: nodeMap[link.source].features
+        }
+        nodes2.push(n) ;
+        addedNodes[link.source] = true ;
+      }
+      if (!addedNodes[link.target] && nodeMap[link.target]) {
+        const n = {
+          id: nodeMap[link.target].id,
+          name: nodeMap[link.target].name,
+          pfp: nodeMap[link.target].pfp,
+          features: nodeMap[link.target].features
+        }
+        nodes2.push(n) ;
+        addedNodes[link.target] = true ;
+      }
+    }
     const initialState = {
       data: data,
+      nodeMap: nodeMap,
       ts: minTS,
       minTS: minTS,
       maxTS: maxTS,
-      nodes: nodes,
+      nodes: nodes2,
       links: links2,
-      num_users: nodes.length,
+      num_users: nodes2.length,
       num_links: links2.length,
       connectivity: getConnectivity(nodes.length, links2.length)
     }
-    this.setState(initialState) ;
+    this.setState(initialState, this.zoomToFit) ;
   }
 
   handleSliderChange = (event:any, value:any) => {
     const ts = value ;
-    this.setTimestamp(this.state.data, this.state.links, ts, this.zoomToFit) ;
+    this.setTimestamp(ts, this.zoomToFit) ;
   }
 
-  setTimestamp(data:any, links:any[], ts:number, callback:any) {
+  setTimestamp(ts:number, callback:any) {
+    const data:any = this.state.data ;
+    let links:any[] = this.state.links ;
     const previousLinkCount = links.length ;
     const nextLinkCount = findMaxIndex(data.links, ts) + 1 ;
+    let nodes:any[] = this.state.nodes ;
+    const nodeMap:any = this.state.nodeMap ;
+    const addedNodes:any = {} ;
+    for (const node of nodes) {
+      addedNodes[node.id] = true ;
+    }
     if (nextLinkCount > previousLinkCount) {
+      // Add new links and nodes
       links = links.slice() ;
+      nodes = nodes.slice() ;
       for (let i = previousLinkCount; i < nextLinkCount; i++) {
         const newLink = {
           source: data.links[i].source,
           target: data.links[i].target
         }
         links.push(newLink) ;
+        if (!addedNodes[newLink.source]) {
+          const n = {
+            id: nodeMap[newLink.source].id,
+            name: nodeMap[newLink.source].name,
+            pfp: nodeMap[newLink.source].pfp,
+            features: nodeMap[newLink.source].features
+          }
+          nodes.push(n) ;
+          addedNodes[newLink.source] = true ;
+        }
+        if (!addedNodes[newLink.target]) {
+          const n = {
+            id: nodeMap[newLink.target].id,
+            name: nodeMap[newLink.target].name,
+            pfp: nodeMap[newLink.target].pfp,
+            features: nodeMap[newLink.target].features
+          }
+          nodes.push(n) ;
+          addedNodes[newLink.target] = true ;
+        }
       }
     } else if (nextLinkCount < previousLinkCount) {
-      console.log('removing links') ;
-      links = links.slice(0, nextLinkCount) ;
+      // Recreate clean links
+      links = [] ;
+      const keepNodes:any = {} ;
+      for (let i = 0; i < nextLinkCount; i++) {
+        const l = {
+          source: data.links[i].source,
+          target: data.links[i].target
+        }
+        links.push(l) ;
+        keepNodes[l.source] = true ;
+        keepNodes[l.target] = true ;
+      }
+      // Filter nodes and re-index them
+      nodes = nodes.filter((node:any) => keepNodes[node.id]) ;
+      for (let i = 0; i < nodes.length; i++) {
+        nodes[i].index = i ;
+      }
     }
     const newState = {
       data: data,
       ts: ts,
+      nodes: nodes,
       links: links,
+      num_users: nodes.length,
       num_links: links.length,
-      connectivity: getConnectivity(data.nodes.length, links.length)
+      connectivity: getConnectivity(nodes.length, links.length)
     }
     this.setState(newState, callback) ;
   }
@@ -154,12 +238,12 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     const currentLinks = self.state.links.length ;
     const totalLinks = data.links.length ;
     if (currentLinks === (totalLinks-1)) {
-      self.setTimestamp(data, self.state.links, self.state.maxTS, () => {
+      self.setTimestamp(self.state.maxTS, () => {
         self.zoomToFit() ;
       }) ;
       self.setState({ timeTravel: false }) ;
     } else {
-      self.setTimestamp(data, self.state.links, data.links[currentLinks].ts, () => {
+      self.setTimestamp(data.links[currentLinks].ts, () => {
         self.zoomToFit() ;
         setTimeout(self.continueTimeTravel, TIME_TRAVEL_STEP_MS);
       }) ;
@@ -171,7 +255,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       return ;
     }
     const fg = this.fgRef.current ;
-    fg.zoomToFit() ;
+    fg.zoomToFit(TIME_TRAVEL_STEP_MS) ;
   }
 
   renderTimeTravelButton() {
