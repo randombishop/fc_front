@@ -23,9 +23,7 @@ class Network1 extends React.Component<{sample: string, mode: string, item: stri
                           showNetwork={this.props.showNetwork} 
                           loading={this.props.loading} />
           </Grid>
-
           <Grid item xs={12} >
-            <hr/>
             <NetworkShow data={this.props.data} loading={this.props.loading} />
           </Grid>
       </Grid>

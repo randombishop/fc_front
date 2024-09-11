@@ -185,6 +185,11 @@ function dateYYYY_MM_DD(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+function timestampYYYY_MM_DD(ts: number): string {
+  const date = new Date(ts*1000);
+  return dateYYYY_MM_DD(date);
+}
+
 function today(): string {
   const date = new Date();
   return dateYYYY_MM_DD(date);
@@ -305,8 +310,14 @@ function parseWordDict(s:string, minFontSize:number, maxFontSize:number):any {
     }));
     const minValue = Math.min(...array.map(item => Number(item.frequency)));
     const maxValue = Math.max(...array.map(item => Number(item.frequency)));
-    for (const item of array) {
-      item.value = Math.round(minFontSize + (maxFontSize - minFontSize) * (Number(item.frequency) - minValue) / (maxValue - minValue)) ;
+    if (maxValue > minValue) {
+      for (const item of array) {
+        item.value = Math.round(minFontSize + (maxFontSize - minFontSize) * (Number(item.frequency) - minValue) / (maxValue - minValue)) ;
+      }
+    } else {
+      for (const item of array) {
+        item.value = (minFontSize + maxFontSize) / 2 ;
+      }
     }
     return array;
   } catch (e) {
@@ -343,6 +354,7 @@ export {
   featureTranslation,
   birdScoreThresholds,
   dateYYYY_MM_DD,
+  timestampYYYY_MM_DD,
   insertMentions,
   randomString,
   parseWordDict,
