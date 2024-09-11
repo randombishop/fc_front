@@ -23,13 +23,13 @@
     "d3-cloud": "1.2.7",
     "dayjs": "1.11.13",
     "react": "18.3.1",
-    "three": "0.164.0",
     "react-chartjs-2": "5.2.0",
     "react-d3-cloud": "1.0.6",
     "react-dom": "18.3.1",
     "react-farcaster-embed": "1.8.4",
     "react-force-graph": "1.44.4",
     "react-router-dom": "6.26.1",
+    "three": "0.164.0",
     "viem": "2.20.0",
     "web-vitals": "4.2.3",
     "web3": "4.12.1"
@@ -59,7 +59,8 @@
   "devDependencies": {
     "react-app-rewired": "2.2.1",
     "react-scripts": "5.0.1",
-    "typescript": "5.0.4"
+    "typescript": "5.0.4",
+    "@babel/plugin-proposal-private-property-in-object": "7.21.11"
   },
   "overrides": {
     "react-scripts": {
