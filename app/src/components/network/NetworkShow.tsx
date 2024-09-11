@@ -1,5 +1,7 @@
-import React from 'react';
-import { Grid, Box, Slider, Table, TableBody, TableCell, TableRow, Typography, Stack, Avatar } from '@mui/material';
+import React, {createRef} from 'react';
+import { Grid, Box, Slider, Table, TableBody, TableCell, TableRow, Typography, Stack, Avatar, IconButton } from '@mui/material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 import { TextureLoader, SRGBColorSpace, SpriteMaterial, Sprite } from 'three';
 import { ForceGraph3D } from 'react-force-graph';
 import WordCloud from 'react-d3-cloud';
@@ -7,14 +9,13 @@ import Panel from '../common/Panel';
 import Loading from '../common/Loading';
 import { getBackendUrl, timestampYYYY_MM_DD, parseWordDict } from '../../utils';
 
-
 function findMaxIndex(array: any[], targetTs: number): number {
   let left = 0;
   let right = array.length - 1;
   let result = -1;
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
-    if (array[mid].ts < targetTs) {
+    if (array[mid].ts <= targetTs) {
       result = mid;
       left = mid + 1; 
     } else {
@@ -28,8 +29,13 @@ function getConnectivity(num_users:number, num_links:number) {
   return 100 * num_links / (num_users * (num_users - 1)) ;
 }
 
+const TIME_TRAVEL_STEP_MS = 100 ;
+
+
 class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   
+  fgRef:any = createRef();
+
   state = {
     data: null,
     ts: 0,
@@ -40,7 +46,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     num_users: 0,
     num_links: 0,
     connectivity: 0,
-    selectedUser: null
+    selectedUser: null,
+    timeTravel: false
   }
 
   componentDidMount() {
@@ -74,7 +81,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     const nodes = data.nodes ;
     const links = data.links ;
     links.sort((a:any, b:any) => a.ts - b.ts) ;
-    const initialLinks = Math.floor(links.length/10) ;
+    const initialLinks = Math.floor(links.length/25) ;
     const minTS = links[initialLinks].ts ;
     const maxTS = links[links.length - 1].ts ;
     const links2 = links.slice(0,initialLinks) ;
@@ -94,10 +101,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
 
   handleSliderChange = (event:any, value:any) => {
     const ts = value ;
-    this.setTimestamp(this.state.data, this.state.links, ts) ;
+    this.setTimestamp(this.state.data, this.state.links, ts, this.zoomToFit) ;
   }
 
-  setTimestamp(data:any, links:any[], ts:number) {
+  setTimestamp(data:any, links:any[], ts:number, callback:any) {
     const previousLinkCount = links.length ;
     const nextLinkCount = findMaxIndex(data.links, ts) + 1 ;
     if (nextLinkCount > previousLinkCount) {
@@ -120,11 +127,62 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       num_links: links.length,
       connectivity: getConnectivity(data.nodes.length, links.length)
     }
-    this.setState(newState) ;
+    this.setState(newState, callback) ;
   }
 
   handleNodeClick = (node:any) => {
     this.setState({ selectedUser: node }) ;
+  }
+
+  startTimeTravel = () => {
+    let self = this ;
+    if (this.state.ts < this.state.maxTS) {
+      self.setState({ timeTravel: true }, self.continueTimeTravel) ;
+    }
+  }
+
+  stopTimeTravel = () => {
+    this.setState({ timeTravel: false }) ;
+  }
+
+  continueTimeTravel = () => {
+    if (!this.state.timeTravel) {
+      return ;
+    }
+    let self = this ;
+    const data:any = self.state.data ;
+    const currentLinks = self.state.links.length ;
+    const totalLinks = data.links.length ;
+    if (currentLinks === (totalLinks-1)) {
+      self.setTimestamp(data, self.state.links, self.state.maxTS, () => {
+        self.zoomToFit() ;
+      }) ;
+      self.setState({ timeTravel: false }) ;
+    } else {
+      self.setTimestamp(data, self.state.links, data.links[currentLinks].ts, () => {
+        self.zoomToFit() ;
+        setTimeout(self.continueTimeTravel, TIME_TRAVEL_STEP_MS);
+      }) ;
+    }
+  }
+
+  zoomToFit = () => { 
+    if (!this.fgRef.current) {
+      return ;
+    }
+    const fg = this.fgRef.current ;
+    fg.zoomToFit() ;
+  }
+
+  renderTimeTravelButton() {
+    if (this.state.timeTravel) {
+      return <IconButton onClick={this.stopTimeTravel} >
+        <PauseIcon />
+      </IconButton>
+    }
+    return <IconButton onClick={this.startTimeTravel} >
+      <PlayArrowIcon />
+    </IconButton>
   }
 
   renderUserFeatures() {
@@ -217,10 +275,14 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
                 onChange={this.handleSliderChange}
                 valueLabelDisplay="on"
                 valueLabelFormat={timestampYYYY_MM_DD}
+                disabled={this.state.timeTravel}
               />
               {timestampYYYY_MM_DD(this.state.maxTS)}
+              {this.renderTimeTravelButton()}
             </Box>
-            <ForceGraph3D graphData={data} 
+            <ForceGraph3D 
+              ref={this.fgRef}
+              graphData={data} 
               width={700} height={700} 
               nodeLabel="name"
               nodeThreeObject={nodeObject}
