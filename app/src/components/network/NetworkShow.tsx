@@ -1,13 +1,12 @@
-import React, {createRef} from 'react';
+import React, { createRef } from 'react';
 import { Grid, Box, Slider, Table, TableBody, TableCell, TableRow, Typography, Stack, Avatar, IconButton } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
-import { TextureLoader, SRGBColorSpace, SpriteMaterial, Sprite } from 'three';
-import { ForceGraph3D } from 'react-force-graph';
 import WordCloud from 'react-d3-cloud';
+import * as d3 from 'd3';
 import Panel from '../common/Panel';
 import Loading from '../common/Loading';
-import { getBackendUrl, timestampYYYY_MM_DD, parseWordDict } from '../../utils';
+import { timestampYYYY_MM_DD, parseWordDict } from '../../utils';
 
 function findMaxIndex(array: any[], targetTs: number): number {
   let left = 0;
@@ -30,28 +29,58 @@ function getConnectivity(num_users:number, num_links:number) {
 }
 
 const TIME_TRAVEL_STEP_MS = 100 ;
-
+const SIMULATION_WIDTH = 700 ;
+const SIMULATION_HEIGHT = 600 ;
+const NODE_RAY = 16 ;
+const ZOOM_MIN = 0.1 ;
+const ZOOM_MAX = 10 ;
 
 class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   
-  fgRef:any = createRef();
+  state: any;
+  graphRef: React.RefObject<SVGSVGElement>;
+  simulation: any;
+  zoom: any;
+  svgNode: any;
+  svgLink: any;
+  svgContainer: any;
+  links: any[];
+  nodes: any[];
 
-  state = {
-    data: null,
-    nodeMap: {},
-    ts: 0,
-    minTS: 0,
-    maxTS: 0,
-    nodes: [],
-    links: [],
-    num_users: 0,
-    num_links: 0,
-    connectivity: 0,
-    selectedUser: null,
-    timeTravel: false
+
+
+  // -----------------------------
+  // Component Lifecycle
+  // -----------------------------
+
+  constructor(props:any) {
+    super(props) ;
+    this.state  = {
+      ts: 0,
+      minTS: 0,
+      maxTS: 0,
+      num_users: 0,
+      num_links: 0,
+      connectivity: 0,
+      selectedUser: null,
+      timeTravel: false,
+      autoFit: true
+    } ;
+    this.graphRef = createRef();
+    this.simulation = d3.forceSimulation()
+      .force('link', d3.forceLink().id((d:any) => (d.id)).distance(100))
+      .force('charge', d3.forceManyBody().strength(-300))
+      .force('center', d3.forceCenter(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2))
+      .force('radial', d3.forceRadial(300, SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)) ;
+    this.zoom = d3.zoom().scaleExtent([ZOOM_MIN, ZOOM_MAX]).on('zoom', this.handleZoom);
+    this.svgNode = null ;
+    this.svgLink = null ;
+    this.links = [] ;
+    this.nodes = [] ;
   }
 
   componentDidMount() {
+    this.createGraph() ;
     this.handleNewData() ;
   }
 
@@ -61,17 +90,140 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     }
   }
 
+  componentWillUnmount() {
+    this.simulation.stop();
+  }
+
+
+
+
+  // -----------------------------
+  // GRAPH FEATURES
+  // HAPPEN OUTSIDE OF REACT LOOP
+  // -----------------------------
+
+  createGraph = () => {
+    if (!this.graphRef.current) {
+      console.log('create graph called before svg element is referenced') ;
+      return ;
+    }
+    if (this.svgNode || this.svgLink) {
+      console.log('create graph called but svg elements already exist') ;
+      return ;
+    }
+    // Set graph dimensions
+    const svg = d3.select(this.graphRef.current)
+      .attr('width', SIMULATION_WIDTH)
+      .attr('height', SIMULATION_HEIGHT);
+    // Init links element
+    this.svgContainer = svg.append('g');
+    this.svgLink = this.svgContainer.append('g')
+      .attr('class', 'links')
+      .selectAll('line');
+    // Init nodes element
+    this.svgNode = this.svgContainer.append('g')
+      .attr('class', 'nodes')
+      .selectAll('image');
+    console.log('created graph') ;
+  }
+
+  handleZoom = (event:any) => {
+    this.svgContainer.attr('transform', event.transform); 
+  }
+
+  updateGraph() {
+    // Update the links
+    this.svgLink = this.svgLink.data(this.links)
+      .join('line')
+      .attr('stroke', '#999')
+      .attr('stroke-width', 1.5);
+    // Update the nodes
+    this.svgNode = this.svgNode.data(this.nodes)
+      .join('image')
+      .attr('xlink:href', (d:any) => d.pfp)
+      .attr('width', NODE_RAY*2)
+      .attr('height', NODE_RAY*2)
+      .attr('x', -NODE_RAY) 
+      .attr('y', -NODE_RAY) 
+      .attr('clip-path', 'circle(' + NODE_RAY + ')')
+      .call(d3.drag().on('start', this.onDragStart).on('drag', this.onDragged).on('end', this.onDragEnd));
+    // Restart the simulation with the updated nodes and links
+    this.simulation.nodes(this.nodes).on('tick', this.ticked);
+    this.simulation.force('link').links(this.links);
+    this.simulation.alpha(1).restart();
+  }
+
+  onDragStart = (event:any, d:any) => {
+    if (!event.active) this.simulation.alphaTarget(0.3).restart(); // Reheat the simulation
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  onDragged = (event:any, d:any) => {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  onDragEnd = (event:any, d:any) => {
+    if (!event.active) this.simulation.alphaTarget(0); // Cool the simulation
+    d.fx = null;
+    d.fy = null;
+  }
+
+  ticked = () => {
+    this.svgLink
+      .attr('x1', (d:any) => d.source.x)
+      .attr('y1', (d:any) => d.source.y)
+      .attr('x2', (d:any) => d.target.x)
+      .attr('y2', (d:any) => d.target.y);
+    this.svgNode
+      .attr('x', (d:any) => d.x - 16) 
+      .attr('y', (d:any) => d.y - 16);
+    if (this.state.autoFit) {
+      this.autozoom() ;
+    }
+  }
+
+  autozoom = () => {
+    if (!this.graphRef.current) {
+      return ;
+    }
+    const svg = d3.select(this.graphRef.current);
+    const nodes = this.nodes;
+    if (nodes.length === 0) {
+      return ;
+    }
+    const bbox = this.svgContainer.node().getBBox();
+    const padding = 40;
+    const width = (2 * padding) + bbox.width;
+    const height = (2 * padding) + bbox.height;
+    const midX = bbox.x + (width / 2) - padding;
+    const midY = bbox.y + (height / 2) - padding;
+    const scale = Math.min(
+      SIMULATION_WIDTH / width,
+      SIMULATION_HEIGHT / height,
+      ZOOM_MAX
+    );
+    svg.transition().duration(TIME_TRAVEL_STEP_MS).call(
+        this.zoom.transform,
+        d3.zoomIdentity
+          .translate(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)
+          .scale(scale)
+          .translate(-midX, -midY) // Translate to the center of the bounding box
+      );
+  }
+
+  // ------------------------ 
+  // REACT COMPONENT FEATURES
+  // ------------------------
+
   handleNewData() {
     const data = this.props.data ;
     if (!data || !data.nodes || !data.links) {
       const defaultState = {
-        data: null,
         ts: 0,
         minTS: 0,
         maxTS: 0,
-        nodeMap: {},
-        nodes: [],
-        links: [],
         num_users: 0,
         num_links: 0,
         connectivity: 0
@@ -121,36 +273,40 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         addedNodes[link.target] = true ;
       }
     }
-    const initialState = {
-      data: data,
-      nodeMap: nodeMap,
+    const newState = {
       ts: minTS,
       minTS: minTS,
       maxTS: maxTS,
-      nodes: nodes2,
-      links: links2,
       num_users: nodes2.length,
       num_links: links2.length,
-      connectivity: getConnectivity(nodes.length, links2.length)
+      connectivity: getConnectivity(nodes2.length, links2.length)
     }
-    this.setState(initialState, this.zoomToFit) ;
+    this.links = links2 ;
+    this.nodes = nodes2 ;
+    this.updateGraph() ;  
+    this.setState(newState) ;
   }
 
   handleSliderChange = (event:any, value:any) => {
     const ts = value ;
-    this.setTimestamp(ts, this.zoomToFit) ;
+    this.setTimestamp(ts, null) ;
   }
 
   setTimestamp(ts:number, callback:any) {
-    const data:any = this.state.data ;
-    let links:any[] = this.state.links ;
-    const previousLinkCount = links.length ;
+    const data:any = this.props.data ;
+    const previousLinkCount = this.links.length ;
     const nextLinkCount = findMaxIndex(data.links, ts) + 1 ;
-    let nodes:any[] = this.state.nodes ;
-    const nodeMap:any = this.state.nodeMap ;
+    let links:any[] = this.links ;
+    let nodes:any[] = this.nodes ;
     const addedNodes:any = {} ;
     for (const node of nodes) {
       addedNodes[node.id] = true ;
+    }
+    const missingNodes:any = {} ;
+    for (const node of data.nodes) {
+      if (!addedNodes[node.id]) {
+        missingNodes[node.id] = node ;
+      }
     }
     if (nextLinkCount > previousLinkCount) {
       // Add new links and nodes
@@ -164,20 +320,20 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         links.push(newLink) ;
         if (!addedNodes[newLink.source]) {
           const n = {
-            id: nodeMap[newLink.source].id,
-            name: nodeMap[newLink.source].name,
-            pfp: nodeMap[newLink.source].pfp,
-            features: nodeMap[newLink.source].features
+            id: missingNodes[newLink.source].id,
+            name: missingNodes[newLink.source].name,
+            pfp: missingNodes[newLink.source].pfp,
+            features: missingNodes[newLink.source].features
           }
           nodes.push(n) ;
           addedNodes[newLink.source] = true ;
         }
         if (!addedNodes[newLink.target]) {
           const n = {
-            id: nodeMap[newLink.target].id,
-            name: nodeMap[newLink.target].name,
-            pfp: nodeMap[newLink.target].pfp,
-            features: nodeMap[newLink.target].features
+            id: missingNodes[newLink.target].id,
+            name: missingNodes[newLink.target].name,
+            pfp: missingNodes[newLink.target].pfp,
+            features: missingNodes[newLink.target].features
           }
           nodes.push(n) ;
           addedNodes[newLink.target] = true ;
@@ -203,14 +359,14 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       }
     }
     const newState = {
-      data: data,
       ts: ts,
-      nodes: nodes,
-      links: links,
       num_users: nodes.length,
       num_links: links.length,
       connectivity: getConnectivity(nodes.length, links.length)
     }
+    this.links = links ;
+    this.nodes = nodes ;
+    this.updateGraph() ;
     this.setState(newState, callback) ;
   }
 
@@ -219,9 +375,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   }
 
   startTimeTravel = () => {
-    let self = this ;
     if (this.state.ts < this.state.maxTS) {
-      self.setState({ timeTravel: true }, self.continueTimeTravel) ;
+      this.setState({ timeTravel: true }, this.continueTimeTravel) ;
     }
   }
 
@@ -230,32 +385,44 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   }
 
   continueTimeTravel = () => {
-    if (!this.state.timeTravel) {
+    let self = this ;
+    if (!self.state.timeTravel) {
       return ;
     }
-    let self = this ;
-    const data:any = self.state.data ;
-    const currentLinks = self.state.links.length ;
+    const data:any = self.props.data ;
+    const currentLinks = self.links.length ;
     const totalLinks = data.links.length ;
     if (currentLinks === (totalLinks-1)) {
-      self.setTimestamp(self.state.maxTS, () => {
-        self.zoomToFit() ;
-      }) ;
+      self.setTimestamp(self.state.maxTS, null) ;
       self.setState({ timeTravel: false }) ;
     } else {
       self.setTimestamp(data.links[currentLinks].ts, () => {
-        self.zoomToFit() ;
         setTimeout(self.continueTimeTravel, TIME_TRAVEL_STEP_MS);
       }) ;
     }
   }
 
-  zoomToFit = () => { 
-    if (!this.fgRef.current) {
-      return ;
+  renderSlider() {
+    if (this.state.ts === 0) {
+      return null ;
     }
-    const fg = this.fgRef.current ;
-    fg.zoomToFit(TIME_TRAVEL_STEP_MS) ;
+    return (
+      <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2} width='800px'>
+              {timestampYYYY_MM_DD(this.state.minTS)}
+              <Slider
+                sx={{ width: '400px' }}
+                min={this.state.minTS}
+                max={this.state.maxTS}
+                value={this.state.ts}
+                onChange={this.handleSliderChange}
+                valueLabelDisplay="on"
+                valueLabelFormat={timestampYYYY_MM_DD}
+                disabled={this.state.timeTravel}
+              />
+              {timestampYYYY_MM_DD(this.state.maxTS)}
+              {this.renderTimeTravelButton()}
+            </Box>
+    ) ;
   }
 
   renderTimeTravelButton() {
@@ -310,6 +477,36 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     ) ;
   }
 
+  renderInfos() {
+    if (this.state.num_users === 0) {
+      return null ;
+    }
+    return (
+      <React.Fragment>
+        <Typography variant="h6">Network</Typography>
+        <hr/>
+        <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell>Num users</TableCell>
+              <TableCell>{this.state.num_users}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Num links</TableCell>
+              <TableCell>{this.state.num_links}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Connectivity</TableCell>
+              <TableCell>{this.state.connectivity.toFixed(2)}%</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+        <br/><br/>
+        {this.renderSelectedUser()}
+      </React.Fragment>
+    ) ;
+  }
+
   renderSelectedUser() {
     const user:any = this.state.selectedUser ;
     if (!user) {
@@ -327,75 +524,23 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     </React.Fragment>
   }
 
-  render() {
+  renderLoading() {
     if (this.props.loading) {
       return <Loading /> ;
     }
-    if (!this.state.data) {
-      return null ;
-    }
-    const data = { nodes: this.state.nodes, links: this.state.links } ;
-    const defaultAvatar = '/avatar_empty.png'
-    const nodeObject = (node:any) => {
-      const url = node.pfp ? getBackendUrl() + '/avatars/transform.png?url=' + node.pfp : defaultAvatar ;
-      const imgTexture = new TextureLoader().load(url);
-      imgTexture.colorSpace = SRGBColorSpace;
-      const material = new SpriteMaterial({ map: imgTexture });
-      const sprite = new Sprite(material);
-      sprite.scale.set(12, 12, 12);
-      return sprite;
-    }
+  }
+
+  render() {
     return (
-      <Panel title='Network Visualization' backgroundColor="#000011">
+      <Panel title='Network Visualization'>
         <Grid container>
-          <Grid item xs={9}>
-            <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2} width='800px'>
-              {timestampYYYY_MM_DD(this.state.minTS)}
-              <Slider
-                sx={{ width: '400px' }}
-                min={this.state.minTS}
-                max={this.state.maxTS}
-                value={this.state.ts}
-                onChange={this.handleSliderChange}
-                valueLabelDisplay="on"
-                valueLabelFormat={timestampYYYY_MM_DD}
-                disabled={this.state.timeTravel}
-              />
-              {timestampYYYY_MM_DD(this.state.maxTS)}
-              {this.renderTimeTravelButton()}
-            </Box>
-            <ForceGraph3D 
-              ref={this.fgRef}
-              graphData={data} 
-              width={700} height={700} 
-              nodeLabel="name"
-              nodeThreeObject={nodeObject}
-              nodeRelSize={12}
-              linkCurvature={0.25}
-              onNodeClick={this.handleNodeClick}
-            />
+          <Grid item xs={12} md={9}>
+            {this.renderLoading()}
+            {this.renderSlider()}
+            <svg ref={this.graphRef} width={SIMULATION_WIDTH} height={SIMULATION_HEIGHT}></svg>
           </Grid>
-          <Grid item xs={3}>
-            <Typography variant="h6">Network</Typography>
-            <hr/>
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Num users</TableCell>
-                  <TableCell>{this.state.num_users}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Num links</TableCell>
-                  <TableCell>{this.state.num_links}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Connectivity</TableCell>
-                  <TableCell>{this.state.connectivity.toFixed(2)}%</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-            <br/><br/>
-            {this.renderSelectedUser()}
+          <Grid item xs={12} md={3}>
+            {this.renderInfos()}
           </Grid>
         </Grid>
       </Panel>
