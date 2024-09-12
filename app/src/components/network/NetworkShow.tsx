@@ -34,6 +34,17 @@ const SIMULATION_HEIGHT = 600 ;
 const NODE_RAY = 16 ;
 const ZOOM_MIN = 0.1 ;
 const ZOOM_MAX = 10 ;
+const DEFAULT_AVATAR = '/avatar_empty.png' ;
+const DEFAULT_STATE = {
+  timeline: [],
+  tsIndex: 0,
+  num_users: 0,
+  num_links: 0,
+  connectivity: 0,
+  selectedUser: null,
+  autoFit: true
+} ;
+
 
 class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   
@@ -55,23 +66,14 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
 
   constructor(props:any) {
     super(props) ;
-    this.state  = {
-      ts: 0,
-      minTS: 0,
-      maxTS: 0,
-      num_users: 0,
-      num_links: 0,
-      connectivity: 0,
-      selectedUser: null,
-      timeTravel: false,
-      autoFit: true
-    } ;
+    this.state  = DEFAULT_STATE ;
     this.graphRef = createRef();
     this.simulation = d3.forceSimulation()
+      .velocityDecay(0.8)
       .force('link', d3.forceLink().id((d:any) => (d.id)).distance(100))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2))
-      .force('radial', d3.forceRadial(300, SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)) ;
+      .force('radial', d3.forceRadial(50, SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2));
     this.zoom = d3.zoom().scaleExtent([ZOOM_MIN, ZOOM_MAX]).on('zoom', this.handleZoom);
     this.svgNode = null ;
     this.svgLink = null ;
@@ -135,18 +137,20 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     // Update the links
     this.svgLink = this.svgLink.data(this.links)
       .join('line')
-      .attr('stroke', '#999')
-      .attr('stroke-width', 1.5);
+      .attr('stroke', '#313131')
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '10,2');
     // Update the nodes
     this.svgNode = this.svgNode.data(this.nodes)
       .join('image')
-      .attr('xlink:href', (d:any) => d.pfp)
+      .attr('xlink:href', (d:any) => (d.pfp ? d.pfp : DEFAULT_AVATAR))
       .attr('width', NODE_RAY*2)
       .attr('height', NODE_RAY*2)
       .attr('x', -NODE_RAY) 
       .attr('y', -NODE_RAY) 
       .attr('clip-path', 'circle(' + NODE_RAY + ')')
-      .call(d3.drag().on('start', this.onDragStart).on('drag', this.onDragged).on('end', this.onDragEnd));
+      .call(d3.drag().on('start', this.onDragStart).on('drag', this.onDragged).on('end', this.onDragEnd))
+      .on('click', this.handleNodeClick);
     // Restart the simulation with the updated nodes and links
     this.simulation.nodes(this.nodes).on('tick', this.ticked);
     this.simulation.force('link').links(this.links);
@@ -194,7 +198,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       return ;
     }
     const bbox = this.svgContainer.node().getBBox();
-    const padding = 40;
+    const padding = 50;
     const width = (2 * padding) + bbox.width;
     const height = (2 * padding) + bbox.height;
     const midX = bbox.x + (width / 2) - padding;
@@ -209,7 +213,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         d3.zoomIdentity
           .translate(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)
           .scale(scale)
-          .translate(-midX, -midY) // Translate to the center of the bounding box
+          .translate(-midX, -midY) 
       );
   }
 
@@ -220,15 +224,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   handleNewData() {
     const data = this.props.data ;
     if (!data || !data.nodes || !data.links) {
-      const defaultState = {
-        ts: 0,
-        minTS: 0,
-        maxTS: 0,
-        num_users: 0,
-        num_links: 0,
-        connectivity: 0
-      }
-      this.setState(defaultState) ;
+      this.nodes = [] ;
+      this.links = [] ;
+      this.updateGraph() ;
+      this.setState(DEFAULT_STATE) ;
       return ;
     }
     const nodes = data.nodes ;
@@ -239,8 +238,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     const links = data.links ;
     links.sort((a:any, b:any) => a.ts - b.ts) ;
     const initialLinks = Math.floor(links.length/25) ;
-    const minTS = links[initialLinks].ts ;
-    const maxTS = links[links.length - 1].ts ;
+    const timeline = links.slice(initialLinks).map((l:any) => (l.ts)) ;
     const links2:any = [] ;
     for (let i = 0; i < initialLinks; i++) {
       const l = {
@@ -274,9 +272,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       }
     }
     const newState = {
-      ts: minTS,
-      minTS: minTS,
-      maxTS: maxTS,
+      timeline: timeline,
+      tsIndex: 0,
       num_users: nodes2.length,
       num_links: links2.length,
       connectivity: getConnectivity(nodes2.length, links2.length)
@@ -288,20 +285,27 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   }
 
   handleSliderChange = (event:any, value:any) => {
-    const ts = value ;
-    this.setTimestamp(ts, null) ;
+    const tsIndex = value ;
+    this.setTimestampIndex(tsIndex, null) ;
   }
 
-  setTimestamp(ts:number, callback:any) {
+  setTimestampIndex(tsIndex:number, callback:any) {
+    const ts = this.state.timeline[tsIndex] ;
     const data:any = this.props.data ;
     const previousLinkCount = this.links.length ;
     const nextLinkCount = findMaxIndex(data.links, ts) + 1 ;
     let links:any[] = this.links ;
     let nodes:any[] = this.nodes ;
     const addedNodes:any = {} ;
+    let xDefault = 0 ;
+    let yDefault = 0 ;
     for (const node of nodes) {
-      addedNodes[node.id] = true ;
+      addedNodes[node.id] = node ;
+      xDefault += node.x ;
+      yDefault += node.y ;
     }
+    xDefault /= nodes.length ;
+    yDefault /= nodes.length ;
     const missingNodes:any = {} ;
     for (const node of data.nodes) {
       if (!addedNodes[node.id]) {
@@ -318,12 +322,25 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
           target: data.links[i].target
         }
         links.push(newLink) ;
+        let x0 = xDefault ;
+        let y0 = yDefault ;
+        if (addedNodes[newLink.source]) {
+          x0 = addedNodes[newLink.source].x ;
+          y0 = addedNodes[newLink.source].y ;
+        } else if (addedNodes[newLink.target]) {
+          x0 = addedNodes[newLink.target].x ;
+          y0 = addedNodes[newLink.target].y ;
+        }
+        x0 += (Math.random() * 100) - 50 ;
+        y0 += (Math.random() * 100) - 50 ;
         if (!addedNodes[newLink.source]) {
           const n = {
             id: missingNodes[newLink.source].id,
             name: missingNodes[newLink.source].name,
             pfp: missingNodes[newLink.source].pfp,
-            features: missingNodes[newLink.source].features
+            features: missingNodes[newLink.source].features,
+            x: x0,
+            y: y0
           }
           nodes.push(n) ;
           addedNodes[newLink.source] = true ;
@@ -333,7 +350,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
             id: missingNodes[newLink.target].id,
             name: missingNodes[newLink.target].name,
             pfp: missingNodes[newLink.target].pfp,
-            features: missingNodes[newLink.target].features
+            features: missingNodes[newLink.target].features,
+            x: x0,
+            y: y0
           }
           nodes.push(n) ;
           addedNodes[newLink.target] = true ;
@@ -359,7 +378,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       }
     }
     const newState = {
-      ts: ts,
+      tsIndex: tsIndex,
       num_users: nodes.length,
       num_links: links.length,
       connectivity: getConnectivity(nodes.length, links.length)
@@ -370,12 +389,13 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.setState(newState, callback) ;
   }
 
-  handleNodeClick = (node:any) => {
-    this.setState({ selectedUser: node }) ;
-  }
+  handleNodeClick = (event: any, d: any) => {
+    event.stopPropagation();
+    this.setState({ selectedUser: d });
+  };
 
   startTimeTravel = () => {
-    if (this.state.ts < this.state.maxTS) {
+    if (this.state.tsIndex < this.state.timeline.length) {
       this.setState({ timeTravel: true }, this.continueTimeTravel) ;
     }
   }
@@ -389,37 +409,34 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     if (!self.state.timeTravel) {
       return ;
     }
-    const data:any = self.props.data ;
-    const currentLinks = self.links.length ;
-    const totalLinks = data.links.length ;
-    if (currentLinks === (totalLinks-1)) {
-      self.setTimestamp(self.state.maxTS, null) ;
+    if (this.state.tsIndex === (self.state.timeline.length-2)) {
+      self.setTimestampIndex(self.state.timeline.length-1, null) ;
       self.setState({ timeTravel: false }) ;
     } else {
-      self.setTimestamp(data.links[currentLinks].ts, () => {
+      self.setTimestampIndex(self.state.tsIndex+1, () => {
         setTimeout(self.continueTimeTravel, TIME_TRAVEL_STEP_MS);
       }) ;
     }
   }
 
   renderSlider() {
-    if (this.state.ts === 0) {
+    if (this.state.timeline.length === 0) {
       return null ;
     }
     return (
       <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2} width='800px'>
-              {timestampYYYY_MM_DD(this.state.minTS)}
+              {timestampYYYY_MM_DD(this.state.timeline[0])}
               <Slider
                 sx={{ width: '400px' }}
-                min={this.state.minTS}
-                max={this.state.maxTS}
-                value={this.state.ts}
+                min={0}
+                max={this.state.timeline.length-1}
+                value={this.state.tsIndex}
                 onChange={this.handleSliderChange}
                 valueLabelDisplay="on"
-                valueLabelFormat={timestampYYYY_MM_DD}
+                valueLabelFormat={(v:number) => (timestampYYYY_MM_DD(this.state.timeline[v]))}
                 disabled={this.state.timeTravel}
               />
-              {timestampYYYY_MM_DD(this.state.maxTS)}
+              {timestampYYYY_MM_DD(this.state.timeline[this.state.timeline.length-1])}
               {this.renderTimeTravelButton()}
             </Box>
     ) ;
