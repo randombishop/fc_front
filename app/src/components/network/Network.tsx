@@ -57,6 +57,7 @@ const Network = (props : any) => {
   }
 
   const showNetwork = () => {
+    setNetworkData(null) ;
     setLoading(true) ;
     const url = '/network/'+sample+'/'+mode+'/'+item ;
     context.backendGET(url, (data: any) => {
