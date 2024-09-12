@@ -424,10 +424,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       return null ;
     }
     return (
-      <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2} width='800px'>
+      <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2}>
               {timestampYYYY_MM_DD(this.state.timeline[0])}
               <Slider
-                sx={{ width: '400px' }}
+                sx={{ width: '300px' }}
                 min={0}
                 max={this.state.timeline.length-1}
                 value={this.state.tsIndex}
