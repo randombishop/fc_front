@@ -6,7 +6,19 @@ import WordCloud from 'react-d3-cloud';
 import * as d3 from 'd3';
 import Panel from '../common/Panel';
 import Loading from '../common/Loading';
-import { timestampYYYY_MM_DD, parseWordDict } from '../../utils';
+import { timestampYYYY_MM_DD, parseWordDict, colors, darkColors } from '../../utils';
+
+
+const TIME_TRAVEL_STEP = 5 ;
+const TIME_TRAVEL_STEP_MS = 100 ;
+const SIMULATION_WIDTH = 700 ;
+const SIMULATION_HEIGHT = 600 ;
+const NODE_RAY = 16 ;
+const ZOOM_MIN = 0.1 ;
+const ZOOM_MAX = 10 ;
+const DEFAULT_AVATAR = '/avatar_empty.png' ;
+const DEFAULT_DISTANCE = 100 ;
+
 
 function findMaxIndex(array: any[], targetTs: number): number {
   let left = 0;
@@ -24,17 +36,61 @@ function findMaxIndex(array: any[], targetTs: number): number {
   return result;
 }
 
+function getLinkDistance(link:any) {
+  const linkType = link.info.type ;
+  if (linkType === 2) {
+    return DEFAULT_DISTANCE/2;
+  } else if (linkType === 1) {
+    return DEFAULT_DISTANCE; 
+  } else {
+    return DEFAULT_DISTANCE*2 ;
+  }
+}
+
+function getLinkColor(link:any) {
+  const linkType = link.info.type ;
+  if (linkType === 2) {
+    return '#b56576' ;
+  } else if (linkType === 1) {
+    return '#6d597a' ; 
+  } else {
+    return '#355070' ;
+  }
+}
+
+function getLinkWidth(link:any) {
+  const linkType = link.info.type ;
+  if (linkType === 2) {
+    return 1.5 ;
+  } else if (linkType === 1) {
+    return 1 ; 
+  } else {
+    return 0.5 ;
+  }
+}
+
+function getLinkDashArray(link:any) {
+  const linkType = link.info.type ;
+  if (linkType === 2) {
+    return 'none' ;
+  } else if (linkType === 1) {
+    return 'none' ; 
+  } else {
+    return '10,2' ;
+  }
+}
+
+function getRandomPoint(x0:number, y0:number, distance:number) {
+  const angle = Math.random() * 2 * Math.PI;
+  const x = x0 + distance * Math.cos(angle);
+  const y = y0 + distance * Math.sin(angle);
+  return { x, y };
+}
+
 function getConnectivity(num_users:number, num_links:number) {
   return 100 * num_links / (num_users * (num_users - 1)) ;
 }
 
-const TIME_TRAVEL_STEP_MS = 100 ;
-const SIMULATION_WIDTH = 700 ;
-const SIMULATION_HEIGHT = 600 ;
-const NODE_RAY = 16 ;
-const ZOOM_MIN = 0.1 ;
-const ZOOM_MAX = 10 ;
-const DEFAULT_AVATAR = '/avatar_empty.png' ;
 const DEFAULT_STATE = {
   timeline: [],
   tsIndex: 0,
@@ -70,7 +126,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.graphRef = createRef();
     this.simulation = d3.forceSimulation()
       .velocityDecay(0.8)
-      .force('link', d3.forceLink().id((d:any) => (d.id)).distance(100))
+      .force('link', d3.forceLink().id((d:any) => (d.id)).distance(getLinkDistance))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2))
       .force('radial', d3.forceRadial(50, SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2));
@@ -137,9 +193,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     // Update the links
     this.svgLink = this.svgLink.data(this.links)
       .join('line')
-      .attr('stroke', '#313131')
-      .attr('stroke-width', 1)
-      .attr('stroke-dasharray', '10,2');
+      .attr('stroke', getLinkColor)
+      .attr('stroke-width', getLinkWidth)
+      .attr('stroke-dasharray', getLinkDashArray);
     // Update the nodes
     this.svgNode = this.svgNode.data(this.nodes)
       .join('image')
@@ -217,6 +273,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       );
   }
 
+
+
   // ------------------------ 
   // REACT COMPONENT FEATURES
   // ------------------------
@@ -243,7 +301,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     for (let i = 0; i < initialLinks; i++) {
       const l = {
         source: links[i].source,
-        target: links[i].target
+        target: links[i].target,
+        info: links[i]
       }
       links2.push(l) ;
     }
@@ -319,7 +378,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       for (let i = previousLinkCount; i < nextLinkCount; i++) {
         const newLink = {
           source: data.links[i].source,
-          target: data.links[i].target
+          target: data.links[i].target,
+          info: data.links[i]
         }
         links.push(newLink) ;
         let x0 = xDefault ;
@@ -331,8 +391,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
           x0 = addedNodes[newLink.target].x ;
           y0 = addedNodes[newLink.target].y ;
         }
-        x0 += (Math.random() * 100) - 50 ;
-        y0 += (Math.random() * 100) - 50 ;
+        const p = getRandomPoint(x0, y0, DEFAULT_DISTANCE) ;
+        x0 = p.x ;
+        y0 = p.y ;
         if (!addedNodes[newLink.source]) {
           const n = {
             id: missingNodes[newLink.source].id,
@@ -391,8 +452,12 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
 
   handleNodeClick = (event: any, d: any) => {
     event.stopPropagation();
+    for (const d of this.nodes) {
+      d.selected = false ;
+    }
+    d.selected = true ;
     this.setState({ selectedUser: d });
-  };
+  } ;
 
   startTimeTravel = () => {
     if (this.state.tsIndex < this.state.timeline.length) {
@@ -409,11 +474,11 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     if (!self.state.timeTravel) {
       return ;
     }
-    if (this.state.tsIndex === (self.state.timeline.length-2)) {
+    if (this.state.tsIndex >= (self.state.timeline.length-(TIME_TRAVEL_STEP+1))) {
       self.setTimestampIndex(self.state.timeline.length-1, null) ;
       self.setState({ timeTravel: false }) ;
     } else {
-      self.setTimestampIndex(self.state.tsIndex+1, () => {
+      self.setTimestampIndex(self.state.tsIndex+TIME_TRAVEL_STEP, () => {
         setTimeout(self.continueTimeTravel, TIME_TRAVEL_STEP_MS);
       }) ;
     }
