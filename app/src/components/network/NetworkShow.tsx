@@ -2,11 +2,24 @@ import React, { createRef } from 'react';
 import { Grid, Box, Slider, Table, TableBody, TableCell, TableRow, Typography, Stack, Avatar, IconButton } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
+import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap' ;
 import WordCloud from 'react-d3-cloud';
 import * as d3 from 'd3';
 import Panel from '../common/Panel';
 import Loading from '../common/Loading';
-import { timestampYYYY_MM_DD, parseWordDict } from '../../utils';
+import { timestampYYYY_MM_DD, parseWordDict, colors } from '../../utils';
+
+
+const TIME_TRAVEL_STEP = 5 ;
+const TIME_TRAVEL_STEP_MS = 100 ;
+const SIMULATION_WIDTH = 700 ;
+const SIMULATION_HEIGHT = 600 ;
+const NODE_RAY = 16 ;
+const ZOOM_MIN = 0.1 ;
+const ZOOM_MAX = 10 ;
+const DEFAULT_AVATAR = '/avatar_empty.png' ;
+const DEFAULT_DISTANCE = 100 ;
+
 
 function findMaxIndex(array: any[], targetTs: number): number {
   let left = 0;
@@ -24,23 +37,88 @@ function findMaxIndex(array: any[], targetTs: number): number {
   return result;
 }
 
-function getConnectivity(num_users:number, num_links:number) {
-  return 100 * num_links / (num_users * (num_users - 1)) ;
+function getLinkDistance(link:any) {
+  const linkType = link.info.type ;
+  if (linkType === 2) {
+    return DEFAULT_DISTANCE/2;
+  } else if (linkType === 1) {
+    return DEFAULT_DISTANCE; 
+  } else {
+    return DEFAULT_DISTANCE*2 ;
+  }
 }
 
-const TIME_TRAVEL_STEP_MS = 100 ;
-const SIMULATION_WIDTH = 700 ;
-const SIMULATION_HEIGHT = 600 ;
-const NODE_RAY = 16 ;
-const ZOOM_MIN = 0.1 ;
-const ZOOM_MAX = 10 ;
-const DEFAULT_AVATAR = '/avatar_empty.png' ;
+function getLinkColor(link:any) {
+  const linkType = link.info.type ;
+  if (linkType === 2) {
+    return '#b56576' ;
+  } else if (linkType === 1) {
+    return '#6d597a' ; 
+  } else {
+    return '#355070' ;
+  }
+}
+
+function getLinkWidth(link:any) {
+  const linkType = link.info.type ;
+  if (linkType === 2) {
+    return 1.5 ;
+  } else if (linkType === 1) {
+    return 1 ; 
+  } else {
+    return 0.5 ;
+  }
+}
+
+function getLinkDashArray(link:any) {
+  const linkType = link.info.type ;
+  if (linkType === 2) {
+    return 'none' ;
+  } else if (linkType === 1) {
+    return 'none' ; 
+  } else {
+    return '10,2' ;
+  }
+}
+
+function getRandomPoint(x0:number, y0:number, distance:number) {
+  const angle = Math.random() * 2 * Math.PI;
+  const x = x0 + distance * Math.cos(angle);
+  const y = y0 + distance * Math.sin(angle);
+  return { x, y };
+}
+
+function getLinkStats(links: any[]) {
+  if (links.length===0) {
+    return {prct1:0, prct2:0, prct3:0};
+  }
+  let prct0 = 0 ;
+  let prct1 = 0 ;
+  let prct2 = 0 ;
+  for (const link of links) {
+    if (link.info.type === 2) {
+      prct2++ ;
+    } else if (link.info.type === 1) {
+      prct1++ ; 
+    } else {
+      prct0++ ;
+    }
+  }
+  return {
+    prct0: 100*prct0/links.length,
+    prct1: 100*prct1/links.length,
+    prct2: 100*prct2/links.length
+  }
+}
+
 const DEFAULT_STATE = {
   timeline: [],
   tsIndex: 0,
-  num_users: 0,
-  num_links: 0,
-  connectivity: 0,
+  numUsers: 0,
+  numLinks: 0,
+  linksType0: 0,
+  linksType1: 0,
+  linksType2: 0,
   selectedUser: null,
   autoFit: true
 } ;
@@ -52,9 +130,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   graphRef: React.RefObject<SVGSVGElement>;
   simulation: any;
   zoom: any;
+  svgContainer: any;
   svgNode: any;
   svgLink: any;
-  svgContainer: any;
+  svgHighlight: any ;
   links: any[];
   nodes: any[];
 
@@ -70,7 +149,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.graphRef = createRef();
     this.simulation = d3.forceSimulation()
       .velocityDecay(0.8)
-      .force('link', d3.forceLink().id((d:any) => (d.id)).distance(100))
+      .force('link', d3.forceLink().id((d:any) => (d.id)).distance(getLinkDistance))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2))
       .force('radial', d3.forceRadial(50, SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2));
@@ -126,6 +205,15 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.svgNode = this.svgContainer.append('g')
       .attr('class', 'nodes')
       .selectAll('image');
+    // Init layer used to highlight selections
+    this.svgHighlight = this.svgContainer.append('g')
+        .attr('class', 'highlight')
+        .append('circle')
+        .style('fill', 'none') 
+        .style('stroke', colors.primary) 
+        .style('stroke-width', '2px') 
+        .attr('r', NODE_RAY) 
+        .attr('visibility', 'hidden') ; 
     console.log('created graph') ;
   }
 
@@ -137,9 +225,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     // Update the links
     this.svgLink = this.svgLink.data(this.links)
       .join('line')
-      .attr('stroke', '#313131')
-      .attr('stroke-width', 1)
-      .attr('stroke-dasharray', '10,2');
+      .attr('stroke', getLinkColor)
+      .attr('stroke-width', getLinkWidth)
+      .attr('stroke-dasharray', getLinkDashArray);
     // Update the nodes
     this.svgNode = this.svgNode.data(this.nodes)
       .join('image')
@@ -183,6 +271,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.svgNode
       .attr('x', (d:any) => d.x - 16) 
       .attr('y', (d:any) => d.y - 16);
+    this.svgHighlight
+      .attr('cx', this.state.selectedUser ? this.state.selectedUser.x : 0)
+      .attr('cy', this.state.selectedUser ? this.state.selectedUser.y : 0)
+      .attr('visibility', this.state.selectedUser ? 'show' : 'hidden') ;
     if (this.state.autoFit) {
       this.autozoom() ;
     }
@@ -203,12 +295,17 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     const height = (2 * padding) + bbox.height;
     const midX = bbox.x + (width / 2) - padding;
     const midY = bbox.y + (height / 2) - padding;
-    const scale = Math.min(
+    let scale = Math.min(
       SIMULATION_WIDTH / width,
-      SIMULATION_HEIGHT / height,
-      ZOOM_MAX
+      SIMULATION_HEIGHT / height
     );
-    svg.transition().duration(TIME_TRAVEL_STEP_MS).call(
+    if (scale>ZOOM_MAX) {
+      scale = ZOOM_MAX ;
+    } else if (scale<ZOOM_MIN) {
+      scale = ZOOM_MIN ;
+    }
+    //svg.transition().duration(TIME_TRAVEL_STEP_MS).call()
+    svg.call(
         this.zoom.transform,
         d3.zoomIdentity
           .translate(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)
@@ -216,6 +313,22 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
           .translate(-midX, -midY) 
       );
   }
+
+  zoomOn = (x: number, y: number) => {
+    if (!this.graphRef.current) {
+      return ;
+    }
+    const svg = d3.select(this.graphRef.current);
+    svg.transition().duration(TIME_TRAVEL_STEP_MS).call(
+        this.zoom.transform,
+        d3.zoomIdentity
+          .translate(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)
+          .scale(2)
+          .translate(-x, -y) 
+      );
+  }
+
+
 
   // ------------------------ 
   // REACT COMPONENT FEATURES
@@ -243,7 +356,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     for (let i = 0; i < initialLinks; i++) {
       const l = {
         source: links[i].source,
-        target: links[i].target
+        target: links[i].target,
+        info: links[i]
       }
       links2.push(l) ;
     }
@@ -271,12 +385,15 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         addedNodes[link.target] = true ;
       }
     }
+    const linkStats = getLinkStats(links2) ;
     const newState = {
       timeline: timeline,
       tsIndex: 0,
-      num_users: nodes2.length,
-      num_links: links2.length,
-      connectivity: getConnectivity(nodes2.length, links2.length)
+      numUsers: nodes2.length,
+      numLinks: links2.length,
+      linksType0: linkStats.prct0,
+      linksType1: linkStats.prct1,
+      linksType2: linkStats.prct2
     }
     this.links = links2 ;
     this.nodes = nodes2 ;
@@ -319,7 +436,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       for (let i = previousLinkCount; i < nextLinkCount; i++) {
         const newLink = {
           source: data.links[i].source,
-          target: data.links[i].target
+          target: data.links[i].target,
+          info: data.links[i]
         }
         links.push(newLink) ;
         let x0 = xDefault ;
@@ -331,8 +449,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
           x0 = addedNodes[newLink.target].x ;
           y0 = addedNodes[newLink.target].y ;
         }
-        x0 += (Math.random() * 100) - 50 ;
-        y0 += (Math.random() * 100) - 50 ;
+        const p = getRandomPoint(x0, y0, DEFAULT_DISTANCE) ;
+        x0 = p.x ;
+        y0 = p.y ;
         if (!addedNodes[newLink.source]) {
           const n = {
             id: missingNodes[newLink.source].id,
@@ -365,7 +484,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       for (let i = 0; i < nextLinkCount; i++) {
         const l = {
           source: data.links[i].source,
-          target: data.links[i].target
+          target: data.links[i].target,
+          info: data.links[i]
         }
         links.push(l) ;
         keepNodes[l.source] = true ;
@@ -377,11 +497,14 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         nodes[i].index = i ;
       }
     }
+    const linkStats = getLinkStats(links) ;
     const newState = {
       tsIndex: tsIndex,
-      num_users: nodes.length,
-      num_links: links.length,
-      connectivity: getConnectivity(nodes.length, links.length)
+      numUsers: nodes.length,
+      numLinks: links.length,
+      linksType0: linkStats.prct0,
+      linksType1: linkStats.prct1,
+      linksType2: linkStats.prct2
     }
     this.links = links ;
     this.nodes = nodes ;
@@ -391,8 +514,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
 
   handleNodeClick = (event: any, d: any) => {
     event.stopPropagation();
-    this.setState({ selectedUser: d });
-  };
+    this.setState({ autoFit:false, selectedUser: d }, () => {
+      this.zoomOn(d.x, d.y) ;
+    });
+  } ;
 
   startTimeTravel = () => {
     if (this.state.tsIndex < this.state.timeline.length) {
@@ -409,11 +534,11 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     if (!self.state.timeTravel) {
       return ;
     }
-    if (this.state.tsIndex === (self.state.timeline.length-2)) {
+    if (this.state.tsIndex >= (self.state.timeline.length-(TIME_TRAVEL_STEP+1))) {
       self.setTimestampIndex(self.state.timeline.length-1, null) ;
       self.setState({ timeTravel: false }) ;
     } else {
-      self.setTimestampIndex(self.state.tsIndex+1, () => {
+      self.setTimestampIndex(self.state.tsIndex+TIME_TRAVEL_STEP, () => {
         setTimeout(self.continueTimeTravel, TIME_TRAVEL_STEP_MS);
       }) ;
     }
@@ -438,6 +563,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
               />
               {timestampYYYY_MM_DD(this.state.timeline[this.state.timeline.length-1])}
               {this.renderTimeTravelButton()}
+              {this.renderAutoFitButton()}
             </Box>
     ) ;
   }
@@ -451,6 +577,29 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     return <IconButton onClick={this.startTimeTravel} >
       <PlayArrowIcon />
     </IconButton>
+  }
+
+  renderAutoFitButton() {
+    if (this.state.numUsers===0) {
+      return null ;
+    }
+    const self = this ;
+    const action = () => {
+      const newValue = !this.state.autoFit ;
+      const newState = {
+        autoFit: newValue,
+        selectedUser: null
+      }
+      this.setState(newState, () => {
+        self.autozoom() ;
+      })
+    }
+    return (
+      <IconButton onClick={action} 
+                  color={this.state.autoFit ? "primary" : "default"}>
+        <ZoomOutMapIcon />
+      </IconButton>
+    );
   }
 
   renderUserFeatures() {
@@ -495,7 +644,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   }
 
   renderInfos() {
-    if (this.state.num_users === 0) {
+    if (this.state.numUsers === 0) {
       return null ;
     }
     return (
@@ -505,16 +654,18 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell>Num users</TableCell>
-              <TableCell>{this.state.num_users}</TableCell>
+              <TableCell>Users</TableCell>
+              <TableCell>{this.state.numUsers}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Num links</TableCell>
-              <TableCell>{this.state.num_links}</TableCell>
+              <TableCell>Links</TableCell>
+              <TableCell>{this.state.numLinks}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Connectivity</TableCell>
-              <TableCell>{this.state.connectivity.toFixed(2)}%</TableCell>
+              <TableCell>Types</TableCell>
+              <TableCell>Mutuals: {this.state.linksType2.toFixed(1)}%<br/>
+                         One-way: {this.state.linksType1.toFixed(1)}%<br/>
+                         Reactions-only: {this.state.linksType0.toFixed(1)}%</TableCell>
             </TableRow>
           </TableBody>
         </Table>
