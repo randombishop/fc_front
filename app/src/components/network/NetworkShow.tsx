@@ -2,11 +2,12 @@ import React, { createRef } from 'react';
 import { Grid, Box, Slider, Table, TableBody, TableCell, TableRow, Typography, Stack, Avatar, IconButton } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
+import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap' ;
 import WordCloud from 'react-d3-cloud';
 import * as d3 from 'd3';
 import Panel from '../common/Panel';
 import Loading from '../common/Loading';
-import { timestampYYYY_MM_DD, parseWordDict } from '../../utils';
+import { timestampYYYY_MM_DD, parseWordDict, colors } from '../../utils';
 
 
 const TIME_TRAVEL_STEP = 5 ;
@@ -108,9 +109,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   graphRef: React.RefObject<SVGSVGElement>;
   simulation: any;
   zoom: any;
+  svgContainer: any;
   svgNode: any;
   svgLink: any;
-  svgContainer: any;
+  svgHighlight: any ;
   links: any[];
   nodes: any[];
 
@@ -182,6 +184,15 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.svgNode = this.svgContainer.append('g')
       .attr('class', 'nodes')
       .selectAll('image');
+    // Init layer used to highlight selections
+    this.svgHighlight = this.svgContainer.append('g')
+        .attr('class', 'highlight')
+        .append('circle')
+        .style('fill', 'none') 
+        .style('stroke', colors.primary) 
+        .style('stroke-width', '2px') 
+        .attr('r', NODE_RAY) 
+        .attr('visibility', 'hidden') ; 
     console.log('created graph') ;
   }
 
@@ -239,6 +250,10 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.svgNode
       .attr('x', (d:any) => d.x - 16) 
       .attr('y', (d:any) => d.y - 16);
+    this.svgHighlight
+      .attr('cx', this.state.selectedUser ? this.state.selectedUser.x : 0)
+      .attr('cy', this.state.selectedUser ? this.state.selectedUser.y : 0)
+      .attr('visibility', this.state.selectedUser ? 'show' : 'hidden') ;
     if (this.state.autoFit) {
       this.autozoom() ;
     }
@@ -259,17 +274,36 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     const height = (2 * padding) + bbox.height;
     const midX = bbox.x + (width / 2) - padding;
     const midY = bbox.y + (height / 2) - padding;
-    const scale = Math.min(
+    let scale = Math.min(
       SIMULATION_WIDTH / width,
-      SIMULATION_HEIGHT / height,
-      ZOOM_MAX
+      SIMULATION_HEIGHT / height
     );
-    svg.transition().duration(TIME_TRAVEL_STEP_MS).call(
+    if (scale>ZOOM_MAX) {
+      scale = ZOOM_MAX ;
+    } else if (scale<ZOOM_MIN) {
+      scale = ZOOM_MIN ;
+    }
+    //svg.transition().duration(TIME_TRAVEL_STEP_MS).call()
+    svg.call(
         this.zoom.transform,
         d3.zoomIdentity
           .translate(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)
           .scale(scale)
           .translate(-midX, -midY) 
+      );
+  }
+
+  zoomOn = (x: number, y: number) => {
+    if (!this.graphRef.current) {
+      return ;
+    }
+    const svg = d3.select(this.graphRef.current);
+    svg.transition().duration(TIME_TRAVEL_STEP_MS).call(
+        this.zoom.transform,
+        d3.zoomIdentity
+          .translate(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)
+          .scale(2)
+          .translate(-x, -y) 
       );
   }
 
@@ -453,11 +487,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
 
   handleNodeClick = (event: any, d: any) => {
     event.stopPropagation();
-    for (const d of this.nodes) {
-      d.selected = false ;
-    }
-    d.selected = true ;
-    this.setState({ selectedUser: d });
+    this.setState({ autoFit:false, selectedUser: d }, () => {
+      this.zoomOn(d.x, d.y) ;
+    });
   } ;
 
   startTimeTravel = () => {
@@ -504,6 +536,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
               />
               {timestampYYYY_MM_DD(this.state.timeline[this.state.timeline.length-1])}
               {this.renderTimeTravelButton()}
+              {this.renderAutoFitButton()}
             </Box>
     ) ;
   }
@@ -517,6 +550,29 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     return <IconButton onClick={this.startTimeTravel} >
       <PlayArrowIcon />
     </IconButton>
+  }
+
+  renderAutoFitButton() {
+    if (this.state.num_users===0) {
+      return null ;
+    }
+    const self = this ;
+    const action = () => {
+      const newValue = !this.state.autoFit ;
+      const newState = {
+        autoFit: newValue,
+        selectedUser: null
+      }
+      this.setState(newState, () => {
+        self.autozoom() ;
+      })
+    }
+    return (
+      <IconButton onClick={action} 
+                  color={this.state.autoFit ? "primary" : "default"}>
+        <ZoomOutMapIcon />
+      </IconButton>
+    );
   }
 
   renderUserFeatures() {
