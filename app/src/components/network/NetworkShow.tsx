@@ -88,16 +88,37 @@ function getRandomPoint(x0:number, y0:number, distance:number) {
   return { x, y };
 }
 
-function getConnectivity(num_users:number, num_links:number) {
-  return 100 * num_links / (num_users * (num_users - 1)) ;
+function getLinkStats(links: any[]) {
+  if (links.length===0) {
+    return {prct1:0, prct2:0, prct3:0};
+  }
+  let prct0 = 0 ;
+  let prct1 = 0 ;
+  let prct2 = 0 ;
+  for (const link of links) {
+    if (link.info.type === 2) {
+      prct2++ ;
+    } else if (link.info.type === 1) {
+      prct1++ ; 
+    } else {
+      prct0++ ;
+    }
+  }
+  return {
+    prct0: 100*prct0/links.length,
+    prct1: 100*prct1/links.length,
+    prct2: 100*prct2/links.length
+  }
 }
 
 const DEFAULT_STATE = {
   timeline: [],
   tsIndex: 0,
-  num_users: 0,
-  num_links: 0,
-  connectivity: 0,
+  numUsers: 0,
+  numLinks: 0,
+  linksType0: 0,
+  linksType1: 0,
+  linksType2: 0,
   selectedUser: null,
   autoFit: true
 } ;
@@ -364,12 +385,15 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         addedNodes[link.target] = true ;
       }
     }
+    const linkStats = getLinkStats(links2) ;
     const newState = {
       timeline: timeline,
       tsIndex: 0,
-      num_users: nodes2.length,
-      num_links: links2.length,
-      connectivity: getConnectivity(nodes2.length, links2.length)
+      numUsers: nodes2.length,
+      numLinks: links2.length,
+      linksType0: linkStats.prct0,
+      linksType1: linkStats.prct1,
+      linksType2: linkStats.prct2
     }
     this.links = links2 ;
     this.nodes = nodes2 ;
@@ -473,11 +497,14 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         nodes[i].index = i ;
       }
     }
+    const linkStats = getLinkStats(links) ;
     const newState = {
       tsIndex: tsIndex,
-      num_users: nodes.length,
-      num_links: links.length,
-      connectivity: getConnectivity(nodes.length, links.length)
+      numUsers: nodes.length,
+      numLinks: links.length,
+      linksType0: linkStats.prct0,
+      linksType1: linkStats.prct1,
+      linksType2: linkStats.prct2
     }
     this.links = links ;
     this.nodes = nodes ;
@@ -553,7 +580,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   }
 
   renderAutoFitButton() {
-    if (this.state.num_users===0) {
+    if (this.state.numUsers===0) {
       return null ;
     }
     const self = this ;
@@ -617,7 +644,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   }
 
   renderInfos() {
-    if (this.state.num_users === 0) {
+    if (this.state.numUsers === 0) {
       return null ;
     }
     return (
@@ -627,16 +654,18 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         <Table>
           <TableBody>
             <TableRow>
-              <TableCell>Num users</TableCell>
-              <TableCell>{this.state.num_users}</TableCell>
+              <TableCell>Users</TableCell>
+              <TableCell>{this.state.numUsers}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Num links</TableCell>
-              <TableCell>{this.state.num_links}</TableCell>
+              <TableCell>Links</TableCell>
+              <TableCell>{this.state.numLinks}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Connectivity</TableCell>
-              <TableCell>{this.state.connectivity.toFixed(2)}%</TableCell>
+              <TableCell>Types</TableCell>
+              <TableCell>Mutuals: {this.state.linksType2.toFixed(1)}%<br/>
+                         One-way: {this.state.linksType1.toFixed(1)}%<br/>
+                         Reactions-only: {this.state.linksType0.toFixed(1)}%</TableCell>
             </TableRow>
           </TableBody>
         </Table>
