@@ -13,7 +13,7 @@ import { timestampYYYY_MM_DD, parseWordDict, colors } from '../../utils';
 const TIME_TRAVEL_STEP = 5 ;
 const TIME_TRAVEL_STEP_MS = 100 ;
 const SIMULATION_WIDTH = 700 ;
-const SIMULATION_HEIGHT = 600 ;
+const SIMULATION_HEIGHT = 700 ;
 const NODE_RAY = 16 ;
 const ZOOM_MIN = 0.1 ;
 const ZOOM_MAX = 10 ;
@@ -521,7 +521,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
 
   startTimeTravel = () => {
     if (this.state.tsIndex < this.state.timeline.length) {
-      this.setState({ timeTravel: true }, this.continueTimeTravel) ;
+      this.setState({ selectedUser: null, autoFit:true, timeTravel: true }, this.continueTimeTravel) ;
     }
   }
 
