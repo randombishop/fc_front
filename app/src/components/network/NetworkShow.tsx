@@ -701,9 +701,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   render() {
     return (
       <Panel title='Network Visualization'>
+        {this.renderLoading()}
         <Grid container>
           <Grid item xs={12} md={9}>
-            {this.renderLoading()}
             {this.renderSlider()}
             <svg ref={this.graphRef} width={SIMULATION_WIDTH} height={SIMULATION_HEIGHT}></svg>
           </Grid>
