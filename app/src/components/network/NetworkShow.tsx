@@ -6,7 +6,7 @@ import WordCloud from 'react-d3-cloud';
 import * as d3 from 'd3';
 import Panel from '../common/Panel';
 import Loading from '../common/Loading';
-import { timestampYYYY_MM_DD, parseWordDict, colors, darkColors } from '../../utils';
+import { timestampYYYY_MM_DD, parseWordDict } from '../../utils';
 
 
 const TIME_TRAVEL_STEP = 5 ;
@@ -426,7 +426,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       for (let i = 0; i < nextLinkCount; i++) {
         const l = {
           source: data.links[i].source,
-          target: data.links[i].target
+          target: data.links[i].target,
+          info: data.links[i]
         }
         links.push(l) ;
         keepNodes[l.source] = true ;
