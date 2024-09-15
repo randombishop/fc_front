@@ -334,6 +334,74 @@ function getAverage(array:any[], field:string):number {
   return sum / validItems.length ;
 }
 
+function findMaxIndex(array: any[], targetTs: number): number {
+  let left = 0;
+  let right = array.length - 1;
+  let result = -1;
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2);
+    if (array[mid].ts <= targetTs) {
+      result = mid;
+      left = mid + 1; 
+    } else {
+      right = mid - 1; 
+    }
+  }
+  return result;
+}
+
+function getRandomPoint(x0:number, y0:number, distance:number) {
+  const angle = Math.random() * 2 * Math.PI;
+  const x = x0 + distance * Math.cos(angle);
+  const y = y0 + distance * Math.sin(angle);
+  return { x, y };
+}
+
+function getLinkStats(links: any[]) {
+  if (links.length===0) {
+    return {prct1:0, prct2:0, prct3:0};
+  }
+  let prct0 = 0 ;
+  let prct1 = 0 ;
+  let prct2 = 0 ;
+  for (const link of links) {
+    if (link.info.type === 2) {
+      prct2++ ;
+    } else if (link.info.type === 1) {
+      prct1++ ; 
+    } else {
+      prct0++ ;
+    }
+  }
+  return {
+    prct0: 100*prct0/links.length,
+    prct1: 100*prct1/links.length,
+    prct2: 100*prct2/links.length
+  }
+}
+
+function getLinkDirection(link:any, direction:number) {
+  return {
+    follow: link.info['l'+direction],
+    top10: link.info['l'+direction+'_top'],
+    recasts: link.info['l'+direction+'_recasts'],
+    likes: link.info['l'+direction+'_likes'],
+    replies: link.info['l'+direction+'_replies']
+  }
+}
+
+function getLinkType(link1:any, link2:any) {
+  if (link1.follow===1 && link2.follow===1) {
+    return '2way' ;
+  } else if (link1.follow===1) {
+    return '1wayRight' ;
+  } else if (link2.follow===1) {
+    return '1wayLeft' ;
+  } else {
+    return 'react' ;
+  }
+}
+
 export { 
   castCategories,
   castTopics,
@@ -358,5 +426,10 @@ export {
   insertMentions,
   randomString,
   parseWordDict,
-  getAverage 
+  getAverage,
+  findMaxIndex,
+  getRandomPoint,
+  getLinkStats,
+  getLinkDirection,
+  getLinkType
 } ;

@@ -2,12 +2,16 @@ import React, { createRef } from 'react';
 import { Grid, Box, Slider, Table, TableBody, TableCell, TableRow, Typography, Stack, Avatar, IconButton } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
-import ZoomOutMapIcon from '@mui/icons-material/ZoomOutMap' ;
-import WordCloud from 'react-d3-cloud';
+import CloseIcon from '@mui/icons-material/Close' ;
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows' ;
+import ArrowBackIcon from '@mui/icons-material/ArrowBack' ;
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward' ;
+import RemoveIcon from '@mui/icons-material/Remove' ;
 import * as d3 from 'd3';
+import MemoWordCloud from '../common/MemoWordCloud';
 import Panel from '../common/Panel';
 import Loading from '../common/Loading';
-import { timestampYYYY_MM_DD, parseWordDict, colors } from '../../utils';
+import { timestampYYYY_MM_DD, parseWordDict, colors, findMaxIndex, getRandomPoint, getLinkStats, getLinkDirection, getLinkType } from '../../utils';
 
 
 const TIME_TRAVEL_STEP = 5 ;
@@ -19,98 +23,11 @@ const ZOOM_MIN = 0.1 ;
 const ZOOM_MAX = 10 ;
 const DEFAULT_AVATAR = '/avatar_empty.png' ;
 const DEFAULT_DISTANCE = 100 ;
-
-
-function findMaxIndex(array: any[], targetTs: number): number {
-  let left = 0;
-  let right = array.length - 1;
-  let result = -1;
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2);
-    if (array[mid].ts <= targetTs) {
-      result = mid;
-      left = mid + 1; 
-    } else {
-      right = mid - 1; 
-    }
-  }
-  return result;
+const LINK_DISTANCES:any = {
+  0: DEFAULT_DISTANCE*2,
+  1: DEFAULT_DISTANCE,
+  2: DEFAULT_DISTANCE/2
 }
-
-function getLinkDistance(link:any) {
-  const linkType = link.info.type ;
-  if (linkType === 2) {
-    return DEFAULT_DISTANCE/2;
-  } else if (linkType === 1) {
-    return DEFAULT_DISTANCE; 
-  } else {
-    return DEFAULT_DISTANCE*2 ;
-  }
-}
-
-function getLinkColor(link:any) {
-  const linkType = link.info.type ;
-  if (linkType === 2) {
-    return '#b56576' ;
-  } else if (linkType === 1) {
-    return '#6d597a' ; 
-  } else {
-    return '#355070' ;
-  }
-}
-
-function getLinkWidth(link:any) {
-  const linkType = link.info.type ;
-  if (linkType === 2) {
-    return 1.5 ;
-  } else if (linkType === 1) {
-    return 1 ; 
-  } else {
-    return 0.5 ;
-  }
-}
-
-function getLinkDashArray(link:any) {
-  const linkType = link.info.type ;
-  if (linkType === 2) {
-    return 'none' ;
-  } else if (linkType === 1) {
-    return 'none' ; 
-  } else {
-    return '10,2' ;
-  }
-}
-
-function getRandomPoint(x0:number, y0:number, distance:number) {
-  const angle = Math.random() * 2 * Math.PI;
-  const x = x0 + distance * Math.cos(angle);
-  const y = y0 + distance * Math.sin(angle);
-  return { x, y };
-}
-
-function getLinkStats(links: any[]) {
-  if (links.length===0) {
-    return {prct1:0, prct2:0, prct3:0};
-  }
-  let prct0 = 0 ;
-  let prct1 = 0 ;
-  let prct2 = 0 ;
-  for (const link of links) {
-    if (link.info.type === 2) {
-      prct2++ ;
-    } else if (link.info.type === 1) {
-      prct1++ ; 
-    } else {
-      prct0++ ;
-    }
-  }
-  return {
-    prct0: 100*prct0/links.length,
-    prct1: 100*prct1/links.length,
-    prct2: 100*prct2/links.length
-  }
-}
-
 const DEFAULT_STATE = {
   timeline: [],
   tsIndex: 0,
@@ -119,8 +36,7 @@ const DEFAULT_STATE = {
   linksType0: 0,
   linksType1: 0,
   linksType2: 0,
-  selectedUser: null,
-  autoFit: true
+  selectedUser: null
 } ;
 
 
@@ -149,7 +65,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.graphRef = createRef();
     this.simulation = d3.forceSimulation()
       .velocityDecay(0.8)
-      .force('link', d3.forceLink().id((d:any) => (d.id)).distance(getLinkDistance))
+      .force('link', d3.forceLink()
+        .id((d:any) => (d.id))
+        .distance((l:any) => (LINK_DISTANCES[l.info.type])))
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2))
       .force('radial', d3.forceRadial(50, SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2));
@@ -180,7 +98,6 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
 
   // -----------------------------
   // GRAPH FEATURES
-  // HAPPEN OUTSIDE OF REACT LOOP
   // -----------------------------
 
   createGraph = () => {
@@ -208,12 +125,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     // Init layer used to highlight selections
     this.svgHighlight = this.svgContainer.append('g')
         .attr('class', 'highlight')
-        .append('circle')
-        .style('fill', 'none') 
-        .style('stroke', colors.primary) 
-        .style('stroke-width', '2px') 
-        .attr('r', NODE_RAY) 
-        .attr('visibility', 'hidden') ; 
+        .append('circle') 
     console.log('created graph') ;
   }
 
@@ -222,12 +134,46 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   }
 
   updateGraph() {
+    const selectedUser = this.state.selectedUser ;
+    if (selectedUser) {
+      // Make only selected node and connections visible
+      const nodeMap:any = {} ;
+      for (const n of this.nodes) {
+        nodeMap[n.id] = n ;
+        nodeMap[n.id].zoom = false ;
+        nodeMap[n.id].alpha = 0.25 ;
+      }
+      for (const l of this.links) {
+        const source = l.source.id?l.source.id:l.source ;
+        const target = l.target.id?l.target.id:l.target ;
+        l.visible = (source===selectedUser.id) || (target===selectedUser.id) ;
+        if (l.visible) {
+          nodeMap[source].zoom = true ;
+          nodeMap[target].zoom = true ;
+          nodeMap[source].alpha = 1 ;
+          nodeMap[target].alpha = 1 ;
+        }
+      }
+    } else {
+      // Make everything visible
+      for (const l of this.links) {
+        l.visible = true ;
+      }
+      for (const n of this.nodes) {
+        n.alpha = 1 ;
+        n.zoom = true ;
+      }
+    }
     // Update the links
     this.svgLink = this.svgLink.data(this.links)
       .join('line')
-      .attr('stroke', getLinkColor)
-      .attr('stroke-width', getLinkWidth)
-      .attr('stroke-dasharray', getLinkDashArray);
+      .attr('stroke', this.getLinkColor)
+      .attr('stroke-width', this.getLinkWidth)
+      .attr('stroke-dasharray', this.getLinkDashArray)
+      .attr('visibility', (l:any)=>(l.visible?'show':'hidden')) ;
+    if (selectedUser) {
+      this.makeLinksInteractive() ;
+    } 
     // Update the nodes
     this.svgNode = this.svgNode.data(this.nodes)
       .join('image')
@@ -237,12 +183,34 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       .attr('x', -NODE_RAY) 
       .attr('y', -NODE_RAY) 
       .attr('clip-path', 'circle(' + NODE_RAY + ')')
+      .style('opacity', (d:any) => (d.alpha))
       .call(d3.drag().on('start', this.onDragStart).on('drag', this.onDragged).on('end', this.onDragEnd))
-      .on('click', this.handleNodeClick);
+      .on('click', this.setSelectedUser);
+    // Update the highlight
+    this.svgHighlight
+      .style('fill', 'none') 
+      .style('stroke', colors.primary) 
+      .style('stroke-width', '2px') 
+      .attr('r', NODE_RAY) 
+      .attr('visibility', selectedUser?'show':'hidden') ;
     // Restart the simulation with the updated nodes and links
     this.simulation.nodes(this.nodes).on('tick', this.ticked);
     this.simulation.force('link').links(this.links);
     this.simulation.alpha(1).restart();
+  }
+
+  makeLinksInteractive() {
+    this.svgLink.on('mouseover', (event:any, d:any) => {
+      d3.select(event.currentTarget)
+        .attr('stroke', colors.primary)
+        .style('cursor', 'pointer')
+    })
+    this.svgLink.on('mouseout', (event:any, d:any) => {
+      d3.select(event.currentTarget)
+      .attr('stroke', this.getLinkColor(d)) 
+      .style('cursor', 'default')
+    })
+    this.svgLink.on('click', this.setSelectedLink);
   }
 
   onDragStart = (event:any, d:any) => {
@@ -274,10 +242,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     this.svgHighlight
       .attr('cx', this.state.selectedUser ? this.state.selectedUser.x : 0)
       .attr('cy', this.state.selectedUser ? this.state.selectedUser.y : 0)
-      .attr('visibility', this.state.selectedUser ? 'show' : 'hidden') ;
-    if (this.state.autoFit) {
-      this.autozoom() ;
-    }
+    this.autozoom() ;
   }
 
   autozoom = () => {
@@ -289,12 +254,22 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     if (nodes.length === 0) {
       return ;
     }
-    const bbox = this.svgContainer.node().getBBox();
+    let visibleNodes = this.state.selectedUser?this.nodes.filter((n:any)=>(n.zoom)):this.nodes ;
+    visibleNodes = visibleNodes.filter((n:any)=>(n.x && n.y)) ;
+    if (visibleNodes.length === 0) {
+      return ;
+    }
+    let minX = Math.min(...visibleNodes.map((n:any)=>(n.x))) ;
+    let maxX = Math.max(...visibleNodes.map((n:any)=>(n.x))) ;
+    let minY = Math.min(...visibleNodes.map((n:any)=>(n.y))) ;
+    let maxY = Math.max(...visibleNodes.map((n:any)=>(n.y))) ;
+    let bboxWidth = maxX - minX ;
+    let bboxHeight = maxY - minY ;
     const padding = 50;
-    const width = (2 * padding) + bbox.width;
-    const height = (2 * padding) + bbox.height;
-    const midX = bbox.x + (width / 2) - padding;
-    const midY = bbox.y + (height / 2) - padding;
+    const width = (2 * padding) + bboxWidth;
+    const height = (2 * padding) + bboxHeight;
+    const midX = minX + (width / 2) - padding;
+    const midY = minY + (height / 2) - padding;
     let scale = Math.min(
       SIMULATION_WIDTH / width,
       SIMULATION_HEIGHT / height
@@ -314,24 +289,47 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       );
   }
 
-  zoomOn = (x: number, y: number) => {
-    if (!this.graphRef.current) {
-      return ;
+  getLinkColor = (link:any) => {
+    if (link===this.state.selectedLink) {
+      return colors.primary ;
     }
-    const svg = d3.select(this.graphRef.current);
-    svg.transition().duration(TIME_TRAVEL_STEP_MS).call(
-        this.zoom.transform,
-        d3.zoomIdentity
-          .translate(SIMULATION_WIDTH / 2, SIMULATION_HEIGHT / 2)
-          .scale(2)
-          .translate(-x, -y) 
-      );
+    const linkType = link.info.type ;
+    if (linkType === 2) {
+      return '#b56576' ;
+    } else if (linkType === 1) {
+      return '#6d597a' ; 
+    } else {
+      return '#355070' ;
+    }
+  }
+
+  getLinkWidth = (link:any) => {
+    const base = this.state.selectedUser?3:1 ;
+    const linkType = link.info.type ;
+    if (linkType === 2) {
+      return 1.5 * base ;
+    } else if (linkType === 1) {
+      return base; 
+    } else {
+      return base/2 ;
+    }
+  }
+
+  getLinkDashArray = (link:any) => {
+    const linkType = link.info.type ;
+    if (linkType === 2) {
+      return 'none' ;
+    } else if (linkType === 1) {
+      return 'none' ; 
+    } else {
+      return '10,2' ;
+    }
   }
 
 
 
   // ------------------------ 
-  // REACT COMPONENT FEATURES
+  // REACT COMPONENT LOGIC
   // ------------------------
 
   handleNewData() {
@@ -393,12 +391,53 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       numLinks: links2.length,
       linksType0: linkStats.prct0,
       linksType1: linkStats.prct1,
-      linksType2: linkStats.prct2
+      linksType2: linkStats.prct2,
+      selectedUser: null
     }
     this.links = links2 ;
-    this.nodes = nodes2 ;
-    this.updateGraph() ;  
-    this.setState(newState) ;
+    this.nodes = nodes2 ;  
+    this.setState(newState, this.updateGraph) ;
+  }
+
+  setSelectedUser = (event: any, d: any) => {
+    event.stopPropagation();  
+    const newState = {
+      selectedUser: d,
+      selectedLink: null
+    }
+    this.setState(newState, () => {
+      this.updateGraph() ;
+    });
+  } ;
+
+  removeSelectedUser = () => {
+    const newState = {
+      selectedUser: null,
+      selectedLink: null
+    }
+    this.setState(newState, () => {
+      this.updateGraph() ;
+      this.autozoom() ;
+    });
+  }
+
+  setSelectedLink = (event: any, l: any) => {
+    event.stopPropagation();    
+    const newState = {
+      selectedLink: l
+    }
+    this.setState(newState, () => {
+      this.updateGraph() ;
+    });
+  } ;
+
+  removeSelectedLink = () => {
+    const newState = {
+      selectedLink: null
+    }
+    this.setState(newState, () => {
+      this.updateGraph() ;
+    });
   }
 
   handleSliderChange = (event:any, value:any) => {
@@ -504,24 +543,21 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       numLinks: links.length,
       linksType0: linkStats.prct0,
       linksType1: linkStats.prct1,
-      linksType2: linkStats.prct2
+      linksType2: linkStats.prct2,
     }
     this.links = links ;
     this.nodes = nodes ;
-    this.updateGraph() ;
-    this.setState(newState, callback) ;
+    this.setState(newState, () => {
+      this.updateGraph() ;
+      if (callback) {
+        callback() ;
+      }
+    }) ;
   }
-
-  handleNodeClick = (event: any, d: any) => {
-    event.stopPropagation();
-    this.setState({ autoFit:false, selectedUser: d }, () => {
-      this.zoomOn(d.x, d.y) ;
-    });
-  } ;
 
   startTimeTravel = () => {
     if (this.state.tsIndex < this.state.timeline.length) {
-      this.setState({ selectedUser: null, autoFit:true, timeTravel: true }, this.continueTimeTravel) ;
+      this.setState({ timeTravel: true }, this.continueTimeTravel) ;
     }
   }
 
@@ -544,27 +580,36 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
     }
   }
 
+
+
+
+
+
+
+  // -------------------------- 
+  // REACT COMPONENT RENDERING
+  // --------------------------
+
   renderSlider() {
     if (this.state.timeline.length === 0) {
       return null ;
     }
     return (
       <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2}>
-              {timestampYYYY_MM_DD(this.state.timeline[0])}
-              <Slider
-                sx={{ width: '300px' }}
-                min={0}
-                max={this.state.timeline.length-1}
-                value={this.state.tsIndex}
-                onChange={this.handleSliderChange}
-                valueLabelDisplay="on"
-                valueLabelFormat={(v:number) => (timestampYYYY_MM_DD(this.state.timeline[v]))}
-                disabled={this.state.timeTravel}
-              />
-              {timestampYYYY_MM_DD(this.state.timeline[this.state.timeline.length-1])}
-              {this.renderTimeTravelButton()}
-              {this.renderAutoFitButton()}
-            </Box>
+        {timestampYYYY_MM_DD(this.state.timeline[0])}
+        <Slider
+          sx={{ width: '300px' }}
+          min={0}
+          max={this.state.timeline.length-1}
+          value={this.state.tsIndex}
+          onChange={this.handleSliderChange}
+          valueLabelDisplay="on"
+          valueLabelFormat={(v:number) => (timestampYYYY_MM_DD(this.state.timeline[v]))}
+          disabled={this.state.timeTravel}
+        />
+        {timestampYYYY_MM_DD(this.state.timeline[this.state.timeline.length-1])}
+        {this.renderTimeTravelButton()}
+      </Box>
     ) ;
   }
 
@@ -573,33 +618,11 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       return <IconButton onClick={this.stopTimeTravel} >
         <PauseIcon />
       </IconButton>
-    }
-    return <IconButton onClick={this.startTimeTravel} >
-      <PlayArrowIcon />
-    </IconButton>
-  }
-
-  renderAutoFitButton() {
-    if (this.state.numUsers===0) {
-      return null ;
-    }
-    const self = this ;
-    const action = () => {
-      const newValue = !this.state.autoFit ;
-      const newState = {
-        autoFit: newValue,
-        selectedUser: null
-      }
-      this.setState(newState, () => {
-        self.autozoom() ;
-      })
-    }
-    return (
-      <IconButton onClick={action} 
-                  color={this.state.autoFit ? "primary" : "default"}>
-        <ZoomOutMapIcon />
+    } else {
+      return <IconButton onClick={this.startTimeTravel} >
+        <PlayArrowIcon />
       </IconButton>
-    );
+    }
   }
 
   renderUserFeatures() {
@@ -634,16 +657,18 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       return null ;
     }
     return (
-      <WordCloud data={words}
-          width={500} 
-          height={500} 
+      <MemoWordCloud 
+        fid={user.id}
+        data={words}
+        width={500} 
+        height={500} 
           fontSize={(word:any)=>word.value}
           rotate={(word:any)=>0}
           padding={4}/>
     ) ;
   }
 
-  renderInfos() {
+  renderNetworkInfo() {
     if (this.state.numUsers === 0) {
       return null ;
     }
@@ -662,34 +687,135 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
               <TableCell>{this.state.numLinks}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>Types</TableCell>
-              <TableCell>Mutuals: {this.state.linksType2.toFixed(1)}%<br/>
-                         One-way: {this.state.linksType1.toFixed(1)}%<br/>
-                         Reactions-only: {this.state.linksType0.toFixed(1)}%</TableCell>
+              <TableCell>Mutuals</TableCell>
+              <TableCell>{this.state.linksType2.toFixed(1)}%</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>One-way</TableCell>
+              <TableCell>{this.state.linksType1.toFixed(1)}%</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Reactions-only</TableCell>
+              <TableCell>{this.state.linksType0.toFixed(1)}%</TableCell>
             </TableRow>
           </TableBody>
         </Table>
-        <br/><br/>
-        {this.renderSelectedUser()}
       </React.Fragment>
     ) ;
   }
 
-  renderSelectedUser() {
+  renderUserInfo() {
     const user:any = this.state.selectedUser ;
     if (!user) {
       return null ;
     }
+    let name = user.name ;
+    if (!name || name.length===0) {
+      name = '#' + user.id ;
+    }
     return <React.Fragment>
       <Stack direction="row" spacing={2} alignItems="center">
-          <Avatar alt={user.name} src={user.pfp} />
-          <Typography variant="h6">{user.name}</Typography>
+          <Avatar alt={name} src={user.pfp} />
+          <Typography variant="h6">{name}</Typography>
+          <IconButton onClick={this.removeSelectedUser}>
+            <CloseIcon />
+          </IconButton>
         </Stack>
       <hr/>
       {this.renderUserFeatures()}
       <br/>
       {this.renderUserWordCloud()}
     </React.Fragment>
+  }
+
+  renderLinkArrow(linkType:string) {
+    if (linkType === '2way') {
+      return <CompareArrowsIcon /> ;
+    } else if (linkType === '1wayLeft') {
+      return <ArrowBackIcon /> ;
+    } else if (linkType === '1wayRight') {
+      return <ArrowForwardIcon /> ;
+    } else {
+      return <RemoveIcon /> ;
+    }
+  } 
+
+  renderArrow(direction:string) {
+    if (direction === 'left') {
+      return <ArrowBackIcon /> ;
+    } else if (direction === 'right') {
+      return <ArrowForwardIcon /> ;
+    } else {
+      return null ;
+    }
+  } 
+
+  renderLinkTable(direction:string ,link:any) {
+    return (
+       <Table>
+          <TableBody>
+            <TableRow>
+              <TableCell>{this.renderArrow(direction)}</TableCell>
+              <TableCell> </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>{direction==='right'?'Follows':'Follows back'}</TableCell>
+              <TableCell>{link.follow?'Yes':'No'}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Recasts</TableCell>
+              <TableCell>{link.recasts}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Likes</TableCell>
+              <TableCell>{link.likes}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Replies</TableCell>
+              <TableCell>{link.replies}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+    )
+  }
+
+  renderLinkInfo() {
+    const source:any = this.state.selectedUser ;
+    const link:any = this.state.selectedLink ;
+    if (!source || !link) {
+      return null ;
+    }
+    const isSource = link.source.id === source.id ;
+    const target = isSource?link.target:link.source ;
+    const link1 = isSource?getLinkDirection(link, 1):getLinkDirection(link, 2) ;
+    const link2 = isSource?getLinkDirection(link, 2):getLinkDirection(link, 1) ;
+    const linkType = getLinkType(link1, link2) ;    
+    return <React.Fragment>
+      <Stack direction="row" spacing={2} alignItems="center">
+        <Avatar alt={source.name} src={source.pfp} />
+        {this.renderLinkArrow(linkType)}
+        <Avatar alt={target.name} src={target.pfp} />
+        <IconButton onClick={this.removeSelectedLink}>
+          <CloseIcon />
+        </IconButton>
+        </Stack>
+      <hr/>
+      {this.renderLinkTable('right', link1)}
+      <hr/>
+      {this.renderLinkTable('left', link2)}
+    </React.Fragment>
+  }
+
+  renderInfos() {
+    if (this.state.selectedLink) {
+      return this.renderLinkInfo() ;
+    } else if (this.state.selectedUser) {
+      return this.renderUserInfo() ;
+    } else if (this.state.numUsers>0) {
+      return this.renderNetworkInfo() ;
+    } else {
+      return null ;
+    }
   }
 
   renderLoading() {
