@@ -737,7 +737,11 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
                   <HelpOutlineIcon fontSize="small" />
                 </Tooltip>
               </TableCell>
-              <TableCell>Avg: {this.state.avgDist.toFixed(1)} Max: {this.state.maxDist} %linked: {this.state.prctConnected.toFixed(1)}%</TableCell>
+              <TableCell>Avg: {this.state.avgDist.toFixed(1)}<br/>Max: {this.state.maxDist}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Follow chains</TableCell>
+              <TableCell>{this.state.prctConnected.toFixed(1)}%</TableCell>
             </TableRow>
           </TableBody>
         </Table>
