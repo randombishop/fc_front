@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Button, Grid, Box } from '@mui/material';
 import AppLogo from '../../assets/logo_white_nobg.png';
 import Profile from '../profile/Profile';
 import { useLocation } from 'react-router-dom';
+import MiniGridItem from './MiniGridItem';
 
 
 class Header1 extends React.Component<{ location: any }> {
@@ -33,33 +34,41 @@ class Header1 extends React.Component<{ location: any }> {
       const usersUrl = '#/users/-';
       const botUrl = '#/bot';
       const likeMeterUrl = '#/like-meter/-';
-      const networkUrl = '#/network/random/group/1';
+      const networkUrl = '#/network/random/10/group/1';
       return (
         <AppBar position="static">
           <Toolbar>
             <Grid container spacing={3}>
-              <Grid item xs={6} md={2} >
+              <Grid item xs={6} md={2} lg={1}>
                 <Box display="inline-flex" justifyContent="center" alignItems="center" width="100%" height="100%">
                   <img src={AppLogo} style={imgStyle} alt="Data Science Art" />
                 </Box>
               </Grid>
-              <Grid item md={2} 
+              <Grid item xs={6} md={2} lg={1}
                     sx={{display: {xs: 'none',sm: 'none', 'md': 'flex'}}}>
                 <Box display="inline-flex" justifyContent="center" alignItems="center" width="100%" height="100%" style={titleStyle}>
                   Farcaster<br />Data
                 </Box>
               </Grid>
-              <Grid item xs={12} md={5} >
-                <Box display="inline-flex" justifyContent="center" alignItems="center" width="100%" height="100%">
-                  <Button color={this.getButtonColor('/dashboard', true)} href={dashboardUrl}>Dashboard</Button>
-                  <Button color={this.getButtonColor('/trends')} href={trendsUrl}>Trends</Button>
-                  <Button color={this.getButtonColor('/users')} href={usersUrl}>Users</Button>
-                  <Button color={this.getButtonColor('/bot')} href={botUrl}>Bot</Button>
-                  <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Likemeter</Button>
-                  <Button color={this.getButtonColor('/network')} href={networkUrl}>Network</Button>
-                </Box>
-              </Grid>
-              <Grid item xs={12} md={3} sx={{position: 'relative', height: '100px'}}>
+              <MiniGridItem>
+                <Button color={this.getButtonColor('/dashboard', true)} href={dashboardUrl}>Dashboard</Button>
+              </MiniGridItem>
+              <MiniGridItem>
+                <Button color={this.getButtonColor('/trends')} href={trendsUrl}>Trends</Button>
+              </MiniGridItem>
+              <MiniGridItem>
+                <Button color={this.getButtonColor('/users')} href={usersUrl}>Users</Button>
+              </MiniGridItem>
+              <MiniGridItem>
+                <Button color={this.getButtonColor('/bot')} href={botUrl}>Bot</Button>
+              </MiniGridItem>
+              <MiniGridItem>
+                <Button color={this.getButtonColor('/like-meter')} href={likeMeterUrl}>Likemeter</Button>
+              </MiniGridItem>
+              <MiniGridItem>
+                <Button color={this.getButtonColor('/network')} href={networkUrl}>Network</Button>
+              </MiniGridItem>
+              <Grid item xs={12} md={3} lg={2} display='flex' justifyContent='center' alignItems='center' sx={{height: '100px', marginBottom: '2px'}}>
                 <Profile />
               </Grid>
             </Grid>

@@ -133,9 +133,7 @@ const Users = (props : any) => {
 
   const addItem = (item: string) => {
     if (items.includes(item)) {
-      console.log('Item already exists: '+item);
     } else {
-      console.log('Adding item: ', item);
       let newItems = items.slice();
       newItems.push(item);
       const url = '/users/'+newItems.join(',');
@@ -144,7 +142,6 @@ const Users = (props : any) => {
   } 
 
   const removeItem = (item: string) => {
-    console.log('Removing item: ', item);
     const index = items.indexOf(item);
     if (index !== -1) {
       let newItems = items.slice();

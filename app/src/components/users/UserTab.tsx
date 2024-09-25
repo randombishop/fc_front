@@ -27,7 +27,7 @@ class UserTab extends React.Component< {data: any}> {
     }
     return (
       <React.Fragment>
-        <Grid item xs={5} >
+        <Grid item md={12} lg={5} >
             <UserProfile data={this.props.data} />
             <br/>
             <UserWordCloud data={this.props.data} />  
@@ -36,7 +36,7 @@ class UserTab extends React.Component< {data: any}> {
             <br/>
             <UserFavorites data={this.props.data} />
         </Grid>
-        <Grid item xs={7} >
+        <Grid item md={12} lg={7} >
           <UserFollowers data={this.props.data} />
           <br/>
           <UserEngagement data={this.props.data} />

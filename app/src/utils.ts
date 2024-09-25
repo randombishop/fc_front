@@ -357,29 +357,6 @@ function getRandomPoint(x0:number, y0:number, distance:number) {
   return { x, y };
 }
 
-function getLinkStats(links: any[]) {
-  if (links.length===0) {
-    return {prct1:0, prct2:0, prct3:0};
-  }
-  let prct0 = 0 ;
-  let prct1 = 0 ;
-  let prct2 = 0 ;
-  for (const link of links) {
-    if (link.info.type === 2) {
-      prct2++ ;
-    } else if (link.info.type === 1) {
-      prct1++ ; 
-    } else {
-      prct0++ ;
-    }
-  }
-  return {
-    prct0: 100*prct0/links.length,
-    prct1: 100*prct1/links.length,
-    prct2: 100*prct2/links.length
-  }
-}
-
 function getLinkDirection(link:any, direction:number) {
   return {
     follow: link.info['l'+direction],
@@ -400,6 +377,117 @@ function getLinkType(link1:any, link2:any) {
   } else {
     return 'react' ;
   }
+}
+
+function getLinkStats(links: any[], shortestPaths:any) {
+  if (links.length===0) {
+    return {prct1:0, 
+      prct2:0, 
+      prct3:0, 
+      maxDist: null,
+      avgDist: null,
+      prctConnected: 0};
+  }
+  let numNodes = shortestPaths.length ;
+  let prct0 = 0 ;
+  let prct1 = 0 ;
+  let prct2 = 0 ;
+  for (const link of links) {
+    if (link.info.type === 2) {
+      prct2++ ;
+    } else if (link.info.type === 1) {
+      prct1++ ; 
+    } else {
+      prct0++ ;
+    }
+  }
+  const flatMatrix = shortestPaths.flat();
+  const arrayDist = flatMatrix.filter((value:any) => (value>0 && value!==Infinity)) ;
+  const maxDist = Math.max(...arrayDist) ;
+  const sumDist = arrayDist.reduce((acc:any, val:any) => acc + val, 0);
+  const avgDist = sumDist / arrayDist.length;
+  const prctConnected = flatMatrix.length>0 ? 100*(numNodes+arrayDist.length)/flatMatrix.length : 0 ;
+  return {
+    prct0: 100*prct0/links.length,
+    prct1: 100*prct1/links.length,
+    prct2: 100*prct2/links.length,
+    maxDist: maxDist,
+    avgDist: avgDist,
+    prctConnected: prctConnected
+  }
+}
+
+function shortestPaths(nodes:any[], links:any[]) {
+  const step1 = floydWarshall(nodes, links) ;
+  const step2 = bfsReorder(step1) ;
+  return step2 ;
+}
+
+function floydWarshall(nodes:any[], links:any[]) {
+    const n = nodes.length;
+    const nodeMap:any = {} ;
+    for (let i = 0; i < n; i++) {
+      nodeMap[nodes[i].id] = i ;
+    }
+    const dist:any = Array(n).fill(null).map(() => Array(n).fill(Infinity));
+    for (let i = 0; i < n; i++) {
+        dist[i][i] = 0;
+    }
+    for (const l of links) {
+      const source = l.source.id?l.source.id:l.source ;
+      const target = l.target.id?l.target.id:l.target ;
+      const u = nodeMap[source] ;
+      const v = nodeMap[target] ;
+      if (l.info.l1) {
+        dist[u][v] = 1 ;
+      }
+      if (l.info.l2) {
+        dist[v][u] = 1 ;
+      }
+    }
+    for (let k = 0; k < n; k++) {
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          if (dist[i][j] > dist[i][k] + dist[k][j]) {
+            dist[i][j] = dist[i][k] + dist[k][j];
+          }
+        }
+      }
+    }
+    return dist;
+}
+
+function bfsReorder(adjacencyMatrix:any) {
+    const n = adjacencyMatrix.length;
+    const visited = new Array(n).fill(false);
+    const order:any = [] ;
+    // Simple BFS function
+    function bfs(start:any) {
+        const queue = [start];
+        visited[start] = true;
+
+        while (queue.length > 0) {
+            const node = queue.shift();
+            order.push(node);
+
+            for (let neighbor = 0; neighbor < n; neighbor++) {
+                if (adjacencyMatrix[node][neighbor] > 0 && !visited[neighbor]) {
+                    visited[neighbor] = true;
+                    queue.push(neighbor);
+                }
+            }
+        }
+    }
+    // Run BFS from node 0 (or any node)
+    bfs(0);
+    // Reorder the matrix
+    const reorderedMatrix = Array(n).fill(null).map(() => Array(n).fill(0));
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+            reorderedMatrix[i][j] = adjacencyMatrix[order[i]][order[j]];
+        }
+    }
+    return reorderedMatrix;
 }
 
 export { 
@@ -431,5 +519,6 @@ export {
   getRandomPoint,
   getLinkStats,
   getLinkDirection,
-  getLinkType
+  getLinkType,
+  shortestPaths
 } ;

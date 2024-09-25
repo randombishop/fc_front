@@ -1,5 +1,6 @@
 import React, { createRef } from 'react';
-import { Grid, Box, Slider, Table, TableBody, TableCell, TableRow, Typography, Stack, Avatar, IconButton } from '@mui/material';
+import { Grid, Box, Slider, Table, TableBody, TableCell, TableRow, 
+         Typography, Stack, Avatar, IconButton, Tooltip } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
 import CloseIcon from '@mui/icons-material/Close' ;
@@ -7,11 +8,14 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows' ;
 import ArrowBackIcon from '@mui/icons-material/ArrowBack' ;
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward' ;
 import RemoveIcon from '@mui/icons-material/Remove' ;
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline' ;
 import * as d3 from 'd3';
 import MemoWordCloud from '../common/MemoWordCloud';
 import Panel from '../common/Panel';
 import Loading from '../common/Loading';
-import { timestampYYYY_MM_DD, parseWordDict, colors, findMaxIndex, getRandomPoint, getLinkStats, getLinkDirection, getLinkType } from '../../utils';
+import Heatmap from '../common/Heatmap';
+import { timestampYYYY_MM_DD, parseWordDict, colors, findMaxIndex, 
+         getRandomPoint, getLinkStats, getLinkDirection, getLinkType, shortestPaths } from '../../utils';
 
 
 const TIME_TRAVEL_STEP = 5 ;
@@ -33,11 +37,19 @@ const DEFAULT_STATE = {
   tsIndex: 0,
   numUsers: 0,
   numLinks: 0,
+  selectedUser: null,
+  shortestPathsMatrix: null,
   linksType0: 0,
   linksType1: 0,
   linksType2: 0,
-  selectedUser: null
+  maxDist: null,
+  avgDist: null,
+  prctConnected: 0
 } ;
+
+
+
+
 
 
 class NetworkShow extends React.Component< {data: any, loading: boolean}> {
@@ -171,9 +183,8 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       .attr('stroke-width', this.getLinkWidth)
       .attr('stroke-dasharray', this.getLinkDashArray)
       .attr('visibility', (l:any)=>(l.visible?'show':'hidden')) ;
-    if (selectedUser) {
-      this.makeLinksInteractive() ;
-    } 
+    this.makeLinksInteractive() ;
+     
     // Update the nodes
     this.svgNode = this.svgNode.data(this.nodes)
       .join('image')
@@ -184,8 +195,9 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       .attr('y', -NODE_RAY) 
       .attr('clip-path', 'circle(' + NODE_RAY + ')')
       .style('opacity', (d:any) => (d.alpha))
-      .call(d3.drag().on('start', this.onDragStart).on('drag', this.onDragged).on('end', this.onDragEnd))
-      .on('click', this.setSelectedUser);
+      .call(d3.drag().on('start', this.onDragStart).on('drag', this.onDragged).on('end', this.onDragEnd)) ;
+    this.makeNodesInteractive() ;
+
     // Update the highlight
     this.svgHighlight
       .style('fill', 'none') 
@@ -211,6 +223,16 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       .style('cursor', 'default')
     })
     this.svgLink.on('click', this.setSelectedLink);
+  }
+
+  makeNodesInteractive() {
+    this.svgNode.on('mouseover', (event:any, d:any) => {
+      d3.select(event.currentTarget).style('cursor', 'pointer')
+    })
+    this.svgNode.on('mouseout', (event:any, d:any) => {
+      d3.select(event.currentTarget).style('cursor', 'default')
+    })
+    this.svgNode.on('click', this.setSelectedUser);
   }
 
   onDragStart = (event:any, d:any) => {
@@ -383,19 +405,24 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         addedNodes[link.target] = true ;
       }
     }
-    const linkStats = getLinkStats(links2) ;
+    this.links = links2 ;
+    this.nodes = nodes2 ;  
+    const shortestPathsMatrix = shortestPaths(nodes2, links2) ;
+    const linkStats = getLinkStats(links2, shortestPathsMatrix) ;
     const newState = {
       timeline: timeline,
       tsIndex: 0,
       numUsers: nodes2.length,
       numLinks: links2.length,
+      selectedUser: null,
+      shortestPathsMatrix: shortestPathsMatrix,
       linksType0: linkStats.prct0,
       linksType1: linkStats.prct1,
       linksType2: linkStats.prct2,
-      selectedUser: null
+      maxDist: linkStats.maxDist,
+      avgDist: linkStats.avgDist,
+      prctConnected: linkStats.prctConnected
     }
-    this.links = links2 ;
-    this.nodes = nodes2 ;  
     this.setState(newState, this.updateGraph) ;
   }
 
@@ -536,17 +563,22 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         nodes[i].index = i ;
       }
     }
-    const linkStats = getLinkStats(links) ;
+    this.links = links ;
+    this.nodes = nodes ;
+    const shortestPathsMatrix = shortestPaths(nodes, links) ;
+    const linkStats = getLinkStats(links, shortestPathsMatrix) ;
     const newState = {
       tsIndex: tsIndex,
       numUsers: nodes.length,
       numLinks: links.length,
+      shortestPathsMatrix: shortestPathsMatrix,
       linksType0: linkStats.prct0,
       linksType1: linkStats.prct1,
       linksType2: linkStats.prct2,
+      maxDist: linkStats.maxDist,
+      avgDist: linkStats.avgDist,
+      prctConnected: linkStats.prctConnected
     }
-    this.links = links ;
-    this.nodes = nodes ;
     this.setState(newState, () => {
       this.updateGraph() ;
       if (callback) {
@@ -698,8 +730,21 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
               <TableCell>Reactions-only</TableCell>
               <TableCell>{this.state.linksType0.toFixed(1)}%</TableCell>
             </TableRow>
+            <TableRow>
+              <TableCell>
+                Shortest Path<br/>
+                <Tooltip title="Using only follow links, and ignoring infinite distances (disconnected pairs)">
+                  <HelpOutlineIcon fontSize="small" />
+                </Tooltip>
+              </TableCell>
+              <TableCell>Avg: {this.state.avgDist.toFixed(1)} Max: {this.state.maxDist} %linked: {this.state.prctConnected.toFixed(1)}%</TableCell>
+            </TableRow>
           </TableBody>
         </Table>
+        <br/>
+        <Typography variant="body1">Shortest Path Matrix</Typography>
+        <Heatmap width={200} height={200}
+                 matrix={this.state.shortestPathsMatrix} maxDistance={this.state.maxDist} />
       </React.Fragment>
     ) ;
   }
@@ -780,12 +825,12 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
   }
 
   renderLinkInfo() {
-    const source:any = this.state.selectedUser ;
     const link:any = this.state.selectedLink ;
-    if (!source || !link) {
+    if (!link) {
       return null ;
     }
-    const isSource = link.source.id === source.id ;
+    const isSource = this.state.selectedUser ? link.source.id === this.state.selectedUser.id : false ;
+    const source = isSource?link.source:link.target ;
     const target = isSource?link.target:link.source ;
     const link1 = isSource?getLinkDirection(link, 1):getLinkDirection(link, 2) ;
     const link2 = isSource?getLinkDirection(link, 2):getLinkDirection(link, 1) ;
@@ -829,11 +874,13 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
       <Panel title='Network Visualization'>
         {this.renderLoading()}
         <Grid container>
-          <Grid item xs={12} md={9}>
+          <Grid item md={12} lg={9}>
             {this.renderSlider()}
-            <svg ref={this.graphRef} width={SIMULATION_WIDTH} height={SIMULATION_HEIGHT}></svg>
+            <Box sx={{width: SIMULATION_WIDTH, height: SIMULATION_HEIGHT}}>
+              <svg ref={this.graphRef} width={SIMULATION_WIDTH} height={SIMULATION_HEIGHT}></svg>
+            </Box>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item md={12} lg={3}>
             {this.renderInfos()}
           </Grid>
         </Grid>

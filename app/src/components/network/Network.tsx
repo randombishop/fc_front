@@ -1,32 +1,29 @@
 import React, { useState } from 'react';
-import { Grid } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../../AppContext';
 import NetworkSelect from './NetworkSelect';
 import NetworkShow from './NetworkShow';
 
 
-class Network1 extends React.Component<{sample: string, mode: string, item: string, 
-                                        selectNetwork: (mode:string, item:string, sample:string) => void,
+class Network1 extends React.Component<{sample: string, filter: string, mode: string, item: string, 
+                                        selectNetwork: (mode:string, filter:string, item:string, sample:string) => void,
                                         showNetwork: () => void,
                                         loading: boolean,
                                         data: any}> {
 
   render() {
     return (
-      <Grid container spacing={3}>
-          <Grid item xs={12} >
-            <NetworkSelect mode={this.props.mode} 
-                          item={this.props.item} 
-                          sample={this.props.sample} 
-                          selectNetwork={this.props.selectNetwork} 
-                          showNetwork={this.props.showNetwork} 
-                          loading={this.props.loading} />
-          </Grid>
-          <Grid item xs={12} >
-            <NetworkShow data={this.props.data} loading={this.props.loading} />
-          </Grid>
-      </Grid>
+      <React.Fragment>  
+        <NetworkSelect mode={this.props.mode} 
+                        filter={this.props.filter}
+                        item={this.props.item} 
+                        sample={this.props.sample} 
+                        selectNetwork={this.props.selectNetwork} 
+                        showNetwork={this.props.showNetwork} 
+                        loading={this.props.loading} />
+        <br/>
+        <NetworkShow data={this.props.data} loading={this.props.loading} />
+      </React.Fragment>
     );
   }
 
@@ -39,34 +36,41 @@ const Network = (props : any) => {
   const [networkData, setNetworkData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  let { mode, item, sample } = useParams();
+  let { sample, filter, mode, item} = useParams();
+  if (!sample) {
+    sample = 'random';
+  }
+  if (!filter) {
+    filter = '10';
+  }  
   if (!mode) {
     mode = '';
   }
   if (!item) {
     item = '';
   }
-  if (!sample) {
-    sample = 'random';
-  }
+  
   const navigate = useNavigate();
   
-  const selectNetwork = (sample:string, mode:string, item:string) => {
-    const url = '/network/'+sample+'/'+mode+'/'+item ;
+  const selectNetwork = (sample:string, filter:string, mode:string, item:string) => {
+    const url = '/network/'+sample+'/'+filter+'/'+mode+'/'+item ;
     navigate(url);
   }
 
   const showNetwork = () => {
     setNetworkData(null) ;
     setLoading(true) ;
-    const url = '/network/'+sample+'/'+mode+'/'+item ;
+    const url = '/network/'+sample+'/'+filter+'/'+mode+'/'+item ;
     context.backendGET(url, (data: any) => {
       setNetworkData(data) ;
       setLoading(false) ;
+    }, (error: any) => {
+      setLoading(false) ;
+      alert(error) ;
     });
   }
 
-  return <Network1 mode={mode} item={item} sample={sample} 
+  return <Network1 sample={sample} filter={filter} mode={mode} item={item} 
                    selectNetwork={selectNetwork} 
                    showNetwork={showNetwork} 
                    loading={loading}

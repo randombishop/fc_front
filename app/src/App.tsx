@@ -38,7 +38,7 @@ class App extends React.Component {
                 <Route path="/users/:terms" Component={Users} />
                 <Route path="/bot" Component={Bot} />
                 <Route path="/like-meter/:token" Component={LikeMeter} />
-                <Route path="/network/:sample/:mode/:item?" Component={Network} />
+                <Route path="/network/:sample/:filter/:mode/:item?" Component={Network} />
               </Routes>
               <Box sx={{ flexGrow: 1 }} />
               <Footer />

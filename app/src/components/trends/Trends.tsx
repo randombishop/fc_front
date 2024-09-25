@@ -104,9 +104,8 @@ const Trends = (props : any) => {
   
   const addItem = (item: string) => {
     if (items.includes(item)) {
-      console.log('Item already exists: '+item);
+      // do something?
     } else {
-      console.log('Adding item: ', item);
       let newItems = items.slice();
       newItems.push(item);
       const url = '/trends/'+newItems.join(',');
@@ -115,7 +114,6 @@ const Trends = (props : any) => {
   } 
 
   const removeItem = (item: string) => {
-    console.log('Removing item: ', item);
     const index = items.indexOf(item);
     if (index !== -1) {
       let newItems = items.slice();

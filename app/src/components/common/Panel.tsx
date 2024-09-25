@@ -14,7 +14,7 @@ class Panel extends React.Component<PanelProps> {
   render() {
     const { title, children, backgroundColor} = this.props;
     return (
-      <Paper sx={{borderColor: colors.light, borderWidth: '1px', borderStyle: 'solid', borderRadius: '0px', overflow: 'hidden'}}>
+      <Paper sx={{borderColor: colors.light, borderWidth: '1px', borderStyle: 'solid', borderRadius: '0px'}}>
           <Box
             sx={{
               backgroundColor: colors.dark,
