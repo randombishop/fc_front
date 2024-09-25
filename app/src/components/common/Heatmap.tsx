@@ -28,7 +28,7 @@ class Heatmap extends Component<{ matrix: any, maxDistance: number, width: numbe
     const cellHeight = height / numRows;
 
     // Color scale
-    const colorScale = d3.scaleSequential(d3.interpolateWarm).domain([0, maxDistance]);
+    const colorScale = d3.scaleSequential(d3.interpolateWarm).domain([maxDistance, 0]);
 
     // Select the SVG element and set its dimensions
     const svg = d3.select(this.heatmapRef.current)
