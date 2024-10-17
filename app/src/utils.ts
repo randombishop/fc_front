@@ -490,6 +490,59 @@ function bfsReorder(adjacencyMatrix:any) {
     return reorderedMatrix;
 }
 
+function quickHull(points:any[]):any[] {
+    if (points.length <= 3) return points;
+
+    const getDistance = (p:any, lineStart:any, lineEnd:any) => {
+        const a = lineEnd.y - lineStart.y;
+        const b = lineStart.x - lineEnd.x;
+        const c = lineEnd.x * lineStart.y - lineStart.x * lineEnd.y;
+        return Math.abs(a * p.x + b * p.y + c) / Math.sqrt(a * a + b * b);
+    };
+
+    const getSide = (point:any, lineStart:any, lineEnd:any) => {
+        return (lineEnd.x - lineStart.x) * (point.y - lineStart.y) - (lineEnd.y - lineStart.y) * (point.x - lineStart.x);
+    };
+
+    const hull = (lineStart:any, lineEnd:any, points:any[]):any[] => {
+        let index = -1;
+        let maxDistance = 0;
+
+        for (let i = 0; i < points.length; i++) {
+            const distance = getDistance(points[i], lineStart, lineEnd);
+            if (distance > maxDistance) {
+                maxDistance = distance;
+                index = i;
+            }
+        }
+
+        if (index === -1) return [];
+
+        const point = points[index];
+        const leftPoints = points.filter(p => getSide(p, lineStart, point) > 0);
+        const rightPoints = points.filter(p => getSide(p, point, lineEnd) > 0);
+
+        return [
+            ...hull(lineStart, point, leftPoints),
+            point,
+            ...hull(point, lineEnd, rightPoints)
+        ];
+    };
+
+    // Find the leftmost and rightmost points
+    const minX = Math.min(...points.map(p => p.x));
+    const maxX = Math.max(...points.map(p => p.x));
+    const leftmost = points.find(p => p.x === minX);
+    const rightmost = points.find(p => p.x === maxX);
+
+    // Build the convex hull
+    const upperHull = hull(leftmost, rightmost, points);
+    const lowerHull = hull(rightmost, leftmost, points);
+
+    return [...upperHull.map(p=>({x:p.x, y:p.y})), 
+            ...lowerHull.map(p=>({x:p.x, y:p.y}))] ;
+}
+
 export { 
   castCategories,
   castTopics,
@@ -520,5 +573,6 @@ export {
   getLinkStats,
   getLinkDirection,
   getLinkType,
-  shortestPaths
+  shortestPaths,
+quickHull
 } ;
