@@ -116,6 +116,52 @@ const castTopics:any = {
   }
 } ;
 
+const clusteringFeatures: { [key: string]: string } = {
+  'cluster': 'Cluster',
+  'fid': 'FID Number',
+  'followers_num': 'Number of followers',
+  'following_num': 'Number of users followed',
+  'prefs_c_arts': 'Preference for category "Arts"',
+  'prefs_c_business': 'Preference for category "Business"',
+  'prefs_c_crypto': 'Preference for category "Crypto"',
+  'prefs_c_culture': 'Preference for category "Culture"',
+  'prefs_c_misc': 'Preference for category "Misc"',
+  'prefs_c_money': 'Preference for category "Money"',
+  'prefs_c_nature': 'Preference for category "Nature"',
+  'prefs_c_politics': 'Preference for category "Politics"',
+  'prefs_c_sports': 'Preference for category "Sports"',
+  'prefs_c_tech_science': 'Preference for category "Tech & Science"',
+  'prefs_q_aggressivity': 'Preference for casts with feature "Aggressivity"',
+  'prefs_q_audience': 'Preference for casts with a clear audience',
+  'prefs_q_call_action': 'Preference for casts with a clear call to action',
+  'prefs_q_clear': 'Preference for casts with a clear message',
+  'prefs_q_curiosity': 'Preference for casts that trigger curiosity',
+  'prefs_q_easy': 'Preference for casts that are easy to understand',
+  'prefs_q_emo_res': 'Preference for casts that evoke an emotional response',
+  'prefs_q_funny': 'Preference for casts that are funny',
+  'prefs_q_happiness': 'Preference for casts that are happy',
+  'prefs_q_info': 'Preference for casts that are informative',
+  'prefs_q_interesting_ask': 'Preference for casts that ask interesting questions',
+  'prefs_q_meme_ref': 'Preference for casts that reference a known meme',
+  'prefs_q_personal': 'Preference for casts that have a personal touch',
+  'prefs_q_surprise': 'Preference for casts that have an element of surprise',
+  'prefs_q_verifiable': 'Preference for casts that are verifiable',
+  'msg_messages_per_day': 'Number of messages per day',
+  'spam_any': 'Any spam flag',
+  'spam_messages_per_day': 'Spam Flag because of high number of messages per day',
+  'spam_deletes': 'Spam Flag because of High Deletion Rate',
+  'spam_speed': 'Spam Flag because too fast to react to other casts',
+  'eng_num_days': 'Number of days out of last 30 days where the user received engagement',
+  'eng_likes': 'Number of likes received',
+  'eng_recasts': 'Number of recasts received',
+  'eng_replies': 'Number of replies received',
+  'eng_ufids_likes_ratio': 'Ratio of number of unique users who liked to total number of likes received',
+  'eng_ufids_recasts_ratio': 'Ratio of number of unique users who recasted to total number of recasts received',
+  'eng_ufids_replies_ratio': 'Ratio of number of unique users who replied to total number of replies received',
+  'user_lang_1': 'Main user language'
+ } ;
+
+
 const fontFamily = 'Reddit Mono, monospace' ;
 //const fontFamily = '"Courier New", Courier, monospace' ;
 
@@ -543,9 +589,11 @@ function quickHull(points:any[]):any[] {
             ...lowerHull.map(p=>({x:p.x, y:p.y}))] ;
 }
 
+
 export { 
   castCategories,
   castTopics,
+  clusteringFeatures,
   getBackendUrl, 
   getTaskUrl,
   fontFamily, 
@@ -574,5 +622,5 @@ export {
   getLinkDirection,
   getLinkType,
   shortestPaths,
-quickHull
+  quickHull
 } ;

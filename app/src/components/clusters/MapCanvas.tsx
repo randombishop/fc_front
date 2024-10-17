@@ -1,11 +1,10 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 
 const MapCanvas = (props: any) => {
 
-  const { dots, clusterBorders, width, height } = props;
+  const { dots, clusterBorders, width, height, hoveredCluster, setHoveredCluster, setSelectedCluster } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [hoveredCluster, setHoveredCluster] = useState<number | null>(null);
 
   const drawCanvas = () => {
     if (!canvasRef.current) return;
@@ -25,10 +24,6 @@ const MapCanvas = (props: any) => {
     });
   };
 
-  const handleClusterClick = (clusterId: number) => {
-    console.log('Cluster clicked', clusterId);
-  };
-
   useEffect(() => {
     drawCanvas();
   }); 
@@ -46,12 +41,13 @@ const MapCanvas = (props: any) => {
             <polygon
               key={cluster.id}
               points={points}
-              fill={hoveredCluster === cluster.id ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)'}
+              fill={hoveredCluster === cluster.id ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0)'}
               stroke='rgba(128, 128, 128, 0.5)'
-              strokeWidth={1}
+              strokeWidth={2}
+              style={{ cursor: 'pointer' }}
               onMouseEnter={() => setHoveredCluster(cluster.id)}
               onMouseLeave={() => setHoveredCluster(null)}
-              onClick={() => handleClusterClick(cluster.id)}
+              onClick={() => setSelectedCluster(cluster.id)}
             />
           );
         })}
@@ -60,7 +56,7 @@ const MapCanvas = (props: any) => {
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', width: width+'px', height: height+'px', marginTop: '25px', marginBottom: '25px' }}>
       {renderCanvas()}
       {renderClusterBorders()}
     </div>
