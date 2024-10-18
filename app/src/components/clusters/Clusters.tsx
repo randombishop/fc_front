@@ -3,7 +3,7 @@ import { Grid, Typography, Box, FormControl, Select, MenuItem } from '@mui/mater
 import Papa from 'papaparse';
 import { interpolateViridis } from 'd3-scale-chromatic';
 import Loading from '../common/Loading';
-import { clusteringFeatures, lightColors, quickHull } from '../../utils';
+import { clusteringCategories, clusteringFeatures, lightColors, quickHull } from '../../utils';
 import MapCanvas from './MapCanvas';
 import LegendLinear from './LegendLinear';
 import LegendCategorical from './LegendCategorical';
@@ -15,13 +15,14 @@ class Clusters extends React.Component {
 
   state: any = {
     zoom: 1,
+    colorByCategory: 'Clustering',
     colorBy: 'cluster',
     dots: null,
     isCategorical: false,
     colorMap: null,
     clusterBorders: null,
     hoveredCluster: null,
-    selectedCluster: null
+    selectedClusters: []
   }
 
   width = 500;
@@ -47,6 +48,13 @@ class Clusters extends React.Component {
       .catch(error => alert('Error fetching or parsing CSV:'+ error));
   }
 
+  handleColorByCategoryChange = (event: any) => {
+    const colorByCategory = event.target.value ;
+    const filteredFeatures = Object.entries(clusteringFeatures).filter(([key, feature]: any) => (feature.category === colorByCategory)) ;
+    const colorBy = filteredFeatures[0][0] ;
+    this.setState({ colorByCategory, colorBy }, this.updateChart);
+  };
+
   handleColorByChange = (event: any) => {
     this.setState({ colorBy: event.target.value }, this.updateChart);
   };
@@ -61,6 +69,7 @@ class Clusters extends React.Component {
 
   updateChart = () => {
     if (this.data === null || this.data.length === 0) return ;
+    console.log('updateChart starting');
     const t0 = performance.now();
     const zoom = this.state.zoom ;
     const colorBy = this.state.colorBy ;
@@ -68,7 +77,7 @@ class Clusters extends React.Component {
     const fieldCluster = 'z'+zoom+'_cluster' ;
     const fieldX = 'z'+zoom+'_x' ;
     const fieldY = 'z'+zoom+'_y' ;
-    const isCategorical = colorBy==='cluster' || colorBy==='user_lang_1' ;
+    const isCategorical = clusteringFeatures[colorBy].isCategorical ;
     const dots: any[] = this.data.map((row) => ({
       x0: parseFloat(row[fieldX]),
       y0: parseFloat(row[fieldY]),
@@ -79,22 +88,42 @@ class Clusters extends React.Component {
     let maxX = null ;
     let minY = null ;
     let maxY = null ;
-    let uniqueColorValues: any = new Set() ;
+    const uniqueColorValues:any = {} ;
     for (let dot of dots) {
       if (minX === null || dot.x0 < minX) minX = dot.x0 ;
       if (maxX === null || dot.x0 > maxX) maxX = dot.x0 ;
       if (minY === null || dot.y0 < minY) minY = dot.y0 ;
       if (maxY === null || dot.y0 > maxY) maxY = dot.y0 ;
       if (isCategorical) {
-        uniqueColorValues.add(dot.colorValue) ;
+        if (uniqueColorValues[dot.colorValue]) {
+          uniqueColorValues[dot.colorValue] += 1 ;
+        } else {
+          uniqueColorValues[dot.colorValue] = 1 ;
+        }
       }
     }
     let colorMap: any = null ;
     if (isCategorical) {
-      uniqueColorValues = [...uniqueColorValues].sort((a, b) => a - b);
       colorMap = {} ;
-      for (let i = 0; i < uniqueColorValues.length; i++) {
-        colorMap[uniqueColorValues[i]] = lightColors[i % lightColors.length] ;
+      const max_unique = 10 ;
+      const uniqueColorKeys = Object.keys(uniqueColorValues) ;
+      if (uniqueColorKeys.length <= max_unique) {
+        for (let i = 0; i < uniqueColorKeys.length; i++) {
+          colorMap[uniqueColorKeys[i]] = lightColors[i % lightColors.length] ;
+        }
+      } else {
+        // find top most common values     
+        const top = Object.entries(uniqueColorValues).sort((a: any, b: any) => b[1] - a[1]).slice(0, max_unique-1) ;
+        for (let i = 0; i < top.length; i++) {
+          colorMap[top[i][0]] = lightColors[i % lightColors.length] ;
+        }
+        colorMap['others'] = lightColors[top.length % lightColors.length] ; 
+        // replace values that are not in the top 10 with 'Others'
+        for (let dot of dots) {
+          if (!colorMap[dot.colorValue]) {
+            dot.colorValue = 'others' ;
+          }
+        }
       }
       console.log('colorMap', colorMap) ;
     } 
@@ -125,14 +154,28 @@ class Clusters extends React.Component {
 
 
   renderInputs() {
+    const filteredCategories = [] ;
+    for (let feature in clusteringFeatures) {
+      const data = clusteringFeatures[feature] ;
+      if (data.category===this.state.colorByCategory) {
+        filteredCategories.push({feature: feature, label: data.label}) ;
+      }
+    }
     if (this.state.dots) {
       return (
         <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2}>
           <Typography variant="body2">Color users by</Typography>
           <FormControl>
+            <Select value={this.state.colorByCategory} onChange={this.handleColorByCategoryChange}>
+              {clusteringCategories.map((category, index) => (
+                <MenuItem key={index} value={category}>{category}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl>
             <Select value={this.state.colorBy} onChange={this.handleColorByChange}>
-              {Object.entries(clusteringFeatures).map(([feature, label], index) => (
-                <MenuItem key={index} value={feature}>{label}</MenuItem>
+              {filteredCategories.map((data, index) => (
+                <MenuItem key={index} value={data.feature}>{data.label}</MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -141,6 +184,15 @@ class Clusters extends React.Component {
     } else {
       return<Loading />     
     }
+  }
+
+  renderBreadcrumbs() {
+    return (
+      <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2}>
+        <Typography variant="body2">zoom: {this.state.zoom}</Typography>
+        <Typography variant="body2">selectedClusters: {this.state.selectedClusters.join(', ')}</Typography>
+      </Box>
+    )
   }
 
   renderPlot() {
@@ -160,7 +212,7 @@ class Clusters extends React.Component {
 
   renderLegend() {
     if (this.state.dots) {
-      const label = clusteringFeatures[this.state.colorBy] ;
+      const label = clusteringFeatures[this.state.colorBy].label ;
       if (this.state.isCategorical && this.state.colorMap) {
         return (
           <LegendCategorical colorMapping={this.state.colorMap} width={this.width} title={label}/>
@@ -174,11 +226,15 @@ class Clusters extends React.Component {
   }
 
   renderDetails() {
-    if (this.state.hoveredCluster) {
+    //if (this.state.hoveredCluster) {
       return (
-        <Typography>hovered cluster: {this.state.hoveredCluster}</Typography>
+        <div>
+          <Typography>hoveredCluster: {this.state.hoveredCluster}</Typography>
+          <Typography>colorByCategory: {this.state.colorByCategory}</Typography>
+          <Typography>colorBy: {this.state.colorBy}</Typography>
+        </div>
       )
-    }
+    //}
   }
 
   render() {
@@ -189,7 +245,11 @@ class Clusters extends React.Component {
           </Grid>     
           <Grid item xs={12} >
             {this.renderInputs()}
-          </Grid>    
+          </Grid> 
+          <Grid item xs={12} >
+            {this.renderBreadcrumbs()}
+            <hr/>
+          </Grid> 
           <Grid item xs={12} md={6}>
             {this.renderPlot()}
             {this.renderLegend()}
