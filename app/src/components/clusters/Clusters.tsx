@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Typography, Box, FormControl, Select, MenuItem } from '@mui/material';
+import { Grid, Typography, Box, FormControl, Select, MenuItem, Breadcrumbs, Button } from '@mui/material';
 import Papa from 'papaparse';
 import { interpolateViridis } from 'd3-scale-chromatic';
 import Loading from '../common/Loading';
@@ -67,9 +67,12 @@ class Clusters extends React.Component {
     this.setState({selectedCluster: clusterId});
   }
 
+  setZoom = (zoom: number, selectedClusters: number[]) => {
+    this.setState({zoom, selectedClusters}, this.updateChart);
+  }
+
   updateChart = () => {
     if (this.data === null || this.data.length === 0) return ;
-    console.log('updateChart starting');
     const t0 = performance.now();
     const zoom = this.state.zoom ;
     const colorBy = this.state.colorBy ;
@@ -125,7 +128,6 @@ class Clusters extends React.Component {
           }
         }
       }
-      console.log('colorMap', colorMap) ;
     } 
     const scaleX = (maxX - minX) / this.width;
     const scaleY = (maxY - minY) / this.height;
@@ -153,7 +155,23 @@ class Clusters extends React.Component {
   }
 
 
+
+
+
+  // -----------------
+  // RENDERING PART
+  // -----------------
+
+  renderTitle() {
+    if (this.state.dots) {
+      return <Typography variant="h6">Map of users active in the last 30 days</Typography> ;
+    } else {
+      return <Loading /> ;
+    }
+  }
+
   renderInputs() {
+    if (!this.state.dots) return null ;
     const filteredCategories = [] ;
     for (let feature in clusteringFeatures) {
       const data = clusteringFeatures[feature] ;
@@ -161,67 +179,71 @@ class Clusters extends React.Component {
         filteredCategories.push({feature: feature, label: data.label}) ;
       }
     }
-    if (this.state.dots) {
-      return (
-        <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2}>
-          <Typography variant="body2">Color users by</Typography>
-          <FormControl>
-            <Select value={this.state.colorByCategory} onChange={this.handleColorByCategoryChange}>
-              {clusteringCategories.map((category, index) => (
-                <MenuItem key={index} value={category}>{category}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl>
-            <Select value={this.state.colorBy} onChange={this.handleColorByChange}>
-              {filteredCategories.map((data, index) => (
-                <MenuItem key={index} value={data.feature}>{data.label}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Box>
-      )
-    } else {
-      return<Loading />     
-    }
+    return (
+      <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2}>
+        <Typography variant="body2">Color users by</Typography>
+        <FormControl>
+          <Select value={this.state.colorByCategory} onChange={this.handleColorByCategoryChange}>
+            {clusteringCategories.map((category, index) => (
+              <MenuItem key={index} value={category}>{category}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl>
+          <Select value={this.state.colorBy} onChange={this.handleColorByChange}>
+            {filteredCategories.map((data, index) => (
+              <MenuItem key={index} value={data.feature}>{data.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+    ) ;
   }
 
   renderBreadcrumbs() {
+    if (!this.state.dots) return null ;
+    const numDots = this.state.dots.length ;
     return (
-      <Box display="flex" flexDirection="row" alignItems="center" justifyContent="flex-start" gap={2}>
-        <Typography variant="body2">zoom: {this.state.zoom}</Typography>
-        <Typography variant="body2">selectedClusters: {this.state.selectedClusters.join(', ')}</Typography>
-      </Box>
+      <React.Fragment>
+        <Breadcrumbs separator="›" >
+          <Button color="inherit" 
+                  disabled={this.state.zoom === 1}
+                  onClick={() => this.setZoom(1, [])}>
+            {numDots} users
+          </Button>          
+        </Breadcrumbs>
+        <hr/>
+        <Typography>zoom: {this.state.zoom}</Typography>
+        <Typography>selectedClusters: {this.state.selectedClusters.join(', ')}</Typography>
+      </React.Fragment>
     )
   }
 
   renderPlot() {
-    if (this.state.dots) {
-      return (
-        <MapCanvas dots={this.state.dots} 
-                   clusterBorders={this.state.clusterBorders} 
-                   width={this.width} 
-                   height={this.height}
-                   hoveredCluster={this.state.hoveredCluster}
-                   setHoveredCluster={this.setHoveredCluster}
-                   setSelectedCluster={this.setSelectedCluster}
-        />  
-      )
-    }
+    if (!this.state.dots) return null ;
+    return (
+      <MapCanvas dots={this.state.dots} 
+                  clusterBorders={this.state.clusterBorders} 
+                  width={this.width} 
+                  height={this.height}
+                  hoveredCluster={this.state.hoveredCluster}
+                  setHoveredCluster={this.setHoveredCluster}
+                  setSelectedCluster={this.setSelectedCluster}
+      />  
+    )
   }
 
   renderLegend() {
-    if (this.state.dots) {
-      const label = clusteringFeatures[this.state.colorBy].label ;
-      if (this.state.isCategorical && this.state.colorMap) {
-        return (
-          <LegendCategorical colorMapping={this.state.colorMap} width={this.width} title={label}/>
-        )
-      } else {
-        return (
-          <LegendLinear width={this.width} title={label}/>
-        )
-      }
+    if (!this.state.dots) return null ;
+    const label = clusteringFeatures[this.state.colorBy].label ;
+    if (this.state.isCategorical && this.state.colorMap) {
+      return (
+        <LegendCategorical colorMapping={this.state.colorMap} width={this.width} title={label}/>
+      )
+    } else {
+      return (
+        <LegendLinear width={this.width} title={label}/>
+      )
     }
   }
 
@@ -241,14 +263,13 @@ class Clusters extends React.Component {
     return (
        <Grid container spacing={3}>
           <Grid item xs={12} >
-            <Typography variant="h6">Map of users active in the last 30 days</Typography>
+            {this.renderTitle()}
           </Grid>     
           <Grid item xs={12} >
             {this.renderInputs()}
           </Grid> 
           <Grid item xs={12} >
             {this.renderBreadcrumbs()}
-            <hr/>
           </Grid> 
           <Grid item xs={12} md={6}>
             {this.renderPlot()}
