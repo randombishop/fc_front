@@ -64,11 +64,29 @@ class Clusters extends React.Component {
   }
 
   setSelectedCluster = (clusterId: number) => {
-    this.setState({selectedCluster: clusterId});
+    const zoom = this.state.zoom + 1 ;
+    const selectedClusters = [...this.state.selectedClusters, clusterId] ;
+    this.setState({zoom, selectedClusters}, this.updateChart);
   }
 
-  setZoom = (zoom: number, selectedClusters: number[]) => {
-    this.setState({zoom, selectedClusters}, this.updateChart);
+  resetZoom = () => {
+    this.setState({zoom: 1, selectedClusters: []}, this.updateChart);
+  }
+
+  getFilteredData = () => {
+    const selectedClusters = this.state.selectedClusters ;
+    if (selectedClusters.length === 0) {
+      return this.data ;
+    } else {
+      return this.data.filter(
+        (row) => {
+          for (let i=0 ; i<selectedClusters.length ; i++) {
+            if ((''+row['z'+(i+1)+'_cluster']) !== (''+selectedClusters[i])) return false ;
+          }
+          return true ;
+        }
+      ) ;
+    }
   }
 
   updateChart = () => {
@@ -81,7 +99,8 @@ class Clusters extends React.Component {
     const fieldX = 'z'+zoom+'_x' ;
     const fieldY = 'z'+zoom+'_y' ;
     const isCategorical = clusteringFeatures[colorBy].isCategorical ;
-    const dots: any[] = this.data.map((row) => ({
+    const data = this.getFilteredData() ;
+    const dots: any[] = data.map((row) => ({
       x0: parseFloat(row[fieldX]),
       y0: parseFloat(row[fieldY]),
       cluster: parseInt(row[fieldCluster]),
@@ -137,20 +156,22 @@ class Clusters extends React.Component {
       dot.x = (dot.x0 - minX) / scaleX;
       dot.y = (dot.y0 - minY) / scaleY;
     }
-    const clusterDots: any = {} ;
-    for (let dot of dots) {
-      if (clusterDots[dot.cluster] === undefined) {
-        clusterDots[dot.cluster] = [] ;
-      }
-      clusterDots[dot.cluster].push(dot) ;
-    }
     const clusterBorders: any[] = [] ;
-    for (let cluster of Object.keys(clusterDots)) {
-      const hull = quickHull(clusterDots[cluster]);
-      clusterBorders.push({id: cluster, hull: hull}) ;
+    if (zoom < 4) {
+      const clusterDots: any = {} ;
+      for (let dot of dots) {
+        if (clusterDots[dot.cluster] === undefined) {
+          clusterDots[dot.cluster] = [] ;
+        }
+        clusterDots[dot.cluster].push(dot) ;
+      }
+      for (let cluster of Object.keys(clusterDots)) {
+        const hull = quickHull(clusterDots[cluster]);
+        clusterBorders.push({id: cluster, hull: hull}) ;
+      }
     }
     const t1 = performance.now();
-    console.log('updateChart took', t1 - t0, 'ms');
+    console.log('updateChart took', t1 - t0, 'ms', 'zoom:', zoom);
     this.setState({dots, clusterBorders, isCategorical, colorMap});
   }
 
@@ -202,13 +223,13 @@ class Clusters extends React.Component {
 
   renderBreadcrumbs() {
     if (!this.state.dots) return null ;
-    const numDots = this.state.dots.length ;
+    const numDots = this.data.length ;
     return (
       <React.Fragment>
         <Breadcrumbs separator="›" >
           <Button color="inherit" 
                   disabled={this.state.zoom === 1}
-                  onClick={() => this.setZoom(1, [])}>
+                  onClick={this.resetZoom}>
             {numDots} users
           </Button>          
         </Breadcrumbs>
