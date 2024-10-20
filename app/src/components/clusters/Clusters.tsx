@@ -10,11 +10,11 @@ import LegendCategorical from './LegendCategorical';
 
 
 class Clusters extends React.Component {
-  
-  data: any[] = [];
+
+  metadata: any = null ;
+  data: any[]|null = null ;
 
   state: any = {
-    zoom: 1,
     colorByCategory: 'Clustering',
     colorBy: 'cluster',
     dots: null,
@@ -29,10 +29,41 @@ class Clusters extends React.Component {
   height = 500;
 
   componentDidMount() {
-    this.loadData();
+    this.loadJsonFiles(() => {
+      this.loadCsvFile(() => {
+        this.updateChart() ;
+      }) ;
+    }) ;
   }
 
-  loadData() {
+  loadJsonFiles = (next: () => void) => {
+    const urls = [
+      "/clustering/clusters1.json",
+      "/clustering/clusters2.json",
+      "/clustering/clusters3.json",
+      "/clustering/clusters4.json",
+    ];
+    Promise.all(urls.map(url => fetch(url).then(res => res.json())))
+      .then((results) => {
+        this.metadata = {} ;
+        for (let c of results[0]) {
+          this.metadata[''+c['z1_cluster']] = c ;
+        }
+        for (let c of results[1]) {
+          this.metadata[c['z1_cluster']+'/'+c['z2_cluster']] = c ;
+        }
+        for (let c of results[2]) {
+          this.metadata[c['z1_cluster']+'/'+c['z2_cluster']+'/'+c['z3_cluster']] = c ;
+        }
+        for (let c of results[3]) {
+          this.metadata[c['z1_cluster']+'/'+c['z2_cluster']+'/'+c['z3_cluster']+'/'+c['z4_cluster']] = c ;
+        }
+        next() ;
+      })
+      .catch(error => console.error("Error loading JSON files:", error));
+  }
+
+  loadCsvFile = (next: () => void) => {
     fetch('/clustering/clustering.csv')
       .then(response => response.text())
       .then(csvText => {
@@ -41,7 +72,7 @@ class Clusters extends React.Component {
           skipEmptyLines: true, 
           complete: (result: any) => {
             this.data = result.data ;
-            this.updateChart();
+            next();
           },
         });
       })
@@ -64,16 +95,17 @@ class Clusters extends React.Component {
   }
 
   setSelectedCluster = (clusterId: number) => {
-    const zoom = this.state.zoom + 1 ;
     const selectedClusters = [...this.state.selectedClusters, clusterId] ;
-    this.setState({zoom, selectedClusters}, this.updateChart);
+    this.setSelectedClusters(selectedClusters) ;
   }
 
-  resetZoom = () => {
-    this.setState({zoom: 1, selectedClusters: []}, this.updateChart);
+  setSelectedClusters = (selectedClusters: any[]) => {
+    const hoveredCluster = null ;
+    this.setState({selectedClusters, hoveredCluster}, this.updateChart);
   }
 
   getFilteredData = () => {
+    if (this.data === null) return [] ;
     const selectedClusters = this.state.selectedClusters ;
     if (selectedClusters.length === 0) {
       return this.data ;
@@ -92,7 +124,7 @@ class Clusters extends React.Component {
   updateChart = () => {
     if (this.data === null || this.data.length === 0) return ;
     const t0 = performance.now();
-    const zoom = this.state.zoom ;
+    const zoom = this.state.selectedClusters.length + 1 ;
     const colorBy = this.state.colorBy ;
     const fieldColor = colorBy === 'cluster' ? 'z'+zoom+'_cluster' : colorBy ;
     const fieldCluster = 'z'+zoom+'_cluster' ;
@@ -221,21 +253,36 @@ class Clusters extends React.Component {
     ) ;
   }
 
+  renderBreadcrumbStep = (cluster:any, index:number) => {
+    const pathClusters = this.state.selectedClusters.slice(0,index+1)
+    const key = pathClusters.join('/') ;
+    const metadata = this.metadata[key] ;
+    const count = metadata.fid ;
+    return (
+      <Button key={key} 
+              color="inherit" 
+              disabled={this.state.selectedClusters.length === index+1}
+              onClick={() => this.setSelectedClusters(pathClusters)}>
+            Cluster #{cluster} ({count}) 
+      </Button> 
+    )
+  }
+
   renderBreadcrumbs() {
+    if (this.data === null) return null ;
     if (!this.state.dots) return null ;
     const numDots = this.data.length ;
     return (
       <React.Fragment>
         <Breadcrumbs separator="›" >
           <Button color="inherit" 
-                  disabled={this.state.zoom === 1}
-                  onClick={this.resetZoom}>
-            {numDots} users
-          </Button>          
+                  disabled={this.state.selectedClusters.length === 0}
+                  onClick={() => this.setSelectedClusters([])}>
+             All users ({numDots})
+          </Button> 
+          {this.state.selectedClusters.map(this.renderBreadcrumbStep)}         
         </Breadcrumbs>
         <hr/>
-        <Typography>zoom: {this.state.zoom}</Typography>
-        <Typography>selectedClusters: {this.state.selectedClusters.join(', ')}</Typography>
       </React.Fragment>
     )
   }
@@ -269,15 +316,18 @@ class Clusters extends React.Component {
   }
 
   renderDetails() {
-    //if (this.state.hoveredCluster) {
+    if (this.state.hoveredCluster) {
+      let key = ''+this.state.hoveredCluster ;
+      if (this.state.selectedClusters.length > 0) {
+        key = this.state.selectedClusters.join('/') + '/' + key ;
+      }
+      const metadata = this.metadata[key] ;
       return (
         <div>
-          <Typography>hoveredCluster: {this.state.hoveredCluster}</Typography>
-          <Typography>colorByCategory: {this.state.colorByCategory}</Typography>
-          <Typography>colorBy: {this.state.colorBy}</Typography>
+          <Typography>{JSON.stringify(metadata)}</Typography>
         </div>
       )
-    //}
+    }
   }
 
   render() {
