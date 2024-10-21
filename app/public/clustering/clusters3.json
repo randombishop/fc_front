@@ -1363,9 +1363,9 @@
         "z1_cluster": 1,
         "z2_cluster": 7,
         "z3_cluster": 0,
-        "fid": 105,
+        "fid": 104,
         "z3_cluster_words": "[{\"word\": \"comment\", \"count\": 11}, {\"word\": \"things\", \"count\": 9}, {\"word\": \"right\", \"count\": 8}, {\"word\": \"work\", \"count\": 7}, {\"word\": \"thanks\", \"count\": 7}, {\"word\": \"raffle\", \"count\": 7}, {\"word\": \"going\", \"count\": 7}, {\"word\": \"please\", \"count\": 6}, {\"word\": \"nice\", \"count\": 6}, {\"word\": \"making\", \"count\": 6}]",
-        "z3_cluster_features": "[{\"feature\": \"msg_delete_follows\", \"delta\": 0.46447687562579554}, {\"feature\": \"msg_delete_reactions\", \"delta\": -0.3540160531978447}, {\"feature\": \"spam_deletes\", \"delta\": 0.2279403327596098}]"
+        "z3_cluster_features": "[{\"feature\": \"msg_delete_follows\", \"delta\": 0.4599016465882147}, {\"feature\": \"msg_delete_reactions\", \"delta\": -0.3626074605157749}, {\"feature\": \"spam_deletes\", \"delta\": 0.22738577212261424}]"
     },
     {
         "z1_cluster": 1,
@@ -1395,9 +1395,9 @@
         "z1_cluster": 1,
         "z2_cluster": 7,
         "z3_cluster": 4,
-        "fid": 119,
-        "z3_cluster_words": "[{\"word\": \"points\", \"count\": 15}, {\"word\": \"long\", \"count\": 13}, {\"word\": \"life\", \"count\": 9}, {\"word\": \"wallets\", \"count\": 9}, {\"word\": \"nfts\", \"count\": 9}, {\"word\": \"community\", \"count\": 8}, {\"word\": \"around\", \"count\": 8}, {\"word\": \"many\", \"count\": 8}, {\"word\": \"term\", \"count\": 7}, {\"word\": \"power\", \"count\": 7}]",
-        "z3_cluster_features": "[{\"feature\": \"msg_delete_reactions\", \"delta\": 0.50080906230461}, {\"feature\": \"msg_delete_casts\", \"delta\": -0.28455793344468666}, {\"feature\": \"msg_delete_follows\", \"delta\": -0.27127558125900153}]"
+        "fid": 120,
+        "z3_cluster_words": "[{\"word\": \"points\", \"count\": 16}, {\"word\": \"long\", \"count\": 13}, {\"word\": \"nfts\", \"count\": 10}, {\"word\": \"life\", \"count\": 9}, {\"word\": \"wallets\", \"count\": 9}, {\"word\": \"community\", \"count\": 8}, {\"word\": \"around\", \"count\": 8}, {\"word\": \"many\", \"count\": 8}, {\"word\": \"page\", \"count\": 8}, {\"word\": \"tomorrow\", \"count\": 8}]",
+        "z3_cluster_features": "[{\"feature\": \"msg_delete_reactions\", \"delta\": 0.5022345455615669}, {\"feature\": \"msg_delete_casts\", \"delta\": -0.28507617847216027}, {\"feature\": \"msg_delete_follows\", \"delta\": -0.27177028114561713}]"
     },
     {
         "z1_cluster": 1,
@@ -1411,9 +1411,9 @@
         "z1_cluster": 1,
         "z2_cluster": 7,
         "z3_cluster": 6,
-        "fid": 112,
+        "fid": 113,
         "z3_cluster_words": "[{\"word\": \"life\", \"count\": 11}, {\"word\": \"love\", \"count\": 10}, {\"word\": \"wait\", \"count\": 10}, {\"word\": \"hope\", \"count\": 9}, {\"word\": \"next\", \"count\": 8}, {\"word\": \"long\", \"count\": 8}, {\"word\": \"night\", \"count\": 8}, {\"word\": \"term\", \"count\": 7}, {\"word\": \"rain\", \"count\": 7}, {\"word\": \"guys\", \"count\": 7}]",
-        "z3_cluster_features": "[{\"feature\": \"msg_delete_reactions\", \"delta\": 0.47758164864032837}, {\"feature\": \"spam_deletes\", \"delta\": 0.2526636225266362}, {\"feature\": \"msg_delete_casts\", \"delta\": -0.21264718885312978}]"
+        "z3_cluster_features": "[{\"feature\": \"msg_delete_reactions\", \"delta\": 0.479418044111094}, {\"feature\": \"spam_deletes\", \"delta\": 0.2530487804878049}, {\"feature\": \"msg_delete_casts\", \"delta\": -0.20334763521650157}]"
     },
     {
         "z1_cluster": 1,
@@ -1435,9 +1435,9 @@
         "z1_cluster": 1,
         "z2_cluster": 7,
         "z3_cluster": 9,
-        "fid": 80,
-        "z3_cluster_words": "[{\"word\": \"beautiful\", \"count\": 10}, {\"word\": \"connect\", \"count\": 9}, {\"word\": \"coming\", \"count\": 9}, {\"word\": \"even\", \"count\": 8}, {\"word\": \"dear\", \"count\": 8}, {\"word\": \"nice\", \"count\": 8}, {\"word\": \"bybit\", \"count\": 8}, {\"word\": \"listing\", \"count\": 8}, {\"word\": \"level\", \"count\": 7}, {\"word\": \"official\", \"count\": 6}]",
-        "z3_cluster_features": "[{\"feature\": \"msg_delete_reactions\", \"delta\": 0.43576684677011823}, {\"feature\": \"msg_delete_casts\", \"delta\": -0.23841201073868423}, {\"feature\": \"prefs_c_na\", \"delta\": 0.1970591246768053}]"
+        "fid": 79,
+        "z3_cluster_words": "[{\"word\": \"beautiful\", \"count\": 10}, {\"word\": \"connect\", \"count\": 8}, {\"word\": \"even\", \"count\": 8}, {\"word\": \"dear\", \"count\": 8}, {\"word\": \"coming\", \"count\": 8}, {\"word\": \"nice\", \"count\": 8}, {\"word\": \"bybit\", \"count\": 7}, {\"word\": \"listing\", \"count\": 7}, {\"word\": \"level\", \"count\": 7}, {\"word\": \"official\", \"count\": 6}]",
+        "z3_cluster_features": "[{\"feature\": \"msg_delete_reactions\", \"delta\": 0.43373735378638195}, {\"feature\": \"msg_delete_casts\", \"delta\": -0.23757280140251236}, {\"feature\": \"prefs_c_na\", \"delta\": 0.19295276437158898}]"
     },
     {
         "z1_cluster": 1,
