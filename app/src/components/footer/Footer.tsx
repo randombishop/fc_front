@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button } from '@mui/material';
+import { Box, Button, Alert } from '@mui/material';
 
 
 const boxStyle = {
@@ -31,6 +31,7 @@ class Footer extends React.Component {
     render() {
       return (
         <Box sx={boxStyle}>
+            <Alert severity="info">Prototype is still a work in progress. Data is incomplete at this time.</Alert>
             <Button sx={linkStyle} color="inherit" onClick={this.openDocumentation}>Documentation</Button>
             <Button sx={linkStyle} color="inherit" onClick={this.openContact}>@randombishop</Button>
         </Box>

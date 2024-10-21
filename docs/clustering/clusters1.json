@@ -1,0 +1,62 @@
+[
+    {
+        "z1_cluster": 0,
+        "fid": 22686,
+        "z1_cluster_words": "[{\"word\": \"wallet\", \"count\": 1744}, {\"word\": \"points\", \"count\": 1709}, {\"word\": \"live\", \"count\": 1624}, {\"word\": \"nfts\", \"count\": 1562}, {\"word\": \"bitcoin\", \"count\": 1527}, {\"word\": \"soon\", \"count\": 1351}, {\"word\": \"built\", \"count\": 1275}, {\"word\": \"phairdrop\", \"count\": 1259}, {\"word\": \"completed\", \"count\": 1257}, {\"word\": \"24th\", \"count\": 1222}]",
+        "z1_cluster_features": "[{\"feature\": \"prefs_q_curiosity\", \"delta\": 0.38587713292955533}, {\"feature\": \"prefs_q_info\", \"delta\": 0.3668375575175649}, {\"feature\": \"prefs_q_clear\", \"delta\": 0.3505938405201592}]"
+    },
+    {
+        "z1_cluster": 1,
+        "fid": 16876,
+        "z1_cluster_words": "[{\"word\": \"bitcoin\", \"count\": 1976}, {\"word\": \"high\", \"count\": 1605}, {\"word\": \"hits\", \"count\": 1016}, {\"word\": \"completed\", \"count\": 968}, {\"word\": \"live\", \"count\": 965}, {\"word\": \"together\", \"count\": 887}]",
+        "z1_cluster_features": "[{\"feature\": \"eng_ufids_likes_ratio\", \"delta\": 0.22758548832772224}, {\"feature\": \"l1_en\", \"delta\": 0.14345921381604088}, {\"feature\": \"prefs_c_misc\", \"delta\": 0.1343861062544529}]"
+    },
+    {
+        "z1_cluster": 2,
+        "fid": 29300,
+        "z1_cluster_words": "[{\"word\": \"hello\", \"count\": 37}, {\"word\": \"guys\", \"count\": 9}, {\"word\": \"long\", \"count\": 8}, {\"word\": \"well\", \"count\": 7}, {\"word\": \"cool\", \"count\": 5}, {\"word\": \"help\", \"count\": 5}, {\"word\": \"awesome\", \"count\": 4}, {\"word\": \"afternoon\", \"count\": 4}, {\"word\": \"news\", \"count\": 4}, {\"word\": \"nature\", \"count\": 4}]",
+        "z1_cluster_features": "[{\"feature\": \"l1_en\", \"delta\": -0.8439147975978982}, {\"feature\": \"prefs_q_clear\", \"delta\": -0.5566291485696023}, {\"feature\": \"prefs_q_curiosity\", \"delta\": -0.5381982156194298}]"
+    },
+    {
+        "z1_cluster": 3,
+        "fid": 14725,
+        "z1_cluster_words": "[{\"word\": \"vi\\u1ebft\", \"count\": 48778}, {\"word\": \"m\\u00ecnh\", \"count\": 47161}, {\"word\": \"ng\\u01b0\\u1eddi\", \"count\": 43056}, {\"word\": \"nh\\u1eefng\", \"count\": 42528}, {\"word\": \"mask\", \"count\": 41905}, {\"word\": \"ng\\u00e0y\", \"count\": 41294}, {\"word\": \"kh\\u00f4ng\", \"count\": 40989}, {\"word\": \"lens\", \"count\": 40949}, {\"word\": \"moxie\", \"count\": 40168}, {\"word\": \"stats\", \"count\": 33518}]",
+        "z1_cluster_features": "[{\"feature\": \"eng_recasts\", \"delta\": 0.7357009400981946}, {\"feature\": \"eng_replies\", \"delta\": 0.7112349849059008}, {\"feature\": \"eng_ufids_recasts_ratio\", \"delta\": 0.6852444930510184}]"
+    },
+    {
+        "z1_cluster": 4,
+        "fid": 24105,
+        "z1_cluster_words": "[{\"word\": \"exciting\", \"count\": 6018}, {\"word\": \"wallet\", \"count\": 5126}, {\"word\": \"community\", \"count\": 4851}, {\"word\": \"latest\", \"count\": 4638}, {\"word\": \"amazing\", \"count\": 4629}, {\"word\": \"points\", \"count\": 4369}]",
+        "z1_cluster_features": "[{\"feature\": \"eng_ufids_likes_ratio\", \"delta\": 0.3116483732045649}, {\"feature\": \"l1_en\", \"delta\": 0.30663483749612075}, {\"feature\": \"prefs_c_business\", \"delta\": 0.2797735405197114}]"
+    },
+    {
+        "z1_cluster": 5,
+        "fid": 9162,
+        "z1_cluster_words": "[{\"word\": \"wild\", \"count\": 497}, {\"word\": \"hello\", \"count\": 344}, {\"word\": \"hunt\", \"count\": 289}, {\"word\": \"claimed\", \"count\": 279}, {\"word\": \"eixom\", \"count\": 251}, {\"word\": \"guys\", \"count\": 247}, {\"word\": \"stats\", \"count\": 118}, {\"word\": \"streak\", \"count\": 103}, {\"word\": \"allowance\", \"count\": 102}, {\"word\": \"based\", \"count\": 94}]",
+        "z1_cluster_features": "[{\"feature\": \"l1_en\", \"delta\": -0.5431982732178604}, {\"feature\": \"prefs_q_verifiable\", \"delta\": -0.3488846262092446}, {\"feature\": \"prefs_q_info\", \"delta\": -0.3380867681302234}]"
+    },
+    {
+        "z1_cluster": 6,
+        "fid": 16683,
+        "z1_cluster_words": "[{\"word\": \"exciting\", \"count\": 9974}, {\"word\": \"bitcoin\", \"count\": 9626}, {\"word\": \"community\", \"count\": 6883}, {\"word\": \"blockchain\", \"count\": 6563}, {\"word\": \"cryptocurrency\", \"count\": 6307}, {\"word\": \"future\", \"count\": 6220}, {\"word\": \"token\", \"count\": 5801}, {\"word\": \"think\", \"count\": 5311}, {\"word\": \"moxie\", \"count\": 5069}]",
+        "z1_cluster_features": "[{\"feature\": \"eng_ufids_replies_ratio\", \"delta\": 0.5217143796947914}, {\"feature\": \"eng_num_days\", \"delta\": 0.4307830080900852}, {\"feature\": \"eng_ufids_recasts_ratio\", \"delta\": 0.4299334959276332}]"
+    },
+    {
+        "z1_cluster": 7,
+        "fid": 18037,
+        "z1_cluster_words": "[{\"word\": \"claimed\", \"count\": 802}, {\"word\": \"eixom\", \"count\": 702}, {\"word\": \"beauty\", \"count\": 369}, {\"word\": \"long\", \"count\": 343}, {\"word\": \"take\", \"count\": 338}, {\"word\": \"moments\", \"count\": 332}, {\"word\": \"heart\", \"count\": 319}, {\"word\": \"find\", \"count\": 317}, {\"word\": \"things\", \"count\": 303}, {\"word\": \"embrace\", \"count\": 303}]",
+        "z1_cluster_features": "[{\"feature\": \"msg_messages\", \"delta\": -0.37816015049994256}, {\"feature\": \"msg_likes\", \"delta\": -0.36145436748399135}, {\"feature\": \"msg_messages_per_day\", \"delta\": -0.3502020529111977}]"
+    },
+    {
+        "z1_cluster": 8,
+        "fid": 13581,
+        "z1_cluster_words": "[{\"word\": \"wild\", \"count\": 3022}, {\"word\": \"stats\", \"count\": 2885}, {\"word\": \"hunt\", \"count\": 1898}, {\"word\": \"nature\", \"count\": 1614}, {\"word\": \"token\", \"count\": 1593}, {\"word\": \"masks\", \"count\": 1383}, {\"word\": \"thank\", \"count\": 1280}, {\"word\": \"beauty\", \"count\": 1194}, {\"word\": \"hello\", \"count\": 1187}, {\"word\": \"support\", \"count\": 1137}]",
+        "z1_cluster_features": "[{\"feature\": \"eng_ufids_replies_ratio\", \"delta\": 0.5178495120982669}, {\"feature\": \"eng_replies\", \"delta\": 0.4657225225660028}, {\"feature\": \"eng_num_days\", \"delta\": 0.40563432536150534}]"
+    },
+    {
+        "z1_cluster": 9,
+        "fid": 29877,
+        "z1_cluster_words": "[{\"word\": \"points\", \"count\": 5017}, {\"word\": \"wallet\", \"count\": 5000}, {\"word\": \"exciting\", \"count\": 4645}, {\"word\": \"community\", \"count\": 4614}, {\"word\": \"latest\", \"count\": 4524}, {\"word\": \"think\", \"count\": 4299}, {\"word\": \"live\", \"count\": 4048}, {\"word\": \"finished\", \"count\": 3994}, {\"word\": \"guide\", \"count\": 3531}]",
+        "z1_cluster_features": "[{\"feature\": \"l1_en\", \"delta\": 0.3254215043629777}, {\"feature\": \"prefs_c_business\", \"delta\": 0.3219683040757599}, {\"feature\": \"eng_ufids_replies_ratio\", \"delta\": -0.3052498045376909}]"
+    }
+]

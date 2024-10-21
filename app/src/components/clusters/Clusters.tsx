@@ -1,5 +1,6 @@
 import React from 'react';
-import { Grid, Typography, Box, FormControl, Select, MenuItem, Breadcrumbs, Button, Chip } from '@mui/material';
+import { Grid, Typography, Box, FormControl, Select, MenuItem, Breadcrumbs, Button, Chip, 
+Table, TableCell, TableBody, TableRow, TableHead } from '@mui/material';
 import Papa from 'papaparse';
 import { interpolateViridis } from 'd3-scale-chromatic';
 import Loading from '../common/Loading';
@@ -369,9 +370,34 @@ class Clusters extends React.Component {
     if (!user) return null ;
     return (
       <div>
-        <strong>hoveredDot:</strong> {this.state.hoveredDot}
+        <strong>{user.user_name} (#{user.user_fid})</strong>
         <br/>
-        {JSON.stringify(user, null, 2)}
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Feature</TableCell>
+              <TableCell>Percentile</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>Followers</TableCell>
+              <TableCell>{(100*user.followers_num).toFixed(1)}%</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Following</TableCell>
+              <TableCell>{(100*user.following_num).toFixed(1)}%</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Messages/Day</TableCell>
+              <TableCell>{(100*user.msg_messages_per_day).toFixed(1)}%</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Main Language</TableCell>
+              <TableCell>{user.user_lang_1}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
       </div>
     )
   }
