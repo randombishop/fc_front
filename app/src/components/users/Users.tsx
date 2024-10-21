@@ -136,7 +136,7 @@ const Users = (props : any) => {
     } else {
       let newItems = items.slice();
       newItems.push(item);
-      const url = '/users/'+newItems.join(',');
+      const url = '/analytics/users/'+newItems.join(',');
       navigate(url);
     } 
   } 
@@ -147,7 +147,7 @@ const Users = (props : any) => {
       let newItems = items.slice();
       newItems.splice(index, 1);
       const newItemsString = newItems.length>0?newItems.join(','):'-';
-      const url = '/users/'+newItemsString;
+      const url = '/analytics/users/'+newItemsString;
       navigate(url);
     }
   }
