@@ -13,7 +13,8 @@ class Clusters extends React.Component {
 
   metadata: any = null ;
   data: any[]|null = null ;
-
+  fids: any = null ;
+  
   state: any = {
     colorByCategory: 'Clustering',
     colorBy: 'cluster',
@@ -22,7 +23,8 @@ class Clusters extends React.Component {
     colorMap: null,
     clusterBorders: null,
     hoveredCluster: null,
-    selectedClusters: []
+    selectedClusters: [],
+    hoveredDot: null
   }
 
   width = 500;
@@ -72,6 +74,10 @@ class Clusters extends React.Component {
           skipEmptyLines: true, 
           complete: (result: any) => {
             this.data = result.data ;
+            this.fids = {} ;
+            for (let row of result.data) {
+              this.fids[row['user_fid']] = row ;
+            }
             next();
           },
         });
@@ -104,6 +110,10 @@ class Clusters extends React.Component {
     this.setState({selectedClusters, hoveredCluster}, this.updateChart);
   }
 
+  setHoveredDot = (fid: string) => {
+    this.setState({hoveredDot: fid}) ;
+  }
+
   getFilteredData = () => {
     if (this.data === null) return [] ;
     const selectedClusters = this.state.selectedClusters ;
@@ -123,7 +133,6 @@ class Clusters extends React.Component {
 
   updateChart = () => {
     if (this.data === null || this.data.length === 0) return ;
-    console.log('updateChart') ;
     const t0 = performance.now();
     const zoom = this.state.selectedClusters.length + 1 ;
     const colorBy = this.state.colorBy ;
@@ -131,15 +140,12 @@ class Clusters extends React.Component {
     const fieldCluster = 'z'+zoom+'_cluster' ;
     const fieldX = 'z'+zoom+'_x' ;
     const fieldY = 'z'+zoom+'_y' ;
-    console.log('fieldX', fieldX) ; 
-    console.log('fieldY', fieldY) ;
     const isCategorical = clusteringFeatures[colorBy].isCategorical ;
     const data = this.getFilteredData() ;
-    console.log('data.length', data.length) ;
-    console.log('data', data) ;
     const dots: any[] = data.map((row) => ({
-      x0: parseFloat(row[fieldX]),
-      y0: parseFloat(row[fieldY]),
+      fid: row['user_fid'],
+      x0: (row[fieldX] && row[fieldX]!=='') ? parseFloat(row[fieldX]) : parseFloat(row['z'+(zoom-1)+'_x']),
+      y0: (row[fieldY] && row[fieldY]!=='') ? parseFloat(row[fieldY]) : parseFloat(row['z'+(zoom-1)+'_y']),
       cluster: parseInt(row[fieldCluster]),
       colorValue: isCategorical ? (row[fieldColor]?''+row[fieldColor]:'null') : parseFloat(row[fieldColor])
     })) ;
@@ -163,7 +169,6 @@ class Clusters extends React.Component {
         }
       }
     }
-    console.log('bounding box', minX, maxX, minY, maxY) ;
     let colorMap: any = null ;
     if (isCategorical) {
       colorMap = {} ;
@@ -188,7 +193,7 @@ class Clusters extends React.Component {
         }
       }
     } 
-    const pad = 5 ;
+    const pad = 10 ;
     const scaleX = (this.width-2*pad) / (maxX - minX) ;
     const scaleY = (this.height-2*pad) / (maxY - minY) ;
     for (let dot of dots) {
@@ -306,6 +311,8 @@ class Clusters extends React.Component {
                   hoveredCluster={this.state.hoveredCluster}
                   setHoveredCluster={this.setHoveredCluster}
                   setSelectedCluster={this.setSelectedCluster}
+                  hoveredDot={this.state.hoveredDot}
+                  setHoveredDot={this.setHoveredDot}
       />  
     )
   }
@@ -324,37 +331,49 @@ class Clusters extends React.Component {
     }
   }
 
-  renderDetails() {
-    if (this.state.hoveredCluster) {
-      const zoom = this.state.selectedClusters.length + 1 ;
-      let key = ''+this.state.hoveredCluster ;
-      if (this.state.selectedClusters.length > 0) {
-        key = this.state.selectedClusters.join('/') + '/' + key ;
-      }
-      const metadata = this.metadata[key] ;
-      const size = metadata['fid'] ;
-      const words = JSON.parse(metadata['z'+zoom+'_cluster_words']) ;
-      const features = JSON.parse(metadata['z'+zoom+'_cluster_features']).filter((f:any) => clusteringFeatures[f.feature]) ;
-      return (
-        <div>
-          <strong>Cluster:</strong> {key}
-          <br/>
-          <strong>Size:</strong> {size} users
-          <br/><br/>
-          <strong>Keywords:</strong> 
-          {words.map((w:any, index:number) => <Chip key={index} label={w.word+':'+w.count} 
-                                                    variant="outlined" 
-                                                    style={{marginLeft: '10px', marginTop: '5px'}}/>)}
-          <br/><br/>
-          <strong>Features:</strong> 
-          {features.map((f:any, index:number) => <Chip key={index} 
-                                                    label={clusteringFeatures[f.feature].category+' / '+clusteringFeatures[f.feature].label} 
-                                                    variant="outlined" 
-                                                    style={{marginLeft: '10px', marginTop: '5px'}}
-                                                    color={f.delta>0?'success':'error'}/>)}
-        </div>
-      )
+  renderClusterDetails() {
+    if (!this.state.hoveredCluster) return null ;
+    const zoom = this.state.selectedClusters.length + 1 ;
+    let key = ''+this.state.hoveredCluster ;
+    if (this.state.selectedClusters.length > 0) {
+      key = this.state.selectedClusters.join('/') + '/' + key ;
     }
+    const metadata = this.metadata[key] ;
+    const size = metadata['fid'] ;
+    const words = JSON.parse(metadata['z'+zoom+'_cluster_words']) ;
+    const features = JSON.parse(metadata['z'+zoom+'_cluster_features']).filter((f:any) => clusteringFeatures[f.feature]) ;
+    return (
+      <div>
+        <strong>Cluster:</strong> {key}
+        <br/>
+        <strong>Size:</strong> {size} users
+        <br/><br/>
+        <strong>Keywords:</strong> 
+        {words.map((w:any, index:number) => <Chip key={index} label={w.word+':'+w.count} 
+                                                  variant="outlined" 
+                                                  style={{marginLeft: '10px', marginTop: '5px'}}/>)}
+        <br/><br/>
+        <strong>Features:</strong> 
+        {features.map((f:any, index:number) => <Chip key={index} 
+                                                  label={clusteringFeatures[f.feature].category+' / '+clusteringFeatures[f.feature].label} 
+                                                  variant="outlined" 
+                                                  style={{marginLeft: '10px', marginTop: '5px'}}
+                                                  color={f.delta>0?'success':'error'}/>)}
+      </div>
+    )
+  }
+
+  renderDotDetails() {
+    if (!this.state.hoveredDot) return null ;
+    const user = this.fids[this.state.hoveredDot] ;
+    if (!user) return null ;
+    return (
+      <div>
+        <strong>hoveredDot:</strong> {this.state.hoveredDot}
+        <br/>
+        {JSON.stringify(user, null, 2)}
+      </div>
+    )
   }
 
   render() {
@@ -374,7 +393,8 @@ class Clusters extends React.Component {
             {this.renderLegend()}
           </Grid>
           <Grid item xs={12} md={6}>
-            {this.renderDetails()}
+            {this.renderClusterDetails()}
+            {this.renderDotDetails()}
           </Grid>
       </Grid>
     );

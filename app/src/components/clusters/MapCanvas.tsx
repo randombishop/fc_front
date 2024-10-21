@@ -3,7 +3,7 @@ import React, { useRef, useEffect } from 'react';
 
 const MapCanvas = (props: any) => {
 
-  const { dots, clusterBorders, width, height, hoveredCluster, setHoveredCluster, setSelectedCluster } = props;
+  const { dots, clusterBorders, width, height, hoveredCluster, setHoveredCluster, setSelectedCluster, hoveredDot, setHoveredDot } = props;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const drawCanvas = () => {
@@ -55,10 +55,35 @@ const MapCanvas = (props: any) => {
     ) ;
   }
 
+  const renderDotBorders = () => {
+    if (clusterBorders && clusterBorders.length > 0) return null ;
+    return (
+      <svg width={width} height={height} style={{ position: 'absolute', top: 0, left: 0 }}>
+        {dots.map((dot: any, index: number) => {
+          return (
+            <circle
+              key={index}
+              cx={dot.x}
+              cy={dot.y}
+              r={5}
+              fill={hoveredDot === dot.fid ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0)'}
+              stroke='white'
+              strokeWidth={2}
+              style={{ cursor: 'pointer' }}
+              onMouseEnter={() => setHoveredDot(dot.fid)}
+              onMouseLeave={() => setHoveredDot(null)}
+            />
+          );
+        })}
+      </svg>
+    ) ;
+  }
+
   return (
     <div style={{ position: 'relative', width: width+'px', height: height+'px', marginTop: '25px', marginBottom: '25px' }}>
       {renderCanvas()}
       {renderClusterBorders()}
+      {renderDotBorders()}
     </div>
   );
 };
