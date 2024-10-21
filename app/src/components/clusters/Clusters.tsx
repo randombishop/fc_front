@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Typography, Box, FormControl, Select, MenuItem, Breadcrumbs, Button } from '@mui/material';
+import { Grid, Typography, Box, FormControl, Select, MenuItem, Breadcrumbs, Button, Chip } from '@mui/material';
 import Papa from 'papaparse';
 import { interpolateViridis } from 'd3-scale-chromatic';
 import Loading from '../common/Loading';
@@ -123,6 +123,7 @@ class Clusters extends React.Component {
 
   updateChart = () => {
     if (this.data === null || this.data.length === 0) return ;
+    console.log('updateChart') ;
     const t0 = performance.now();
     const zoom = this.state.selectedClusters.length + 1 ;
     const colorBy = this.state.colorBy ;
@@ -130,20 +131,26 @@ class Clusters extends React.Component {
     const fieldCluster = 'z'+zoom+'_cluster' ;
     const fieldX = 'z'+zoom+'_x' ;
     const fieldY = 'z'+zoom+'_y' ;
+    console.log('fieldX', fieldX) ; 
+    console.log('fieldY', fieldY) ;
     const isCategorical = clusteringFeatures[colorBy].isCategorical ;
     const data = this.getFilteredData() ;
+    console.log('data.length', data.length) ;
+    console.log('data', data) ;
     const dots: any[] = data.map((row) => ({
       x0: parseFloat(row[fieldX]),
       y0: parseFloat(row[fieldY]),
       cluster: parseInt(row[fieldCluster]),
       colorValue: isCategorical ? (row[fieldColor]?''+row[fieldColor]:'null') : parseFloat(row[fieldColor])
     })) ;
+    let clustered = false ;
     let minX = null ;
     let maxX = null ;
     let minY = null ;
     let maxY = null ;
     const uniqueColorValues:any = {} ;
     for (let dot of dots) {
+      if (dot.cluster) clustered = true ;
       if (minX === null || dot.x0 < minX) minX = dot.x0 ;
       if (maxX === null || dot.x0 > maxX) maxX = dot.x0 ;
       if (minY === null || dot.y0 < minY) minY = dot.y0 ;
@@ -156,6 +163,7 @@ class Clusters extends React.Component {
         }
       }
     }
+    console.log('bounding box', minX, maxX, minY, maxY) ;
     let colorMap: any = null ;
     if (isCategorical) {
       colorMap = {} ;
@@ -180,16 +188,17 @@ class Clusters extends React.Component {
         }
       }
     } 
-    const scaleX = (maxX - minX) / this.width;
-    const scaleY = (maxY - minY) / this.height;
+    const pad = 5 ;
+    const scaleX = (this.width-2*pad) / (maxX - minX) ;
+    const scaleY = (this.height-2*pad) / (maxY - minY) ;
     for (let dot of dots) {
       const color = colorMap ? colorMap[dot.colorValue] : interpolateViridis(dot.colorValue) ;
       dot.c = color ;
-      dot.x = (dot.x0 - minX) / scaleX;
-      dot.y = (dot.y0 - minY) / scaleY;
+      dot.x = (dot.x0-minX) * scaleX + pad ;
+      dot.y = (dot.y0-minY) * scaleY + pad ;
     }
     const clusterBorders: any[] = [] ;
-    if (zoom < 4) {
+    if (clustered) {
       const clusterDots: any = {} ;
       for (let dot of dots) {
         if (clusterDots[dot.cluster] === undefined) {
@@ -317,14 +326,32 @@ class Clusters extends React.Component {
 
   renderDetails() {
     if (this.state.hoveredCluster) {
+      const zoom = this.state.selectedClusters.length + 1 ;
       let key = ''+this.state.hoveredCluster ;
       if (this.state.selectedClusters.length > 0) {
         key = this.state.selectedClusters.join('/') + '/' + key ;
       }
       const metadata = this.metadata[key] ;
+      const size = metadata['fid'] ;
+      const words = JSON.parse(metadata['z'+zoom+'_cluster_words']) ;
+      const features = JSON.parse(metadata['z'+zoom+'_cluster_features']).filter((f:any) => clusteringFeatures[f.feature]) ;
       return (
         <div>
-          <Typography>{JSON.stringify(metadata)}</Typography>
+          <strong>Cluster:</strong> {key}
+          <br/>
+          <strong>Size:</strong> {size} users
+          <br/><br/>
+          <strong>Keywords:</strong> 
+          {words.map((w:any, index:number) => <Chip key={index} label={w.word+':'+w.count} 
+                                                    variant="outlined" 
+                                                    style={{marginLeft: '10px', marginTop: '5px'}}/>)}
+          <br/><br/>
+          <strong>Features:</strong> 
+          {features.map((f:any, index:number) => <Chip key={index} 
+                                                    label={clusteringFeatures[f.feature].category+' / '+clusteringFeatures[f.feature].label} 
+                                                    variant="outlined" 
+                                                    style={{marginLeft: '10px', marginTop: '5px'}}
+                                                    color={f.delta>0?'success':'error'}/>)}
         </div>
       )
     }
