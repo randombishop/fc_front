@@ -20,7 +20,7 @@ class UserTopFollowers extends React.Component< {data: any}> {
                 <TableCell component="th" scope="row">
                   {u.user_name}
                 </TableCell>
-                <TableCell align="right">{u.followers_num}</TableCell>
+                <TableCell align="right">{u.follower_num}</TableCell>
               </TableRow>
             ))}
           </TableBody>

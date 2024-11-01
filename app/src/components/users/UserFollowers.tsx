@@ -11,7 +11,7 @@ class UserFollowers extends React.Component< {data: any}> {
     if (!data || !data.features || !data.followers) {
       return null ;
     }
-    const num_followers = data.features.followers_num ;
+    const num_followers = data.features.follower_num ;
     const deltas = data.followers.sort((a: any, b: any) => b.day.localeCompare(a.day));
     const labels = [];
     const followers = [] ;

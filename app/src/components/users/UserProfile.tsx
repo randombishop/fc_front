@@ -16,14 +16,14 @@ class UserProfile extends React.Component< {data: any}> {
     const avatar = info?info.pfp.url:null ;
     const rows: any[] = [];
     if (features) {
-      rows.push({label: "Followers", value: features.followers_num});
+      rows.push({label: "Followers", value: features.follower_num});
       rows.push({label: "Following", value: features.following_num});
     }
     if (info) {
       rows.push({label: "Account registered", value: info.fid_registered_at.slice(0,10)});
     }
-    if (features && features.first_cast) {
-      rows.push({label: "First Cast", value: features.first_cast.value.slice(0,10)});
+    if (features && features.casts_all_first) {
+      rows.push({label: "First Cast", value: features.casts_all_first.slice(0,10)});
     }
     if (features && features.msg_messages_per_day) {
       rows.push({label: "Messages per day", value: (features.msg_messages_per_day).toFixed(1)});
