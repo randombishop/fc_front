@@ -13,7 +13,7 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     keyword: '',
     feature: 'q_clear',
     feature_value: '1',
-    channel: 'null',
+    channel: '<null>',
     username: ''
   };
 
@@ -191,7 +191,8 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
       <Grid item>
         <FormControl>
           <Select value={this.state.channel} onChange={this.handleChannelChange}>
-            <MenuItem value="null">None</MenuItem>
+            <MenuItem value="<null>">---No Channel---</MenuItem>
+            <MenuItem value="<any>">---Any Channel---</MenuItem>
             {rows.map((channel:any) => (
               <MenuItem key={channel.channel_id} value={channel.channel_id}>{channel.name}</MenuItem>
             ))}

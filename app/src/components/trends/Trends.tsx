@@ -184,7 +184,10 @@ const Trends = (props : any) => {
         url += ('feature/'+f+'/'+v) ;
       } else if (item.startsWith('p_')) {
         const channelId = item.substring(2) ;
-        let parentUrl = channelId==='null'?'null':mapChannels[channelId] ;
+        let parentUrl = channelId ;
+        if (channelId!=='<null>' && channelId!=='<any>') {
+          parentUrl = mapChannels[channelId] ;
+        }
         url += ('channel/'+encodeURIComponent(parentUrl)) ;
       } else if (item.startsWith('u_')) {
         url += ('from_user/'+item.substring(2)) ;
