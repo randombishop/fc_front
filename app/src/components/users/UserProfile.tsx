@@ -25,14 +25,14 @@ class UserProfile extends React.Component< {data: any}> {
     if (features && features.casts_all_first) {
       rows.push({label: "First Cast", value: features.casts_all_first.slice(0,10)});
     }
-    if (features && features.msg_messages_per_day) {
-      rows.push({label: "Messages per day", value: (features.msg_messages_per_day).toFixed(1)});
+    if (features && features.spam_daily_casts) {
+      rows.push({label: "Casts per day", value: (features.spam_daily_casts).toFixed(1)});
     }
-    if (features && features.msg_avg_time_any) {
-      rows.push({label: "Average Time to React", value: (features.msg_avg_time_any/3600).toFixed(1)+" hours"});
+    if (features && features.spam_time) {
+      rows.push({label: "Average Time to React", value: (features.spam_time).toFixed(1)+" hours"});
     }
-    if (features && features.msg_ratio_deletes) {
-      rows.push({label: "Message Delete Ratio", value: (features.msg_ratio_deletes*100).toFixed(1)+"%"});
+    if (features && features.spam_delete_ratio) {
+      rows.push({label: "Delete Ratio", value: (features.spam_delete_ratio*100).toFixed(1)+"%"});
     }
     return (
       <Panel title="Profile">
