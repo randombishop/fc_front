@@ -70,13 +70,13 @@ class UserFollowerAnalysis extends React.Component< {data: any}> {
     const datasets = [] ;
     datasets.push({
       label: 'Followers',
-      data: [100 * getAverage(sample, 'spam_any')],
+      data: [100 * getAverage(sample, 'spam_any_flag')],
       borderColor: hexToRGBA(lightColors[0], 0.5),
       backgroundColor: darkColors[0]
     }) ;
     datasets.push({
       label: 'Global',
-      data: [100 * global['spam_any']],
+      data: [100 * global['spam_any_flag']],
       borderColor: hexToRGBA(lightColors[1], 0.5),
       backgroundColor: darkColors[1]
     }) ;
@@ -122,13 +122,13 @@ class UserFollowerAnalysis extends React.Component< {data: any}> {
     const datasets = [] ;
     datasets.push({
       label: 'Followers',
-      data: [100 * getAverage(sample, 'msg_active')],
+      data: [100 * getAverage(sample, 'is_active')],
       borderColor: hexToRGBA(lightColors[0], 0.5),
       backgroundColor: darkColors[0]
     }) ;
     datasets.push({
       label: 'Global',
-      data: [100 * global['msg_active']],
+      data: [100 * global['is_active']],
       borderColor: hexToRGBA(lightColors[1], 0.5),
       backgroundColor: darkColors[1]
     }) ;
