@@ -668,7 +668,7 @@ class NetworkShow extends React.Component< {data: any, loading: boolean}> {
         <TableBody>
           <TableRow>
             <TableCell>Followers</TableCell>
-            <TableCell>{features.followers_num}</TableCell>
+            <TableCell>{features.follower_num}</TableCell>
           </TableRow>
           <TableRow>
             <TableCell>Following</TableCell>
