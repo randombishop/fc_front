@@ -44,7 +44,10 @@ class BotCast extends React.Component<{cast:any}> {
     console.log(embed) ;
     if (embed.user_name && embed.hash) {
       const user = embed.user_name ;
-      const hash = '0x'+embed.hash ;
+      let hash = embed.hash ;
+      if (!hash.startsWith('0x')) {
+        hash = '0x'+hash ;
+      }
       return (
         <Box key={key} sx={{backgroundColor: 'white',
                   color: 'black',

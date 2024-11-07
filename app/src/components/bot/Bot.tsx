@@ -20,12 +20,14 @@ class Bot1 extends React.Component<{isSignedIn: boolean}> {
     error: null
   };
 
-  placeholder = `Submit a command to the bot either in natural language or in SQL, for example:
+  placeholder = `Submit a command to the bot in natural language, for example:
   * Who are @dwr.eth's favorite users?
   * Who is most active in /data channel?
   * Give me a summary about bitcoin
   * Show me the funniest cast in tabletop channel
-  * select text from cast_features where day='2024-08-23' and fid=3 limit 10;
+  * Make wordcloud for @vitalik.eth
+  * Roast @randombishop
+  * Psycho analyze @randombishop
   `
 
   begin = (doNext: () => void) => {
