@@ -6,11 +6,6 @@ import { getColorForItem } from '../../utils';
 import { useAppContext } from '../../AppContext';
 import TrendVolume from './TrendVolume';
 import TrendFeatures from './TrendFeatures';
-import listChannels from '../data/channels.json';
-const mapChannels = listChannels.reduce((acc, item) => {
-  acc[item.channel_id] = item.parent_url;
-  return acc;
-}, {} as Record<string, string>);
 
 
 class Trends1 extends React.Component<{items: string[],
@@ -184,11 +179,7 @@ const Trends = (props : any) => {
         url += ('feature/'+f+'/'+v) ;
       } else if (item.startsWith('p_')) {
         const channelId = item.substring(2) ;
-        let parentUrl = channelId ;
-        if (channelId!=='<null>' && channelId!=='<any>') {
-          parentUrl = mapChannels[channelId] ;
-        }
-        url += ('channel/'+encodeURIComponent(parentUrl)) ;
+        url += ('channel/'+channelId) ;
       } else if (item.startsWith('u_')) {
         url += ('from_user/'+item.substring(2)) ;
       } else {

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Grid, FormControl, TextField, Select, MenuItem, Button } from '@mui/material';
 import { castCategories, castTopics, featureTranslation } from '../../utils';
-import listChannels from '../data/channels.json';
+import { AppContext } from '../../AppContext';
 
 
 class AddItem extends React.Component<{add: (item: string) => void}> {
   
+  static contextType = AppContext ;
+
   state = {
     type: 'c',
     category: 'c_arts',
@@ -13,9 +15,21 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     keyword: '',
     feature: 'q_clear',
     feature_value: '1',
-    channel: '<null>',
-    username: ''
+    channel: '_null_',
+    username: '',
+    channels: []
   };
+
+  componentDidMount() {
+    this.loadChannels() ;
+  }
+
+  loadChannels() {
+    const context:any = this.context ;
+    context.backendGET('/channels/list', (data: any) => {
+      this.setState({ channels: data });
+    });
+  }
 
   handleTypeChange = (event: any) => {
     this.setState({ type: event.target.value });
@@ -186,15 +200,16 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
   }
 
   renderStepChannel() {
-    const rows = listChannels.sort((a:any, b:any) => a.name.localeCompare(b.name))
+    const channels = this.state.channels ;
+    const rows = channels.sort((a:any, b:any) => a.name.localeCompare(b.name))
     return (
       <Grid item>
         <FormControl>
           <Select value={this.state.channel} onChange={this.handleChannelChange}>
-            <MenuItem value="<null>">---No Channel---</MenuItem>
-            <MenuItem value="<any>">---Any Channel---</MenuItem>
+            <MenuItem value="_null_">---No Channel---</MenuItem>
+            <MenuItem value="_any_">---Any Channel---</MenuItem>
             {rows.map((channel:any) => (
-              <MenuItem key={channel.channel_id} value={channel.channel_id}>{channel.name}</MenuItem>
+              <MenuItem key={channel.id} value={channel.id}>{channel.name}</MenuItem>
             ))}
           </Select>
         </FormControl>

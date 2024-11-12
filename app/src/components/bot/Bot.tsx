@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Grid, TextField, Button, Alert } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
 import HelpIcon from '@mui/icons-material/Help';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import Loading from '../common/Loading';
@@ -39,12 +38,7 @@ class Bot1 extends React.Component<{isSignedIn: boolean}> {
   };
 
   openBotInfo = () => {
-    const url = 'https://github.com/randombishop/fc_bots/blob/main/bots/functions.md'
-    window.open(url, '_blank');
-  };
-
-  openDatasetInfo = () => {
-    const url = 'https://github.com/randombishop/fc_docs/blob/main/dataset.md'
+    const url = 'https://github.com/randombishop/fc_bots/blob/main/bots/catalog.py'
     window.open(url, '_blank');
   };
 
@@ -141,9 +135,6 @@ class Bot1 extends React.Component<{isSignedIn: boolean}> {
         <Grid item xs={4}>
           <Button onClick={this.openBotInfo} fullWidth startIcon={<HelpIcon />}>
             Bot Commands 
-          </Button>
-          <Button onClick={this.openDatasetInfo} fullWidth startIcon={<InfoIcon />}>
-            Dataset Description
           </Button>
           <Button onClick={this.quoteQuery} fullWidth startIcon={<RequestQuoteIcon />}
             disabled={this.state.loading || (!this.props.isSignedIn)}>
