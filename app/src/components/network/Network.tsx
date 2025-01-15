@@ -53,7 +53,7 @@ const Network = (props : any) => {
   const navigate = useNavigate();
   
   const selectNetwork = (sample:string, filter:string, mode:string, item:string) => {
-    const url = '/carto/network/'+sample+'/'+filter+'/'+mode+'/'+item ;
+    const url = '/insights/network/'+sample+'/'+filter+'/'+mode+'/'+item ;
     navigate(url);
   }
 

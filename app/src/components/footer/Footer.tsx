@@ -31,7 +31,7 @@ class Footer extends React.Component {
     render() {
       return (
         <Box sx={boxStyle}>
-            <Alert severity="info">Prototype is still a work in progress. Data is incomplete at this time.</Alert>
+            <Alert severity="info">Prototype is still a work in progress.</Alert>
             <Button sx={linkStyle} color="inherit" onClick={this.openDocumentation}>Documentation</Button>
             <Button sx={linkStyle} color="inherit" onClick={this.openContact}>@randombishop</Button>
         </Box>

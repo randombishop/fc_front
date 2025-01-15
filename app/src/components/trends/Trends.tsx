@@ -103,7 +103,7 @@ const Trends = (props : any) => {
     } else {
       let newItems = items.slice();
       newItems.push(item);
-      const url = '/analytics/trends/'+newItems.join(',');
+      const url = '/insights/trends/'+newItems.join(',');
       navigate(url);
     } 
   } 
@@ -114,7 +114,7 @@ const Trends = (props : any) => {
       let newItems = items.slice();
       newItems.splice(index, 1);
       const newItemsString = newItems.length>0?newItems.join(','):'-';
-      const url = '/analytics/trends/'+newItemsString;
+      const url = '/insights/trends/'+newItemsString;
       navigate(url);
     }
   }

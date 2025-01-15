@@ -4,9 +4,8 @@ import AppLogo from '../../assets/logo_white_nobg.png';
 import Profile from '../profile/Profile';
 import { useLocation } from 'react-router-dom';
 import MiniGridItem from '../common/MiniGridItem';
-import HeaderMenuML from './HeaderMenuML';
-import HeaderMenuCarto from './HeaderMenuCarto';
-import HeaderMenuAnalytics from './HeaderMenuAnalytics';
+import HeaderMenuInsights from './HeaderMenuInsights';
+import HeaderMenuBot from './HeaderMenuBot';
 
 
 class Header1 extends React.Component<{ location: any }> {
@@ -54,15 +53,12 @@ class Header1 extends React.Component<{ location: any }> {
                 <Button color={this.getButtonColor('/dashboard', true)} href={dashboardUrl}>Dashboard</Button>
               </MiniGridItem>
               <MiniGridItem>
-                <HeaderMenuAnalytics color={this.getButtonColor('/analytics')} />
+                <HeaderMenuInsights color={this.getButtonColor('/insights')} />
               </MiniGridItem>
               <MiniGridItem>
-                <HeaderMenuCarto color={this.getButtonColor('/carto')} />
+                <HeaderMenuBot color={this.getButtonColor('/bot')} />
               </MiniGridItem>
-              <MiniGridItem>
-                <HeaderMenuML color={this.getButtonColor('/ml')} />
-              </MiniGridItem>
-              <Grid item xs={12} md={3} lg={2} display='flex' justifyContent='center' alignItems='center' sx={{height: '100px', marginBottom: '2px'}}>
+              <Grid item xs={12} md={3} lg={2} display='flex' justifyContent='center' alignItems='top' sx={{height: '100px', marginBottom: '2px'}}>
                 <Profile />
               </Grid>
             </Grid>

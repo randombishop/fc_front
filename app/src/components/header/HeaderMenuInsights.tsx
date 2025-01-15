@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
 
 
-const HeaderMenuML = (props:any) => {
-    const botUrl = '#/ml/bot';
-    const likeMeterUrl = '#/ml/like-meter/-';
+const HeaderMenuInsights = (props:any) => {
+    const trendsUrl = '#/insights/trends/-';
+    const usersUrl = '#/insights/users/-';
+    const networkUrl = '#/insights/network/random/10/group/1';
+    const clustersUrl = '#/insights/clusters';
+    const likeMeterUrl = '#/insights/like-meter/-';
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -18,7 +21,7 @@ const HeaderMenuML = (props:any) => {
 
     return (
         <div>
-            <Button color={props.color} onClick={handleClick}>ML Models</Button>
+            <Button color={props.color} onClick={handleClick}>Analytics</Button>
             <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
@@ -33,7 +36,10 @@ const HeaderMenuML = (props:any) => {
                     horizontal: 'right',
                 }}
             >
-                <MenuItem component="a" href={botUrl} onClick={handleClose}>Bot</MenuItem>
+                <MenuItem component="a" href={trendsUrl} onClick={handleClose}>Conversational Trends</MenuItem>
+                <MenuItem component="a" href={usersUrl} onClick={handleClose}>User Analysis</MenuItem>
+                <MenuItem component="a" href={networkUrl} onClick={handleClose}>Networks</MenuItem>
+                <MenuItem component="a" href={clustersUrl} onClick={handleClose}>Clusters</MenuItem>
                 <MenuItem component="a" href={likeMeterUrl} onClick={handleClose}>Like Meter</MenuItem>
             </Menu>
         </div>
@@ -41,4 +47,4 @@ const HeaderMenuML = (props:any) => {
 };
 
 
-export default HeaderMenuML ;
+export default HeaderMenuInsights ;

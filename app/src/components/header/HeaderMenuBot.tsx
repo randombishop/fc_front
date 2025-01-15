@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
 
 
-const HeaderMenuCarto = (props:any) => {
-    const trendsUrl = '#/analytics/trends/-';
-    const usersUrl = '#/analytics/users/-';
+const HeaderMenuBot = (props:any) => {
+    const botUrl = '#/bot/test';
+    
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -18,7 +18,7 @@ const HeaderMenuCarto = (props:any) => {
 
     return (
         <div>
-            <Button color={props.color} onClick={handleClick}>Analytics</Button>
+            <Button color={props.color} onClick={handleClick}>Bot</Button>
             <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}
@@ -33,12 +33,11 @@ const HeaderMenuCarto = (props:any) => {
                     horizontal: 'right',
                 }}
             >
-                <MenuItem component="a" href={trendsUrl} onClick={handleClose}>Conversational Trends</MenuItem>
-                <MenuItem component="a" href={usersUrl} onClick={handleClose}>User Analysis</MenuItem>
+                <MenuItem component="a" href={botUrl} onClick={handleClose}>Test Actions</MenuItem>
             </Menu>
         </div>
     );
 };
 
 
-export default HeaderMenuCarto ;
+export default HeaderMenuBot ;

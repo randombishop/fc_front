@@ -74,7 +74,7 @@ class Profile extends React.Component {
             }}
           >
             <MenuList>
-              <MenuItem>My account: 10k credits</MenuItem>
+              <MenuItem>My account: xxx credits (wip)</MenuItem>
               <MenuItem onClick={this.signOut}>Sign Out</MenuItem>
             </MenuList>
           </Paper>

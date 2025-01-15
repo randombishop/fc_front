@@ -30,7 +30,7 @@ const LikeMeter = () => {
   const navigate = useNavigate();
   
   const newToken = (token: string) => {
-    const url = '/ml/like-meter/'+token;
+    const url = '/insights/like-meter/'+token;
     navigate(url);
   }
    

@@ -35,12 +35,12 @@ class App extends React.Component {
               <Routes>
                 <Route path="/" Component={Dashboard} />
                 <Route path="/dashboard" Component={Dashboard} />
-                <Route path="/analytics/trends/:terms" Component={Trends} />
-                <Route path="/analytics/users/:terms" Component={Users} />
-                <Route path="/carto/network/:sample/:filter/:mode/:item?" Component={Network} />
-                <Route path="/carto/clusters" Component={Clusters} />
-                <Route path="/ml/bot" Component={Bot} />
-                <Route path="/ml/like-meter/:token" Component={LikeMeter} />                
+                <Route path="/insights/trends/:terms" Component={Trends} />
+                <Route path="/insights/users/:terms" Component={Users} />
+                <Route path="/insights/network/:sample/:filter/:mode/:item?" Component={Network} />
+                <Route path="/insights/clusters" Component={Clusters} />
+                <Route path="/insights/like-meter/:token" Component={LikeMeter} />  
+                <Route path="/bot/test" Component={Bot} />                              
               </Routes>
               <Box sx={{ flexGrow: 1 }} />
               <Footer />
