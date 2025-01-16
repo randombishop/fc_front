@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Grid, Alert, Button } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
+import QRCode from 'react-qr-code';
 import { AppContext } from '../../AppContext';
 import Panel from '../common/Panel'; 
 import Loading from '../common/Loading';
@@ -15,7 +16,9 @@ class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
   state = {
     user: null as any,
     creatingBotKey: false,
-    approvingBotKey: false
+    approvingBotKey: false,
+    approvalToken: null as any,
+    approvalUrl: null as any
   };
 
   componentDidMount = () => {
@@ -42,6 +45,35 @@ class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
     const context:any = this.context ;
     context.backendPOST('/profile/new_bot_key', {}, (data: any) => {
       this.setState({  user: data, creatingBotKey: false });
+    });
+  }
+
+  approveBotKey = () => {
+    this.setState({ approvingBotKey: true });
+    const context:any = this.context ;
+    context.backendGET('/profile/key_approval_request', (data: any) => {
+      this.setState({ 
+        approvingBotKey: false, 
+        approvalToken: data.token,
+        approvalUrl: data.deeplink_url
+      }, this.checkApprovalStatus);
+    });
+  }
+
+  checkApprovalStatus = async () => {
+    console.log(`startApprovalPolling ${this.state.approvalToken}`) ;
+    await new Promise((r) => setTimeout(r, 2000));
+    const context:any = this.context ;
+    context.backendGET(`/profile/key_approval_status/${this.state.approvalToken}`, (data: any) => {
+      if (data.status === 'completed') {
+        this.setState({
+          approvalToken: null,
+          approvalUrl: null,
+          user: data.user
+        });
+      } else {
+        this.checkApprovalStatus();
+      }
     });
   }
 
@@ -96,12 +128,38 @@ class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
     ) ;
   }
 
-  renderBotKeyReady = () => {
+  renderBotKeyCreated = () => {
     return (
       <p>
-        <CheckCircleIcon color="success" style={{verticalAlign: 'bottom'}}/>&nbsp;1. Bot Key is ready to use.
+        <CheckCircleIcon color="success" style={{verticalAlign: 'bottom'}}/>&nbsp;1. Bot Key created.
       </p>
     )
+  }
+
+  renderBotKeyApproved = () => {
+    return (
+      <p>
+        <CheckCircleIcon color="success" style={{verticalAlign: 'bottom'}}/>&nbsp;2. Bot Key Approved.
+      </p>
+    )
+  }
+
+  renderApprovalSteps = () => {
+    if (this.state.approvalUrl) {
+      return (
+        <p>
+          <b>Scan the QR code and approve with Warpcast:</b>
+          <br/>
+          <QRCode value={this.state.approvalUrl} />
+        </p>
+      ) ;
+    } else {
+      return (
+        <p>
+          <Button variant="contained" color="primary" onClick={this.approveBotKey} disabled={this.state.approvingBotKey}>Approve Bot Key</Button>
+        </p>
+      ) ;
+    }
   }
 
   renderApproval = () => {
@@ -121,19 +179,20 @@ class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
     if (!bot_approved) {
       return (
         <Panel title="Authorize Bot">
-          {this.renderBotKeyReady()}
+          {this.renderBotKeyCreated()}
           <hr/>
           <p>
             <ClearIcon color="error" style={{verticalAlign: 'bottom'}}/>&nbsp;2. Authorize your bot to cast on your behalf
-            <br/>
-            <Button variant="contained" color="primary"  disabled={this.state.approvingBotKey}>Approve</Button>
           </p>
+          {this.renderApprovalSteps()}
         </Panel>
       )
     }
     return (
       <Panel title="Authorize Bot">
-         {this.renderBotKeyReady()} 
+         {this.renderBotKeyCreated()} 
+        <hr/>
+        {this.renderBotKeyApproved()}
       </Panel>
     ) ;
   }
