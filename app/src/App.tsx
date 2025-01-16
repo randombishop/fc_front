@@ -4,14 +4,19 @@ import { Container, Box } from '@mui/material';
 import { AuthKitProvider } from '@farcaster/auth-kit';
 import { AppContextProvider } from './AppContext';
 import Header from './components/header/Header';
+import Footer from './components/footer/Footer';
+// Insights
 import Dashboard from './components/dashboard/Dashboard';
 import Trends from './components/trends/Trends';
 import Users from './components/users/Users';
-import Bot from './components/bot/Bot';
 import LikeMeter from './components/likemeter/LikeMeter';
-import Footer from './components/footer/Footer';
 import Network from './components/network/Network';
 import Clusters from './components/clusters/Clusters';
+// Bot
+import BotTest from './components/bot/BotTest';
+import BotActivate from './components/bot/BotActivate';
+
+
 
 
 const farcasterConfig = {
@@ -40,7 +45,8 @@ class App extends React.Component {
                 <Route path="/insights/network/:sample/:filter/:mode/:item?" Component={Network} />
                 <Route path="/insights/clusters" Component={Clusters} />
                 <Route path="/insights/like-meter/:token" Component={LikeMeter} />  
-                <Route path="/bot/test" Component={Bot} />                              
+                <Route path="/bot/test" Component={BotTest} />
+                <Route path="/bot/activate" Component={BotActivate} />                              
               </Routes>
               <Box sx={{ flexGrow: 1 }} />
               <Footer />

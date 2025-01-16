@@ -163,9 +163,9 @@ class Bot1 extends React.Component<{isSignedIn: boolean}> {
 }
 
 
-const Bot = () => {
+const BotTest = () => {
   const { isSignedIn } = useContext(AppContext);
   return <Bot1 isSignedIn={isSignedIn} />
 };
 
-export default Bot ;
+export default BotTest ;

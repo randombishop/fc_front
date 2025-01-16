@@ -4,6 +4,7 @@ import { Button, Menu, MenuItem } from '@mui/material';
 
 const HeaderMenuBot = (props:any) => {
     const botUrl = '#/bot/test';
+    const botActivate = '#/bot/activate';
     
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -34,6 +35,7 @@ const HeaderMenuBot = (props:any) => {
                 }}
             >
                 <MenuItem component="a" href={botUrl} onClick={handleClose}>Test Actions</MenuItem>
+                <MenuItem component="a" href={botActivate} onClick={handleClose}>Activate</MenuItem>
             </Menu>
         </div>
     );
