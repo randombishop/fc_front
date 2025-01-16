@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.99fc55db.css",
-    "main.js": "/static/js/main.675d2762.js",
+    "main.js": "/static/js/main.cc71026c.js",
     "static/js/55.d40f3c72.chunk.js": "/static/js/55.d40f3c72.chunk.js",
     "static/media/gm.png": "/static/media/gm.331b5752780c6e038284.png",
     "static/media/tech_science.png": "/static/media/tech_science.2d7d983387cf4b459449.png",
@@ -22,11 +22,11 @@
     "static/media/logo_white_nobg.png": "/static/media/logo_white_nobg.a8625eb837a3bf71646a.png",
     "index.html": "/index.html",
     "main.99fc55db.css.map": "/static/css/main.99fc55db.css.map",
-    "main.675d2762.js.map": "/static/js/main.675d2762.js.map",
+    "main.cc71026c.js.map": "/static/js/main.cc71026c.js.map",
     "55.d40f3c72.chunk.js.map": "/static/js/55.d40f3c72.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.99fc55db.css",
-    "static/js/main.675d2762.js"
+    "static/js/main.cc71026c.js"
   ]
 }
