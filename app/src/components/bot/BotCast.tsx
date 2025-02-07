@@ -68,7 +68,7 @@ class BotCast extends React.Component<{cast:any}> {
                   borderRadius: '20px',
                   margin: '20px',
                   padding: '20px' }}>
-          <img src={embed} alt="embed"/>
+          <img src={embed} alt={embed}/>
         </Box>
       )
     } else {

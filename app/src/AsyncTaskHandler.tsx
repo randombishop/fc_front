@@ -7,7 +7,7 @@ class AsyncTaskHandler {
   private pollingInterval: number;
   private maxAttempts: number;
   
-  constructor(token: string|null, pollingInterval: number = 1000, maxAttempts: number = 100) { 
+  constructor(token: string|null, pollingInterval: number = 1000, maxAttempts: number = 300) { 
     this.token = token ;
     this.pollingInterval = pollingInterval;
     this.maxAttempts = maxAttempts;
