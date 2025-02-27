@@ -72,7 +72,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     backendGET: backendGET,
     backendPOST: backendPOST,
     newTaskHandler: newTaskHandler,
-isSignedIn: isSignedIn(),
+    isSignedIn: isSignedIn(),
     alerts: alerts
   }
 
