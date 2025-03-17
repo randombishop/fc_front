@@ -1,13 +1,14 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Grid, TextField, Button, Alert } from '@mui/material';
 import HelpIcon from '@mui/icons-material/Help';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import Loading from '../common/Loading';
 import BotCast from './BotCast';
 import { AppContext } from '../../AppContext';
+import RequireSignIn from '../common/RequireSignIn';
 
 
-class Bot1 extends React.Component<{isSignedIn: boolean}> {
+class BotTest1 extends React.Component {
 
   static contextType = AppContext ;
 
@@ -105,20 +106,9 @@ class Bot1 extends React.Component<{isSignedIn: boolean}> {
     }
   };
 
-  renderLoginMessage = () => {
-    if (!this.props.isSignedIn) {
-      return (
-        <Grid item xs={12}>
-          <Alert severity="info">Please sign in to use this feature. You will get 100000 free credits to try it...</Alert>
-        </Grid>
-      ) ;
-    }
-  }
-
   render() {
     return (
       <Grid container spacing={3}>
-        {this.renderLoginMessage()}
         <Grid item xs={8}>
           <TextField
             label="Enter your query"
@@ -137,7 +127,7 @@ class Bot1 extends React.Component<{isSignedIn: boolean}> {
             Bot Commands 
           </Button>
           <Button onClick={this.quoteQuery} fullWidth startIcon={<RequestQuoteIcon />}
-            disabled={this.state.loading || (!this.props.isSignedIn)}>
+            disabled={this.state.loading}>
             Quote
           </Button>
           <br/><br/>
@@ -150,7 +140,7 @@ class Bot1 extends React.Component<{isSignedIn: boolean}> {
           <Button onClick={this.startQuery} fullWidth
             variant="contained"
             style={{ marginTop: '10px' }}
-            disabled={this.state.loading || (!this.props.isSignedIn)}>
+            disabled={this.state.loading}>
             Run Query
           </Button>
         </Grid>
@@ -164,8 +154,7 @@ class Bot1 extends React.Component<{isSignedIn: boolean}> {
 
 
 const BotTest = () => {
-  const { isSignedIn } = useContext(AppContext);
-  return <Bot1 isSignedIn={isSignedIn} />
+  return RequireSignIn(<BotTest1 />)
 };
 
 export default BotTest ;

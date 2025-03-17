@@ -1,15 +1,15 @@
-import React, { useContext } from 'react';
-import { Grid, Alert, Button } from '@mui/material';
+import React from 'react';
+import { Grid, Button } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClearIcon from '@mui/icons-material/Clear';
 import QRCode from 'react-qr-code';
 import { AppContext } from '../../AppContext';
 import Panel from '../common/Panel'; 
 import Loading from '../common/Loading';
+import RequireSignIn from '../common/RequireSignIn';
 
 
-
-class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
+class BotActivate1 extends React.Component {
 
   static contextType = AppContext ;
 
@@ -22,15 +22,7 @@ class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
   };
 
   componentDidMount = () => {
-    if (this.props.isSignedIn) {
-      this.loadUserData() ;
-    }
-  }
-
-  componentDidUpdate(prevProps: {isSignedIn: boolean}) {
-    if (!prevProps.isSignedIn && this.props.isSignedIn) {
-      this.loadUserData();
-    }
+    this.loadUserData() ;
   }
 
   loadUserData = () => {
@@ -77,34 +69,22 @@ class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
     });
   }
 
-  renderLoginMessage = () => {
-    if (!this.props.isSignedIn) {
-      return (
-        <Grid item xs={12}>
-          <Alert severity="info">Please sign in to use this feature.</Alert>
-        </Grid>
-      ) ;
-    }
-  }
-
   renderPage = () => {
-    if (this.props.isSignedIn) {
-      if (this.state.user) {
-        return (
-            <React.Fragment>
-              <Grid item xs={6}>
-                {this.renderMembership()}
-            </Grid>
+    if (this.state.user) {
+      return (
+          <React.Fragment>
             <Grid item xs={6}>
-              {this.renderApproval()}
-            </Grid>
-          </React.Fragment>
-        ) ;
-      } else {
-        return <Loading /> ;
-      }
-    } 
-  }
+              {this.renderMembership()}
+          </Grid>
+          <Grid item xs={6}>
+            {this.renderApproval()}
+          </Grid>
+        </React.Fragment>
+      ) ;
+    } else {
+      return <Loading /> ;
+    }
+  } 
 
   renderMembership = () => {
     const membership = this.state.user?.bot_membership ;
@@ -200,7 +180,6 @@ class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
   render() {
     return (
       <Grid container spacing={3}>
-        {this.renderLoginMessage()}
         {this.renderPage()}
       </Grid>
     );
@@ -208,9 +187,9 @@ class BotActivate1 extends React.Component<{isSignedIn: boolean}> {
 }
 
 
+
 const BotActivate = () => {
-  const { isSignedIn } = useContext(AppContext);
-  return <BotActivate1 isSignedIn={isSignedIn} />
+  return RequireSignIn(<BotActivate1 />);
 };
 
-export default BotActivate ;
+export default BotActivate;
