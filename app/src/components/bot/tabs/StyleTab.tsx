@@ -8,16 +8,16 @@ interface StyleTabProps {
 const StyleTab = ({ character, onUpdate }: StyleTabProps) => {
   const handleUpdate = (items: string[]) => {
     const updatedCharacter = { ...character };
-    updatedCharacter.character.style = items;
+    updatedCharacter.style = items;
     onUpdate(updatedCharacter);
   };
 
   return (
     <ListEditor
-      items={character.character.style}
+      items={character.style}
       section="style"
       helpTitle="Style Guidelines"
-      helpContent="Define how your bot should communicate. Include specific instructions about tone, length, and approach to different situations."
+      helpContent="Define how your bot should communicate. Include specific instructions about tone, length, and approach to different situations. For example, keep it short, never use hashtags, be kind, etc."
       onUpdate={handleUpdate}
     />
   );

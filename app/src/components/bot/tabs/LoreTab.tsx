@@ -8,16 +8,16 @@ interface LoreTabProps {
 const LoreTab = ({ character, onUpdate }: LoreTabProps) => {
   const handleUpdate = (items: string[]) => {
     const updatedCharacter = { ...character };
-    updatedCharacter.character.lore = items;
+    updatedCharacter.lore = items;
     onUpdate(updatedCharacter);
   };
 
   return (
     <ListEditor
-      items={character.character.lore}
+      items={character.lore}
       section="lore"
       helpTitle="Lore Guidelines"
-      helpContent="Create mystical and imaginative background stories for your bot. Focus on unique characteristics and special abilities that make your bot interesting."
+      helpContent="List as many background stories about your bot."
       onUpdate={handleUpdate}
     />
   );

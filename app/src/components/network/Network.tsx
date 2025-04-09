@@ -66,7 +66,7 @@ const Network = (props : any) => {
       setLoading(false) ;
     }, (error: any) => {
       setLoading(false) ;
-      alert(error) ;
+      context.newAlert({type: 'error', message: error}) ;
     });
   }
 

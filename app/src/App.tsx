@@ -15,7 +15,7 @@ import Clusters from './components/clusters/Clusters';
 // Bot
 import BotTest from './components/bot/BotTest';
 import BotActivate from './components/bot/BotActivate';
-import BotConfigure from './components/bot/BotConfigure';
+import BotCharacter from './components/bot/BotCharacter';
 
 
 
@@ -46,7 +46,7 @@ class App extends React.Component {
                 <Route path="/insights/clusters" Component={Clusters} />
                 <Route path="/insights/like-meter/:token" Component={LikeMeter} />  
                 <Route path="/bot/activate" Component={BotActivate} />                              
-                <Route path="/bot/configure" Component={BotConfigure} />
+                <Route path="/bot/character" Component={BotCharacter} />
                 <Route path="/bot/test" Component={BotTest} />
               </Routes>
               <Box sx={{ flexGrow: 1 }} />

@@ -6,7 +6,6 @@ import RequireSignIn from '../common/RequireSignIn';
 import BioTab from './tabs/BioTab';
 import LoreTab from './tabs/LoreTab';
 import StyleTab from './tabs/StyleTab';
-import ActionsTab from './tabs/ActionsTab';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -20,7 +19,7 @@ const TabPanel = (props: TabPanelProps) => {
       role="tabpanel" 
       hidden={!active}
       style={{ 
-        height: 'calc(100vh - 300px)', // Adjust based on your layout
+        height: 'calc(100vh - 400px)', // Adjust based on your layout
         overflowY: 'auto'
       }}
       {...other}
@@ -30,14 +29,14 @@ const TabPanel = (props: TabPanelProps) => {
   );
 };
 
-class BotConfigure1 extends React.Component {
+class BotCharacter1 extends React.Component {
   static contextType = AppContext;
 
   state = {
-    character: null as any,
     currentTab: 0,
-    isDirty: false,
-    editedCharacter: null as any
+    character: null as any,
+    editedCharacter: null as any,
+    saving: false
   };
 
   componentDidMount = () => {
@@ -48,8 +47,25 @@ class BotConfigure1 extends React.Component {
     const context: any = this.context;
     context.backendGET('/bot/character', (data: any) => {
       this.setState({ 
-        character: data,
-        editedCharacter: JSON.parse(JSON.stringify(data))
+        character: data.character,
+        editedCharacter: JSON.parse(JSON.stringify(data.character)),
+      });
+    });
+  }
+
+  saveCharacter = () => {
+    const context: any = this.context;
+    this.setState({ saving: true }, () => {
+      context.backendPOST('/bot/character', this.state.editedCharacter, (data: any) => {
+        if (data.error) {
+          context.newAlert({type: 'error', message: data.error});
+        } else {
+          this.setState({ 
+            character: JSON.parse(JSON.stringify(this.state.editedCharacter)),
+            saving: false
+          });
+          context.newAlert({type: 'success', message: 'Bot updated'});
+        }
       });
     });
   }
@@ -60,34 +76,21 @@ class BotConfigure1 extends React.Component {
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const editedCharacter = { ...this.state.editedCharacter };
-    editedCharacter.character.name = event.target.value;
+    editedCharacter.name = event.target.value;
     this.setState({ 
-      editedCharacter,
-      isDirty: true 
+      editedCharacter
     });
   }
 
   handleContentUpdate = (updatedCharacter: any) => {
     this.setState({ 
-      editedCharacter: updatedCharacter,
-      isDirty: true 
-    });
-  }
-
-  handleSave = () => {
-    return;
-    const context: any = this.context;
-    context.backendPOST('/bot/character', this.state.editedCharacter, () => {
-      this.setState({ 
-        character: JSON.parse(JSON.stringify(this.state.editedCharacter)),
-        isDirty: false 
-      });
+      editedCharacter: updatedCharacter
     });
   }
 
   renderEditor = () => {
-    const { editedCharacter, isDirty, currentTab } = this.state;
-    
+    const { currentTab, editedCharacter } = this.state;
+    const isDirty = JSON.stringify(editedCharacter) !== JSON.stringify(this.state.character);
     return (
       <Box sx={{ width: '100%' }}>
         <Box sx={{ mb: 4 }}>
@@ -95,7 +98,7 @@ class BotConfigure1 extends React.Component {
             fullWidth
             label="Bot Name"
             variant="outlined"
-            value={editedCharacter.character.name}
+            value={editedCharacter.name}
             onChange={this.handleNameChange}
             sx={{ maxWidth: 400 }}
           />
@@ -107,7 +110,6 @@ class BotConfigure1 extends React.Component {
               <Tab label="Bio" />
               <Tab label="Lore" />
               <Tab label="Style" />
-              <Tab label="Actions" />
             </Tabs>
           </Box>
           
@@ -123,17 +125,14 @@ class BotConfigure1 extends React.Component {
             <StyleTab character={editedCharacter} onUpdate={this.handleContentUpdate} />
           </TabPanel>
           
-          <TabPanel active={currentTab === 3}>
-            <ActionsTab character={editedCharacter} onUpdate={this.handleContentUpdate} />
-          </TabPanel>
         </Paper>
 
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 4 }}>
           <Button 
             variant="contained" 
             color="primary"
-            disabled={!isDirty}
-            onClick={this.handleSave}
+            disabled={this.state.saving || (!isDirty)}
+            onClick={this.saveCharacter}
           >
             {isDirty ? 'Save Changes' : 'Saved'}
           </Button>
@@ -160,8 +159,8 @@ class BotConfigure1 extends React.Component {
   }
 }
 
-const BotConfigure = () => {
-  return RequireSignIn(<BotConfigure1 />);
+const BotCharacter = () => {
+  return RequireSignIn(<BotCharacter1 />);
 };
 
-export default BotConfigure;
+export default BotCharacter;

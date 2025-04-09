@@ -8,9 +8,12 @@ import { clusteringCategories, clusteringFeatures, lightColors, quickHull } from
 import MapCanvas from './MapCanvas';
 import LegendLinear from './LegendLinear';
 import LegendCategorical from './LegendCategorical';
+import { AppContext } from '../../AppContext';
 
 
 class Clusters extends React.Component {
+
+  static contextType = AppContext ;
 
   metadata: any = null ;
   data: any[]|null = null ;
@@ -67,6 +70,7 @@ class Clusters extends React.Component {
   }
 
   loadCsvFile = (next: () => void) => {
+    const context:any = this.context ;
     fetch('/clustering/clustering.csv')
       .then(response => response.text())
       .then(csvText => {
@@ -83,7 +87,7 @@ class Clusters extends React.Component {
           },
         });
       })
-      .catch(error => alert('Error fetching or parsing CSV:'+ error));
+      .catch(error => context.newAlert({type: 'error', message: 'Error fetching or parsing CSV:'+ error}));
   }
 
   handleColorByCategoryChange = (event: any) => {

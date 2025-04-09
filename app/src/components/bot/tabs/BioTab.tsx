@@ -6,21 +6,23 @@ interface BioTabProps {
 }
 
 const BioTab = ({ character, onUpdate }: BioTabProps) => {
+
   const handleUpdate = (items: string[]) => {
     const updatedCharacter = { ...character };
-    updatedCharacter.character.bio = items;
+    updatedCharacter.bio = items;
     onUpdate(updatedCharacter);
   };
 
   return (
     <ListEditor
-      items={character.character.bio}
+      items={character.bio}
       section="bio"
       helpTitle="Bio Guidelines"
-      helpContent="Write engaging, personal stories about your bot's origin and development. Each line should contribute to building your bot's character and personality."
+      helpContent="Write a personal bio for your bot. Write as many lines as possible. A random sample will be used to to build your bot's character each run, generating more diversity in its outputs."
       onUpdate={handleUpdate}
     />
   );
+
 };
 
 export default BioTab; 

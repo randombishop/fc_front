@@ -66,6 +66,7 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
   };
 
   addItem = () => {
+    const context:any = this.context ;
     if (this.state.type === 'c') {
       this.props.add(this.state.category)
     } else if (this.state.type === 't') {
@@ -75,7 +76,7 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     } else if (this.state.type === 'k') {
       let item = this.state.keyword ;
       if (item.length<3) {
-        alert('Invalid keyword, must be at least 3 characters') ;
+        context.newAlert({type: 'error', message: 'Invalid keyword, must be at least 3 characters'}) ;
       } else {
         this.props.add('k_'+item) ;
       }
@@ -84,7 +85,7 @@ class AddItem extends React.Component<{add: (item: string) => void}> {
     } else if (this.state.type === 'u') {
       this.props.add('u_'+this.state.username)
     } else {
-      alert('Invalid type');
+      context.newAlert({type: 'error', message: 'Invalid type'});
     }
   };
 

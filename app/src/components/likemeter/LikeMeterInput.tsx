@@ -20,9 +20,10 @@ class LikeMeterInput extends React.Component<{ newToken: (token: string) => void
   };
 
   score = () => {
+    const context:any = this.context ;
     const text = this.state.text;
     if (text.length<MIN_TEXT_LENGTH) {
-      alert(`Text must be at least ${MIN_TEXT_LENGTH} characters long`) ;
+      context.newAlert({type: 'error', message: `Text must be at least ${MIN_TEXT_LENGTH} characters long`});
     } else {
       this.setState({enabled: false}) ;
       const context:any = this.context ;

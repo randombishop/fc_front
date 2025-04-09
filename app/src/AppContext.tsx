@@ -2,20 +2,19 @@ import React, { createContext, useContext, useState } from 'react';
 import { useSignIn } from '@farcaster/auth-kit' ;
 import AsyncTaskHandler from './AsyncTaskHandler';
 import { getBackendUrl } from './utils';
-
-
+import { Box, Alert, AlertColor } from '@mui/material';
 const AppContext = createContext<any>({});
 
 const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
   
   const [token, setToken] = useState<string | null>(null);
-  const [alerts, setAlerts] = useState<string[]>([]);
+  const [alerts, setAlerts] = useState<{type: AlertColor, message: string}[]>([]);
 
   const isSignedIn = () => {
     return token !== null ;
   }
 
-  const newAlert = (s: string) => {
+  const newAlert = (s: {type: AlertColor, message: string}) => {
     alerts.push(s);
     setAlerts([...alerts]);
   }
@@ -32,7 +31,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
       .then(response => response.json())
       .then(data => callback(data))
       .catch(error => {
-        newAlert('Error:' + error);
+        newAlert({type: 'error', message: error});
         if (onError) {
           onError(error);
         }
@@ -51,7 +50,7 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
     fetch(getBackendUrl()+path, post)
       .then(response => response.json())
       .then(data => callback(data))
-      .catch(error => newAlert('Error:' + error));
+      .catch(error => newAlert({type: 'error', message: 'Error:' + error}));
   }
 
   const farcasterAuth = useSignIn({}) ;
@@ -79,6 +78,36 @@ const AppContextProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <AppContext.Provider value={value}>
       {children}
+      <Box
+        sx={{
+          position: 'fixed',
+          top: 20,
+          right: 20,
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 1
+        }}
+      >
+        {alerts.map((alert, index) => (
+          <Alert 
+            key={index} 
+            severity={alert.type}
+            onClose={() => {
+              const newAlerts = [...alerts];
+              newAlerts.splice(index, 1);
+              setAlerts(newAlerts);
+            }}
+            sx={{
+              minWidth: '300px',
+              boxShadow: 3
+            }}
+          >
+            {alert.message}
+          </Alert>
+        ))}
+      </Box>
+
     </AppContext.Provider>
   );
 };

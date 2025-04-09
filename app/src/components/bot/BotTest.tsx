@@ -44,12 +44,12 @@ class BotTest1 extends React.Component {
   };
 
   quoteQuery = async () => {
+    const context:any = this.context ;
     if (this.state.query.length < 10) {
-      alert('Please enter a query (min 10 characters)') ;
+      context.newAlert({type: 'error', message: 'Please enter a query (min 10 characters)'});
       return ;
     }
-    this.begin(async () => {
-      const context:any = this.context ;
+    this.begin(async () => {      
       const taskHandler = context.newTaskHandler() ;
       const payload = {query: this.state.query};
       const task = await taskHandler.runTask('/bot/quote', payload);
@@ -59,12 +59,12 @@ class BotTest1 extends React.Component {
   };
 
   startQuery = () => {
+    const context:any = this.context ;
     if (this.state.query.length < 10) {
-      alert('Please enter a query (min 10 characters)') ;
+      context.newAlert({type: 'error', message: 'Please enter a query (min 10 characters)'});
       return ;
     }
     this.begin(async () => {
-      const context:any = this.context ;
       const taskHandler = context.newTaskHandler() ;
       const payload = {query: this.state.query};
       const task = await taskHandler.runTask('/bot/run', payload);
