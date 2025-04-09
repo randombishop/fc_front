@@ -11,14 +11,15 @@ import {
   Paper,
   Button
 } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { AppContext } from '../../AppContext';
 import Loading from '../common/Loading';
 import HelpBox from './tabs/HelpBox';
 import RequireSignIn from '../common/RequireSignIn';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import PromptEditor from './PromptEditor';
-import AddIcon from '@mui/icons-material/Add';
+
 
 interface ChannelInfo {
   id: string;
@@ -26,7 +27,7 @@ interface ChannelInfo {
 }
 
 interface Prompt {
-  id: string;
+  id: string | null;
   name: string;
   min_hours: number;
   min_activity: number;
@@ -65,18 +66,18 @@ class BotPrompts1 extends React.Component {
     });
   }
 
-  deletePrompt = (promptId: string) => {
+  deletePrompt = (prompt: any) => {
+    const promptId = prompt.id;
+    if (!promptId) return;
+    const newPrompts = this.state.prompts?.filter((p: Prompt) => p.id !== promptId);
     const context: any = this.context;
-    this.setState({ saving: true }, () => {
-      context.backendPOST('/bot/delete_prompt', promptId, (data: any) => {
+    this.setState({ prompts: newPrompts, saving: true }, () => {
+      context.backendPOST('/bot/prompt/delete', {prompt_id: promptId}, (data: any) => {
         if (data.error) {
           context.newAlert({type: 'error', message: data.error});
         } else {
-          this.setState({ 
-            prompts: data.prompts,
-            saving: false
-          });
           context.newAlert({type: 'success', message: 'Prompt deleted'});
+          this.loadPrompts();
         }
       });
     });
@@ -88,16 +89,16 @@ class BotPrompts1 extends React.Component {
 
   handleClose = () => {
     this.setState({ editingPrompt: null });
-    this.loadPrompts(); // Refresh the list
+    this.loadPrompts();
   };
 
   handleNew = () => {
     const newPrompt: Prompt = {
-      id: '', // Will be assigned by backend
+      id: null,
       name: '',
       min_hours: 24,
-      min_activity: 1,
-      channel: '',
+      min_activity: 10,
+      channel: '#Autopilot#',
       prompt: ''
     };
     this.setState({ editingPrompt: newPrompt });
@@ -130,7 +131,7 @@ class BotPrompts1 extends React.Component {
                       <IconButton edge="end" onClick={() => this.handleEdit(prompt)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton edge="end" onClick={() => this.deletePrompt(prompt.id)}>
+                      <IconButton edge="end" onClick={() => this.deletePrompt(prompt)}>
                         <DeleteIcon />
                       </IconButton>
                     </Box>

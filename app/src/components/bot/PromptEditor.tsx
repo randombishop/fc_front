@@ -15,37 +15,11 @@ import { AppContext } from '../../AppContext';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 
-interface ChannelInfo {
-  id: string;
-  name: string;
-}
-
-interface Prompt {
-  id: string;
-  name: string;
-  min_hours: number;
-  min_activity: number;
-  channel: string;
-  prompt: string;
-}
-
-interface PromptEditorProps {
-  prompt: Prompt;
-  channels: ChannelInfo[];
-  onClose: () => void;
-  isNew: boolean;
-}
-
-interface PromptEditorState {
-  editedPrompt: Prompt;
-  saving: boolean;
-}
-
-class PromptEditor extends React.Component<PromptEditorProps, PromptEditorState> {
+class PromptEditor extends React.Component<any, any> {
   static contextType = AppContext;
   context!: React.ContextType<typeof AppContext>;
 
-  constructor(props: PromptEditorProps) {
+  constructor(props: any) {
     super(props);
     this.state = {
       editedPrompt: { ...props.prompt },
@@ -53,8 +27,8 @@ class PromptEditor extends React.Component<PromptEditorProps, PromptEditorState>
     };
   }
 
-  handleChange = (field: keyof Prompt) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState(prevState => ({
+  handleChange = (field: string) => (event: any) => {
+    this.setState((prevState: any) => ({
       editedPrompt: {
         ...prevState.editedPrompt,
         [field]: event.target.value
@@ -63,19 +37,19 @@ class PromptEditor extends React.Component<PromptEditorProps, PromptEditorState>
   };
 
   handleSave = () => {
-    this.setState({ saving: true });
-    const endpoint = this.props.isNew ? '/bot/create_prompt' : '/bot/update_prompt';
-    this.context.backendPOST(endpoint, this.state.editedPrompt, (data: any) => {
-      this.setState({ saving: false });
-      if (data.error) {
-        this.context.newAlert({type: 'error', message: data.error});
-      } else {
-        this.context.newAlert({
-          type: 'success', 
-          message: `Prompt ${this.props.isNew ? 'created' : 'updated'} successfully`
-        });
-        this.props.onClose();
-      }
+    this.setState({ saving: true }, () => {
+      this.context.backendPOST('/bot/prompt/save', this.state.editedPrompt, (data: any) => {
+        this.setState({ saving: false });
+        if (data.error) {
+          this.context.newAlert({type: 'error', message: data.error});
+        } else {
+          this.context.newAlert({
+            type: 'success', 
+            message: `Prompt ${this.props.isNew ? 'created' : 'updated'}`
+          });
+          this.props.onClose();
+        }
+      });
     });
   };
 
@@ -106,7 +80,7 @@ class PromptEditor extends React.Component<PromptEditorProps, PromptEditorState>
               <InputLabel>Channel</InputLabel>
               <Select
                 value={editedPrompt.channel}
-                onChange={(e) => this.setState(prevState => ({
+                onChange={(e: any) => this.setState((prevState: any) => ({
                   editedPrompt: {
                     ...prevState.editedPrompt,
                     channel: e.target.value
@@ -115,7 +89,7 @@ class PromptEditor extends React.Component<PromptEditorProps, PromptEditorState>
                 label="Channel"
               >
                 <MenuItem value="#Autopilot#">Autopilot</MenuItem>
-                {channels.map(channel => (
+                {channels.map((channel: any) => (
                   <MenuItem key={channel.id} value={channel.id}>
                     {channel.name}
                   </MenuItem>
