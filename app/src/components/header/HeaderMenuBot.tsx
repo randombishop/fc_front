@@ -6,6 +6,7 @@ const HeaderMenuBot = (props:any) => {
     const botUrl = '#/bot/test';
     const botActivate = '#/bot/activate';
     const botCharacter = '#/bot/character';
+    const botChannels = '#/bot/channels';
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -35,7 +36,8 @@ const HeaderMenuBot = (props:any) => {
                 }}
             >
                 <MenuItem component="a" href={botActivate} onClick={handleClose}>Activate</MenuItem>
-                <MenuItem component="a" href={botCharacter} onClick={handleClose}>Charcater</MenuItem>
+                <MenuItem component="a" href={botCharacter} onClick={handleClose}>Character</MenuItem>
+                <MenuItem component="a" href={botChannels} onClick={handleClose}>Channels</MenuItem>
                 <MenuItem component="a" href={botUrl} onClick={handleClose}>Test Actions</MenuItem>
             </Menu>
         </div>

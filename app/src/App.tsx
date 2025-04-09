@@ -16,7 +16,7 @@ import Clusters from './components/clusters/Clusters';
 import BotTest from './components/bot/BotTest';
 import BotActivate from './components/bot/BotActivate';
 import BotCharacter from './components/bot/BotCharacter';
-
+import BotChannels from './components/bot/BotChannels';
 
 
 const farcasterConfig = {
@@ -47,6 +47,7 @@ class App extends React.Component {
                 <Route path="/insights/like-meter/:token" Component={LikeMeter} />  
                 <Route path="/bot/activate" Component={BotActivate} />                              
                 <Route path="/bot/character" Component={BotCharacter} />
+                <Route path="/bot/channels" Component={BotChannels} />
                 <Route path="/bot/test" Component={BotTest} />
               </Routes>
               <Box sx={{ flexGrow: 1 }} />
