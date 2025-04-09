@@ -7,6 +7,8 @@ const HeaderMenuBot = (props:any) => {
     const botActivate = '#/bot/activate';
     const botCharacter = '#/bot/character';
     const botChannels = '#/bot/channels';
+    const botPrompts = '#/bot/prompts';
+    const botAutorespond = '#/bot/autorespond';
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
@@ -38,6 +40,8 @@ const HeaderMenuBot = (props:any) => {
                 <MenuItem component="a" href={botActivate} onClick={handleClose}>Activate</MenuItem>
                 <MenuItem component="a" href={botCharacter} onClick={handleClose}>Character</MenuItem>
                 <MenuItem component="a" href={botChannels} onClick={handleClose}>Channels</MenuItem>
+                <MenuItem component="a" href={botPrompts} onClick={handleClose}>Prompts</MenuItem>
+                <MenuItem component="a" href={botAutorespond} onClick={handleClose}>Autorespond</MenuItem>
                 <MenuItem component="a" href={botUrl} onClick={handleClose}>Test Actions</MenuItem>
             </Menu>
         </div>

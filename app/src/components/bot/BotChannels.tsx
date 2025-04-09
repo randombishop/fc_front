@@ -29,7 +29,7 @@ class BotChannels1 extends React.Component {
   static contextType = AppContext;
 
   state = {
-    channelMap: {} as ChannelMap,
+    channelMap: null as ChannelMap | null,
     channels: null as string[] | null,
     editedChannels: null as string[] | null,
     saving: false
@@ -95,6 +95,9 @@ class BotChannels1 extends React.Component {
 
   renderEditor = () => {
     const { channelMap, editedChannels, channels } = this.state;
+    if (!channelMap) {
+      return null;
+    }
     const isDirty = JSON.stringify(editedChannels) !== JSON.stringify(channels);
     const availableChannelIds = Object.keys(channelMap).filter(
       id => !editedChannels?.includes(id)
@@ -148,7 +151,7 @@ class BotChannels1 extends React.Component {
   }
 
   renderPage = () => {
-    if (this.state.channels) {
+    if (this.state.channelMap && this.state.channels) {
       return this.renderEditor();
     } else {
       return <Loading />;
