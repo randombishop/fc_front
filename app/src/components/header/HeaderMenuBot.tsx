@@ -42,7 +42,7 @@ const HeaderMenuBot = (props:any) => {
                 <MenuItem component="a" href={botChannels} onClick={handleClose}>Channels</MenuItem>
                 <MenuItem component="a" href={botPrompts} onClick={handleClose}>Prompts</MenuItem>
                 <MenuItem component="a" href={botAutorespond} onClick={handleClose}>Autorespond</MenuItem>
-                <MenuItem component="a" href={botUrl} onClick={handleClose}>Test Actions</MenuItem>
+                <MenuItem component="a" href={botUrl} onClick={handleClose}>Test</MenuItem>
             </Menu>
         </div>
     );

@@ -3,13 +3,17 @@ import {
   Container, 
   Box, 
   Stack,
-  List,
-  ListItem,
-  ListItemText,
   IconButton,
   Typography,
   Paper,
-  Button
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Tooltip
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -121,41 +125,56 @@ class BotPrompts1 extends React.Component {
             </Button>
           </Box>
           
-          <Paper elevation={2}>
-            <List>
-              {prompts.map((prompt: Prompt) => (
-                <ListItem
-                  key={prompt.id}
-                  secondaryAction={
-                    <Box>
-                      <IconButton edge="end" onClick={() => this.handleEdit(prompt)}>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>
+                    <Tooltip title="Short name to reference a prompt">
+                      <Typography>Name</Typography>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title="The channel where this prompt will be used. Autopilot means the bot will automatically select a channel.">
+                      <Typography>Channel</Typography>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title="Minimum hours that must pass before a prompt can be used again">
+                      <Typography>Min Hours</Typography>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title="Minimum number of casts in the channel before this prompt can be used again">
+                      <Typography>Min Activity</Typography>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {prompts.map((prompt: Prompt) => (
+                  <TableRow key={prompt.id}>
+                    <TableCell>{prompt.name}</TableCell>
+                    <TableCell>
+                      {prompt.channel === '#Autopilot#' ? 'Autopilot' : 
+                        channels.find(c => c.id === prompt.channel)?.name || 'Unknown'}
+                    </TableCell>
+                    <TableCell>{prompt.min_hours}</TableCell>
+                    <TableCell>{prompt.min_activity}</TableCell>
+                    <TableCell align="right">
+                      <IconButton onClick={() => this.handleEdit(prompt)}>
                         <EditIcon />
                       </IconButton>
-                      <IconButton edge="end" onClick={() => this.deletePrompt(prompt)}>
+                      <IconButton onClick={() => this.deletePrompt(prompt)}>
                         <DeleteIcon />
                       </IconButton>
-                    </Box>
-                  }
-                >
-                  <ListItemText
-                    primary={prompt.name}
-                    secondary={
-                      <>
-                        <Typography component="span" variant="body2">
-                          Channel: {prompt.channel === '#Autopilot#' ? 'Autopilot' : 
-                            channels.find(c => c.id === prompt.channel)?.name || 'Unknown'}
-                        </Typography>
-                        <br />
-                        <Typography component="span" variant="body2">
-                          Min Hours: {prompt.min_hours} | Min Activity: {prompt.min_activity}
-                        </Typography>
-                      </>
-                    }
-                  />
-                </ListItem>
-              ))}
-            </List>
-          </Paper>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Stack>
       </Box>
     );
