@@ -18,6 +18,7 @@ import BotActivate from './components/bot/BotActivate';
 import BotCharacter from './components/bot/BotCharacter';
 import BotChannels from './components/bot/BotChannels';
 import BotPrompts from './components/bot/BotPrompts';
+import BotAutorespond from './components/bot/BotAutorespond';
 
 
 const farcasterConfig = {
@@ -50,6 +51,7 @@ class App extends React.Component {
                 <Route path="/bot/character" Component={BotCharacter} />
                 <Route path="/bot/channels" Component={BotChannels} />
                 <Route path="/bot/prompts" Component={BotPrompts} />
+                <Route path="/bot/autorespond" Component={BotAutorespond} />
                 <Route path="/bot/test" Component={BotTest} />
               </Routes>
               <Box sx={{ flexGrow: 1 }} />
