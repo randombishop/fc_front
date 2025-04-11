@@ -67,12 +67,12 @@ class BotStats1 extends React.Component {
                 <TableRow key={index}>
                   <TableCell>{row.prompt}</TableCell>
                   <TableCell>{row.channel}</TableCell>
-                  <TableCell align="right">{row.num_threads}</TableCell>
-                  <TableCell align="right">{row.num_casts}</TableCell>
-                  <TableCell align="right">{row.num_replies}</TableCell>
-                  <TableCell align="right">{row.num_likes}</TableCell>
-                  <TableCell align="right">{row.num_recasts}</TableCell>
-                  <TableCell align="right">{row.engagement}</TableCell>
+                  <TableCell align="right">{row.num_threads ? Number(row.num_threads).toFixed(1) : null}</TableCell>
+                  <TableCell align="right">{row.num_casts ? Number(row.num_casts).toFixed(1) : null}</TableCell>
+                  <TableCell align="right">{row.num_replies ? Number(row.num_replies).toFixed(1) : null}</TableCell>
+                  <TableCell align="right">{row.num_likes ? Number(row.num_likes).toFixed(1) : null}</TableCell>
+                  <TableCell align="right">{row.num_recasts ? Number(row.num_recasts).toFixed(1) : null}</TableCell>
+                  <TableCell align="right">{row.engagement ? Number(row.engagement).toFixed(1) : null}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
