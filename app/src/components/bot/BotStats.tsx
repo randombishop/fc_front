@@ -57,13 +57,15 @@ class BotStats1 extends React.Component {
       const casts_map:any = {};
       for (const cast of data) {
         const prompt_id = cast.action_id;
-        if (!casts_map[prompt_id]) {
-          casts_map[prompt_id] = []
+        const channel_id = cast.action_channel;
+        const cast_key = prompt_id + '/' + channel_id;
+        if (!casts_map[cast_key]) {
+          casts_map[cast_key] = []
         }
-        casts_map[prompt_id].push(cast);
+        casts_map[cast_key].push(cast);
       }
-      for (const prompt_id in casts_map) {
-        casts_map[prompt_id].sort((a:any, b:any) => new Date(b.casted_at).getTime() - new Date(a.casted_at).getTime());
+      for (const k in casts_map) {
+        casts_map[k].sort((a:any, b:any) => new Date(b.casted_at).getTime() - new Date(a.casted_at).getTime());
       }
       this.setState({ casts: casts_map });
     });
@@ -119,8 +121,10 @@ class BotStats1 extends React.Component {
     for (const prompt of stats) {
       ans.push(this.renderPromptRow(key, prompt));
       key += 1 ;
-      if (prompt.showChildren && casts && casts[prompt.id] && casts[prompt.id].length > 0) {
-        for (const cast of casts[prompt.id]) {
+      const cast_key = `${prompt.id}/${prompt.channel}`;
+      const cast_list = casts ? casts[cast_key] : null;
+      if (prompt.showChildren && cast_list && cast_list.length > 0) {
+        for (const cast of cast_list) {
           ans.push(this.renderCastRow(key, cast));
           key += 1 ;
         }
