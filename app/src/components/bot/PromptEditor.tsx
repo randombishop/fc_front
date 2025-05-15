@@ -9,7 +9,9 @@ import {
   MenuItem,
   IconButton,
   Typography,
-  Paper
+  Paper,
+  FormControlLabel,
+  Checkbox
 } from '@mui/material';
 import { AppContext } from '../../AppContext';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -120,6 +122,21 @@ class PromptEditor extends React.Component<any, any> {
               value={editedPrompt.prompt}
               onChange={this.handleChange('prompt')}
               fullWidth
+            />
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={editedPrompt.active}
+                  onChange={(e: any) => this.setState((prevState: any) => ({
+                    editedPrompt: {
+                      ...prevState.editedPrompt,
+                      active: e.target.checked
+                    }
+                  }))}
+                />
+              }
+              label="Active"
             />
 
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}>

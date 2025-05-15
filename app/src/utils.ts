@@ -597,6 +597,20 @@ function quickHull(points:any[]):any[] {
             ...lowerHull.map(p=>({x:p.x, y:p.y}))] ;
 }
 
+function convertDateToTimeAgo(dateIso:string) {
+  const date = new Date(dateIso);
+  const now = new Date();
+  const diffMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffMinutes / (24 * 60));
+  if (diffHours < 1) {
+    return `${diffMinutes} minutes ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hours ago`;
+  } else {
+    return `${diffDays} days ago`;
+  }
+}
 
 export { 
   castCategories,
@@ -631,5 +645,6 @@ export {
   getLinkDirection,
   getLinkType,
   shortestPaths,
-  quickHull
+  quickHull,
+  convertDateToTimeAgo
 } ;

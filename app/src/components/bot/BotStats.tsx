@@ -10,22 +10,38 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Tooltip
+  Tooltip,
+  Link,
+  IconButton
 } from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import { AppContext } from '../../AppContext';
 import Loading from '../common/Loading';
 import RequireSignIn from '../common/RequireSignIn';
+import { convertDateToTimeAgo } from '../../utils';
 
 
 class BotStats1 extends React.Component {
   static contextType = AppContext;
 
   state = {
-    stats: null as any[] | null
+    user: null as any | null,
+    stats: null as any[] | null,
+    casts: null as any | null
   };
 
   componentDidMount = () => {
+    this.loadUserData();
     this.loadStats();
+    this.loadCasts();
+  }
+
+  loadUserData = () => {
+    const context:any = this.context ;
+    context.backendGET('/profile/current_user', (data: any) => {
+      this.setState({ user: data });
+    });
   }
 
   loadStats() {
@@ -33,6 +49,84 @@ class BotStats1 extends React.Component {
     context.backendGET('/bot/stats', (data: any) => {
       this.setState({ stats: data });
     });
+  }
+
+  loadCasts() {
+    const context:any = this.context;
+    context.backendGET('/bot/casts', (data: any) => {
+      const casts_map:any = {};
+      for (const cast of data) {
+        const prompt_id = cast.action_id;
+        if (!casts_map[prompt_id]) {
+          casts_map[prompt_id] = []
+        }
+        casts_map[prompt_id].push(cast);
+      }
+      for (const prompt_id in casts_map) {
+        casts_map[prompt_id].sort((a:any, b:any) => new Date(b.casted_at).getTime() - new Date(a.casted_at).getTime());
+      }
+      this.setState({ casts: casts_map });
+    });
+  }
+
+  toggleShowChildren = (row: any) => () => {
+    if (!this.state.stats) return ;
+    row.showChildren = !row.showChildren ;
+    const stats:any = [...this.state.stats] ;
+    this.setState({ stats: stats });
+  }
+
+  renderPromptRow = (key: number, row: any) => {
+    return (
+      <TableRow key={key}>
+        <TableCell>
+          <IconButton onClick={this.toggleShowChildren(row)}>
+            {row.showChildren ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell>{row.prompt}</TableCell>
+        <TableCell>{row.channel}</TableCell>
+        <TableCell align="right">{row.num_threads ? Number(row.num_threads).toFixed(1) : null}</TableCell>
+        <TableCell align="right">{row.num_casts ? Number(row.num_casts).toFixed(1) : null}</TableCell>
+        <TableCell align="right">{row.num_replies ? Number(row.num_replies).toFixed(1) : null}</TableCell>
+        <TableCell align="right">{row.num_likes ? Number(row.num_likes).toFixed(1) : null}</TableCell>
+        <TableCell align="right">{row.num_recasts ? Number(row.num_recasts).toFixed(1) : null}</TableCell>
+        <TableCell align="right">{row.engagement ? Number(row.engagement).toFixed(1) : null}</TableCell>
+      </TableRow>
+    )
+  }
+
+  renderCastRow = (key: number, row: any) => {
+    const userName = this.state.user?.user_name ;
+    const timeAgo = convertDateToTimeAgo(row.casted_at);
+    const href = `https://warpcast.com/${userName}/0x${row.cast_hash.slice(0, 8)}`;
+    return (
+      <TableRow key={key}>
+        <TableCell colSpan={5} align="right"><Link target="_blank" href={href}>Posted {timeAgo}</Link></TableCell>
+        <TableCell align="right">{row.num_replies ? Number(row.num_replies).toFixed(1) : null}</TableCell>
+        <TableCell align="right">{row.num_likes ? Number(row.num_likes).toFixed(1) : null}</TableCell>
+        <TableCell align="right">{row.num_recasts ? Number(row.num_recasts).toFixed(1) : null}</TableCell>
+        <TableCell align="right">{row.engagement ? Number(row.engagement).toFixed(1) : null}</TableCell>
+      </TableRow>
+    )
+  }
+
+  renderRows = () => {
+    const { stats, casts } = this.state;
+    if (!stats) return null;
+    const ans:any[] = [] ;
+    let key:number = 0 ;
+    for (const prompt of stats) {
+      ans.push(this.renderPromptRow(key, prompt));
+      key += 1 ;
+      if (prompt.showChildren && casts && casts[prompt.id] && casts[prompt.id].length > 0) {
+        for (const cast of casts[prompt.id]) {
+          ans.push(this.renderCastRow(key, cast));
+          key += 1 ;
+        }
+      }
+    }
+    return ans ;
   }
 
   renderList = () => {
@@ -48,6 +142,7 @@ class BotStats1 extends React.Component {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell> </TableCell>
                 <TableCell>Prompt</TableCell>
                 <TableCell>Channel</TableCell>
                 <TableCell align="right">Threads</TableCell>
@@ -63,18 +158,7 @@ class BotStats1 extends React.Component {
               </TableRow>
             </TableHead>
             <TableBody>
-              {stats.map((row, index) => (
-                <TableRow key={index}>
-                  <TableCell>{row.prompt}</TableCell>
-                  <TableCell>{row.channel}</TableCell>
-                  <TableCell align="right">{row.num_threads ? Number(row.num_threads).toFixed(1) : null}</TableCell>
-                  <TableCell align="right">{row.num_casts ? Number(row.num_casts).toFixed(1) : null}</TableCell>
-                  <TableCell align="right">{row.num_replies ? Number(row.num_replies).toFixed(1) : null}</TableCell>
-                  <TableCell align="right">{row.num_likes ? Number(row.num_likes).toFixed(1) : null}</TableCell>
-                  <TableCell align="right">{row.num_recasts ? Number(row.num_recasts).toFixed(1) : null}</TableCell>
-                  <TableCell align="right">{row.engagement ? Number(row.engagement).toFixed(1) : null}</TableCell>
-                </TableRow>
-              ))}
+              {this.renderRows()}
             </TableBody>
           </Table>
         </TableContainer>

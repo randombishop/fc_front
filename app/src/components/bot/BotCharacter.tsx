@@ -74,14 +74,6 @@ class BotCharacter1 extends React.Component {
     this.setState({ currentTab: newValue });
   }
 
-  handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const editedCharacter = { ...this.state.editedCharacter };
-    editedCharacter.name = event.target.value;
-    this.setState({ 
-      editedCharacter
-    });
-  }
-
   handleContentUpdate = (updatedCharacter: any) => {
     this.setState({ 
       editedCharacter: updatedCharacter
@@ -99,7 +91,7 @@ class BotCharacter1 extends React.Component {
             label="Bot Name"
             variant="outlined"
             value={editedCharacter.name}
-            onChange={this.handleNameChange}
+            disabled={true}
             sx={{ maxWidth: 400 }}
           />
         </Box>

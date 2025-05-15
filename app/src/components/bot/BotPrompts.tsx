@@ -18,6 +18,8 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { AppContext } from '../../AppContext';
 import Loading from '../common/Loading';
 import HelpBox from './tabs/HelpBox';
@@ -37,6 +39,7 @@ interface Prompt {
   min_activity: number;
   channel: string;
   prompt: string;
+  active: boolean;
 }
 
 class BotPrompts1 extends React.Component {
@@ -103,7 +106,8 @@ class BotPrompts1 extends React.Component {
       min_hours: 24,
       min_activity: 10,
       channel: '#Autopilot#',
-      prompt: ''
+      prompt: '',
+      active: false
     };
     this.setState({ editingPrompt: newPrompt });
   };
@@ -149,6 +153,9 @@ class BotPrompts1 extends React.Component {
                       <Typography>Min Activity</Typography>
                     </Tooltip>
                   </TableCell>
+                  <TableCell align="center">
+                    <Typography>Enabled</Typography>
+                  </TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -162,6 +169,13 @@ class BotPrompts1 extends React.Component {
                     </TableCell>
                     <TableCell>{prompt.min_hours}</TableCell>
                     <TableCell>{prompt.min_activity}</TableCell>
+                    <TableCell align="center">
+                      {prompt.active ? (
+                        <CheckCircleIcon sx={{ color: 'success.main' }} />
+                      ) : (
+                        <CancelIcon sx={{ color: 'error.main' }} />
+                      )}
+                    </TableCell>
                     <TableCell align="right">
                       <IconButton onClick={() => this.handleEdit(prompt)}>
                         <EditIcon />
